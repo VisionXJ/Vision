@@ -39,9 +39,7 @@ package cn.vision.utils
 		{
 			initializeFuncs();
 			$type = $type || String;
-			return ($type) 
-				? ((FUNCS[$type] == undefined) ? $type($value) : FUNCS[$type]($value)) 
-				: null;
+			return ($type) ? ((FUNCS[$type] == undefined) ? $type($value) : FUNCS[$type]($value)) : null;
 		}
 		
 		
@@ -84,15 +82,6 @@ package cn.vision.utils
 			}
 		}
 		
-		/**
-		 * @private
-		 */
-		private static function validateMetadata($type:String):Boolean
-		{
-			return $type == "String" || $type == "Boolean" || 
-				$type == "uint" || $type == "int" || $type == "Number";
-		}
-		
 		
 		/**
 		 * 
@@ -107,6 +96,16 @@ package cn.vision.utils
 		public static function validate($value:String):Boolean
 		{
 			return $value.charAt(0) == "<";
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		private static function validateMetadata($type:String):Boolean
+		{
+			return $type == "String" || $type == "Boolean" || 
+				$type == "uint" || $type == "int" || $type == "Number";
 		}
 		
 		
@@ -157,7 +156,6 @@ package cn.vision.utils
 					}
 				}
 			}
-			
 			return r;
 		}
 		
@@ -194,11 +192,15 @@ package cn.vision.utils
 				{
 					xml = $value;
 				}
-				else
+				else if ($value is String)
 				{
 					try {
 						xml = XML($value);
 					} catch (e:Error) { }
+				}
+				else
+				{
+					
 				}
 			}
 			return xml;

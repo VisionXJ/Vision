@@ -28,9 +28,9 @@ package cn.vision.utils
 		/**
 		 * 
 		 * 复制一个对象。<br>
-		 * 注意：该方法只能复制$source的类型，和Boolean, Number, uint, int, String元数据类型，
-		 * 如果$source的属性中包含其他不属于Object类型的属性，会把属性转换为Object类型；
-		 * 如果$source是显示对象，只会复制当前显示对象，不会复制该显示对象的绘图与子元素。
+		 * 注意：该方法只能复制$value的类型，和Boolean, Number, uint, int, String元数据类型，
+		 * 如果$value的属性中包含其他不属于Object类型的属性，会把属性转换为Object类型；
+		 * 如果$value是显示对象，只会复制当前显示对象，不会复制该显示对象的绘图与子元素。
 		 * 
 		 * @param $value:* 要复制的对象。
 		 * 
@@ -58,6 +58,29 @@ package cn.vision.utils
 				result = copier.readObject();
 			}
 			return result;
+		}
+		
+		
+		/**
+		 * 
+		 * 转换XML
+		 * 
+		 * @param $value:* 需要转换的Object实例。
+		 * @param $name:String XML节点名称。
+		 * 
+		 * @return XML 转换后的XML。
+		 * 
+		 */
+		
+		public static function convertXML($value:Object, $name:String):XML
+		{
+			$name = $name || "xml";
+			var xml:XML = new XML("<" + $name + "/>");
+			for (var key:String in $value) 
+			{
+				xml[key] = $value[key];
+			}
+			return xml;
 		}
 		
 		
