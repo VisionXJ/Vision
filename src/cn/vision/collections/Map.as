@@ -45,6 +45,21 @@ package cn.vision.collections
 		
 		/**
 		 * 
+		 * 清空字典。
+		 * 
+		 */
+		
+		public function clear():void
+		{
+			itemObject = {};
+			itemNameArray = [];
+			nameIndexObject = {};
+			itemIndexDictionary = new Dictionary;
+		}
+		
+		
+		/**
+		 * 
 		 * 对自身的一个拷贝。
 		 * 
 		 */
@@ -65,10 +80,7 @@ package cn.vision.collections
 			vs::className = ClassUtil.getClassName(this);
 			vs::id = IDUtil.generateID();
 			
-			itemObject          = {};
-			itemNameArray       = [];
-			nameIndexObject     = {};
-			itemIndexDictionary = new Dictionary;
+			clear();
 		}
 		
 		

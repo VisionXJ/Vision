@@ -125,7 +125,7 @@ package cn.vision.utils
 			if ($value is XMLList)
 			{
 				var r:* = [];
-				for each (var i:XML in $value)
+				for each (var i:* in $value)
 					r[r.length] = convertObject(i);
 			}
 			else if ($value is XML)
@@ -134,7 +134,7 @@ package cn.vision.utils
 				var at:XMLList = $value.attributes();
 				var l1:uint = ls.length();
 				
-				if (l1 <= 1 && at.length() == 0)
+				if (l1 < 1 && at.length() == 0)
 				{
 					r = String($value);
 				}
@@ -144,15 +144,12 @@ package cn.vision.utils
 					for each (i in at)
 						r["@" + i.name()]= i.toString();
 					
-					if (ls.length() > 0)
+					for each(i in ls) 
 					{
-						for each(i in ls) 
-						{
-							var o:* = convertObject(i);
-							var n:String = i.name();
-							var t:* = r[n];
-							t ? (t is Array ? t[t.length] = o : r[n] = [t,o]) : r[n] = o;
-						}
+						var n:String = i.name();
+						var o:* = (i.children().length() <= 1) ? i.toString() : convertObject(i);
+						var t:* = r[n];
+						t ? (t is Array ? t[t.length] = o : r[n] = [t,o]) : r[n] = o;
 					}
 				}
 			}
