@@ -46,7 +46,7 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 将数组内某个元素设置新的索引位置。
+		 * 移动数组内某个元素设置新的索引位置。
 		 * 
 		 * @param $array:* Array或Vector。
 		 * @param $current:uint 当前要移动的索引。
