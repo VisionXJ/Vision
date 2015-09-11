@@ -52,9 +52,10 @@ package cn.vision.collections
 		public function clear():void
 		{
 			itemObject = {};
-			itemNameArray = [];
+			itemNameArray.length = 0;
 			nameIndexObject = {};
 			itemIndexDictionary = new Dictionary;
+			vs::length = 0;
 		}
 		
 		
@@ -80,7 +81,10 @@ package cn.vision.collections
 			vs::className = ClassUtil.getClassName(this);
 			vs::id = IDUtil.generateID();
 			
-			clear();
+			itemObject = {};
+			itemNameArray = [];
+			nameIndexObject = {};
+			itemIndexDictionary = new Dictionary;
 		}
 		
 		
@@ -120,7 +124,7 @@ package cn.vision.collections
 			//defines some variables
 			var order:int;
 			//check if itemObject[$name] exists
-			if (itemObject[$name]) 
+			if (itemObject[$name] != undefined) 
 			{
 				//subtract length.
 				vs::length -= 1;
@@ -154,7 +158,7 @@ package cn.vision.collections
 				//delete index record from nameIndexObject.
 				delete nameIndexObject[$name];
 				//subtract 1 for all records from index
-				for (var i:int=index;i<length;i++) 
+				for (var i:int = index; i < length; i++) 
 				{
 					//name of current element
 					var name:String = itemNameArray[i];
@@ -364,10 +368,8 @@ package cn.vision.collections
 					//indexObj exist, then store the new index to indexObj, 
 					//or make an array to store
 					if (indexObj is Array) 
-						//indexObj is array
 						indexObj.push(index);
 					else
-						//indexObj is uint
 						itemIndexDictionary[$value] = [indexObj, index];
 				}
 				//store the name of value in array order by index

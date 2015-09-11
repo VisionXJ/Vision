@@ -191,7 +191,7 @@ package cn.vision.utils.math
 			ArrayUtil.push(points, $start);
 			for each (var item:* in $args) 
 			{
-				if (!(item is Point))
+				if (!(item is Vector3D))
 					throw new ArgumentError("参数必须是Point类型实例！", 3002);
 				else
 					ArrayUtil.push(points, item);
