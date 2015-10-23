@@ -33,7 +33,7 @@ package cn.vision.events
 		 * 
 		 */
 		
-		public function StateEvent($type:String, $stateOld:State, $stateNew:State, $bubbles:Boolean = false, $cancelable:Boolean = false)
+		public function StateEvent($type:String, $stateOld:String, $stateNew:String, $bubbles:Boolean = false, $cancelable:Boolean = false)
 		{
 			super($type, $bubbles, $cancelable);
 			
@@ -44,7 +44,7 @@ package cn.vision.events
 		/**
 		 * @private
 		 */
-		private function initialize($stateOld:State, $stateNew:State):void
+		private function initialize($stateOld:String, $stateNew:String):void
 		{
 			vs::stateOld = $stateOld;
 			vs::stateNew = $stateNew;
@@ -57,7 +57,7 @@ package cn.vision.events
 		 * 
 		 */
 		
-		public function get stateOld():State
+		public function get stateOld():String
 		{
 			return vs::stateOld;
 		}
@@ -68,7 +68,7 @@ package cn.vision.events
 		 * 
 		 */
 		
-		public function get stateNew():State
+		public function get stateNew():String
 		{
 			return vs::stateNew;
 		}
@@ -76,12 +76,12 @@ package cn.vision.events
 		/**
 		 * @private
 		 */
-		vs var stateOld:State;
+		vs var stateOld:String;
 		
 		/**
 		 * @private
 		 */
-		vs var stateNew:State;
+		vs var stateNew:String;
 		
 		
 		/**

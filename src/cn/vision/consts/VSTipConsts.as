@@ -8,10 +8,7 @@ package cn.vision.consts
 	 */
 	
 	
-	import cn.vision.core.NoInstance;
-	
-	
-	public final class VSTipConsts extends NoInstance
+	public final class VSTipConsts extends Consts
 	{
 		
 		/**

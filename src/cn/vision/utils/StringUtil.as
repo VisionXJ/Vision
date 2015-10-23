@@ -41,19 +41,29 @@ package cn.vision.utils
 		 * 
 		 * 格式化uint，如果长度不足，会在前面补0。
 		 * 
+		 * @param $value:uint 要格式化的数值。
+		 * @param $length:uint (default = 1) 格式化长度，最多支持10位。
+		 * 
+		 * @return String 格式化数值字符串。
+		 * 
 		 */
 		
 		public static function formatUint($value:uint, $length:uint = 1):String
 		{
-			$length = Math.max(1, $length);
+			$length = MathUtil.clamp($length, 1, 10);
 			var result:String = $value.toString();
 			while(result.length < $length) result = "0" + result;
 			return result;
 		}
 		
+		
 		/**
 		 * 
 		 * 转换任意Object为String。
+		 * 
+		 * @param $value:Object 要转换的Object。
+		 * 
+		 * @return String 转换后的String。
 		 * 
 		 */
 		
@@ -67,11 +77,15 @@ package cn.vision.utils
 		 * 
 		 * 验证字符串是否为空。
 		 * 
+		 * @param 要验证的字符串。
+		 * 
+		 * @return Boolean true为空，false为非空。
+		 * 
 		 */
 		
 		public static function isEmpty($value:String):Boolean
 		{
-			return ! ($value && $value != "");
+			return !($value && $value != "");
 		}
 		
 		

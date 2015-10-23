@@ -23,15 +23,15 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 确定两个指定点之间的点。参数 f 确定新的内插点相对于参数 pt1 和 pt2 
-		 * 指定的两个端点所处的位置。参数 f 的值越接近 1.0，则内插点就越接近第
-		 * 一个点（参数 pt1）。参数 f 的值越接近 0，则内插点就越接近第二个点（
-		 * 参数 pt2）。
+		 * 确定两个指定点之间的点。参数 f 确定新的内插点相对于参数 pt1 和 pt2 指定的两个端点所处的位置。
+		 * 参数 f 的值越接近 1，则内插点就越接近第一个点（参数 pt1）。
+		 * 参数 f 的值越接近 0，则内插点就越接近第二个点（参数 pt2）。
 		 * 
 		 * @param $pt1:Vector3D 第一个点。
 		 * @param $pt1:Vector3D 第二个点。
-		 * @param $f:Number 两个点之间的内插级别。表示新点将位于 pt1 和 pt2 
-		 * 连成的直线上的什么位置。如果 f=1，则返回 pt1；如果 f=0，则返回 pt2。
+		 * @param $f:Number 两个点之间的内插级别。
+		 * 表示新点将位于 pt1 和 pt2 连成的直线上的什么位置。
+		 * 如果 f=1，则返回 pt1；如果 f=0，则返回 pt2。
 		 * 
 		 * @return Vector3D 两点之间的点。
 		 * 
@@ -39,6 +39,7 @@ package cn.vision.utils
 		
 		public static function interpolate($pt1:Vector3D, $pt2:Vector3D, $f:Number):Vector3D
 		{
+			//$f = MathUtil.clamp($f, 0, 1);
 			var v:Vector3D = $pt1.subtract($pt2);
 			v.scaleBy($f);
 			return v.add($pt2);
@@ -46,7 +47,7 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 返回两个或多个 Vector3D 对象之间的距离。
+		 * 返回两个或多个 Vector3D 对象之间的距离，当有多个顶点时，计算每相邻的两个点之间的距离之和。
 		 * 
 		 * @param $pt1:Vector3D 第一个点。
 		 * @param $pt1:Vector3D 第二个点。

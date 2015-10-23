@@ -15,8 +15,6 @@ package cn.vision.pattern.core
 	
 	import cn.vision.core.VSObject;
 	import cn.vision.core.vs;
-	import cn.vision.utils.ClassUtil;
-	import cn.vision.utils.StringUtil;
 	
 	
 	public class State extends VSObject
@@ -37,12 +35,35 @@ package cn.vision.pattern.core
 		
 		
 		/**
+		 * 
+		 * 变量初始化。
+		 * 
+		 */
+		
+		protected function initializeVariables():void
+		{
+			vs::name = "state" + vid;
+		}
+		
+		
+		/**
+		 * 
+		 * 初始化完毕。
+		 * 
+		 */
+		
+		protected function initializeComplete():void { }
+		
+		
+		/**
 		 * 初始化操作。
 		 * @private
 		 */
 		private function initialize():void
 		{
-			vs::title = StringUtil.lowercaseInitials(className);
+			initializeVariables();
+			
+			initializeComplete();
 		}
 		
 		
@@ -72,19 +93,27 @@ package cn.vision.pattern.core
 		
 		/**
 		 * 
-		 * 状态的标题，每种类的状态标题应该唯一。
+		 * 状态的名称。
 		 * 
 		 */
-		public function get title():String
+		public function get name():String
 		{
-			return vs::title;
+			return vs::name;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set name($value:String):void
+		{
+			vs::name = $value;
 		}
 		
 		
 		/**
 		 * @private
 		 */
-		vs var title:String;
+		vs var name:String;
 		
 	}
 }

@@ -187,7 +187,7 @@ package cn.vision.utils.math
 		
 		public static function getBezierVector3Ds($start:Vector3D, $end:Vector3D, $seg:Number = .1, $side:Boolean = false, ...$args):Vector.<Vector3D>
 		{
-			var points:Vector.<Vector3D> = new Vector.<Vector3D>;
+			const points:Vector.<Vector3D> = new Vector.<Vector3D>;
 			ArrayUtil.push(points, $start);
 			for each (var item:* in $args) 
 			{
@@ -219,8 +219,8 @@ package cn.vision.utils.math
 			while ($points.length > 1)
 			{
 				var temp:Vector.<Point> = new Vector.<Point>;
-				const l:int = $points.length - 1;
 				var i:uint = 0;
+				const l:int = $points.length - 1;
 				while (i < l)
 				{
 					temp[i] = Point.interpolate($points[i + 1], $points[i], $per);
@@ -239,8 +239,8 @@ package cn.vision.utils.math
 			while ($points.length > 1)
 			{
 				var temp:Vector.<Vector3D> = new Vector.<Vector3D>;
-				var l:int = $points.length - 1;
 				var i:uint = 0;
+				const l:int = $points.length - 1;
 				while (i < l)
 				{
 					temp[i] = Vector3DUtil.interpolate($points[i + 1], $points[i], $per);

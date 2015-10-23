@@ -25,6 +25,22 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 计算并返回由参数 $value 指定的数字的绝对值。
+		 * 
+		 * @param $value 要返回绝对值的数字。
+		 * 
+		 * @return Number 指定参数的绝对值。
+		 * 
+		 */
+		
+		public static function abs($value:Number):Number
+		{
+			return $value < 0 ? -$value : $value;
+		}
+		
+		
+		/**
+		 * 
 		 * 角度转弧度。
 		 * 
 		 * @param $angle:Number 角度。
@@ -96,6 +112,22 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 判断是否为偶数。
+		 * 
+		 * @param $value:int 判断的数值。
+		 * 
+		 * @return Boolean true为偶数，false为奇数。
+		 * 
+		 */
+		
+		public static function even($value:int):Boolean
+		{
+			return !($value & 1);
+		}
+		
+		
+		/**
+		 * 
 		 * 求以2为底的对数。
 		 * 
 		 * @param $value:Number
@@ -123,6 +155,23 @@ package cn.vision.utils
 		public static function log3($value:Number):Number
 		{
 			return Math.log($value) / MathConsts.LN3;
+		}
+		
+		
+		/**
+		 * 
+		 * 求余数
+		 * 
+		 * @param $numerator:int 分子。
+		 * @param $divisor:int 除数。
+		 * 
+		 * @return int 余数。
+		 * 
+		 */
+		
+		public static function modulo($numerator:int, $divisor:int):int
+		{
+			return $numerator & ($divisor - 1);
 		}
 		
 		

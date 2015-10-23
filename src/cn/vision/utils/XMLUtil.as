@@ -30,16 +30,18 @@ package cn.vision.utils
 		 * 
 		 * @param $value:* 要转换的XML或XMLList。
 		 * @param $type:Class (default = String) 目标类型。
+		 * @param $args 其他附加参数。
 		 * 
 		 * @return 返回目标类型。
 		 * 
 		 */
 		
-		public static function convert($value:*, $type:Class = null):*
+		public static function convert($value:*, $type:Class = null, ...$args):*
 		{
 			initializeFuncs();
 			$type = $type || String;
-			return ($type) ? ((FUNCS[$type] == undefined) ? $type($value) : FUNCS[$type]($value)) : null;
+			$args.unshift($value);
+			return ($type) ? ((FUNCS[$type] == undefined) ? $type($value) : FUNCS[$type].apply(null, $args)) : null;
 		}
 		
 		
@@ -65,7 +67,7 @@ package cn.vision.utils
 						var name:String = item.name().toString();
 						if (name) name = "@" + name;
 						if ($vo.hasOwnProperty(name) && $vo[name] != undefined && 
-							validateMetadata(type.accessor[name].type)) $vo[name] = item;
+							validateMetadataType(type.accessor[name].type)) $vo[name] = item;
 					}
 					list = $xml.children();
 					for each (item in list)
@@ -73,8 +75,8 @@ package cn.vision.utils
 						name = item.name().toString();
 						if ($vo.hasOwnProperty(name))
 						{
-							validateMetadata(type.accessor[name].type)
-								? $vo[name] = convert(item, getDefinitionByName(type.accessor[name].type) as Class)
+							validateMetadataType(type.accessor[name].type)
+								? $vo[name] = convert(item, ClassUtil.getClass(type.accessor[name].type))
 								: map(item, $vo[name]);
 						}
 					}
@@ -102,10 +104,13 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function validateMetadata($type:String):Boolean
+		private static function validateMetadataType($type:String):Boolean
 		{
-			return $type == "String" || $type == "Boolean" || 
-				$type == "uint" || $type == "int" || $type == "Number";
+			return $type == "String" || 
+					$type == "Boolean" || 
+					$type == "uint" || 
+					$type == "int" || 
+					$type == "Number";
 		}
 		
 		
@@ -114,7 +119,12 @@ package cn.vision.utils
 		 */
 		private static function convertBoolean($value:*):Boolean
 		{
-			return ! ($value == "0" || $value == "false" || $value == "False" || $value == false || $value == undefined);
+			return!($value == "0" || 
+					($value == "false") || 
+					($value == "False") || 
+					($value == 0) || 
+					($value == false) || 
+					($value == undefined));
 		}
 		
 		/**
@@ -167,7 +177,7 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertXML($value:*):XML
+		private static function convertXML($value:*, $name:String = "root"):XML
 		{
 			if ($value)
 			{
@@ -180,9 +190,8 @@ package cn.vision.utils
 					}
 					else if (l > 1)
 					{
-						xml = new XML("<root/>");
-						for each (var item:XML in $value)
-							xml.appendChild(item);
+						xml = new XML("<" + $name + "/>");
+						for each (var item:XML in $value) xml.appendChild(item);
 					}
 				}
 				else if ($value is XML)
@@ -197,7 +206,11 @@ package cn.vision.utils
 				}
 				else
 				{
-					
+					xml = new XML("<" + $name + "/>");
+					for (var key:String in $value) 
+					{
+						if (ClassUtil.validateMetadata($value[key])) xml[key] = $value[key];
+					}
 				}
 			}
 			return xml;

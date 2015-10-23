@@ -22,6 +22,7 @@ package cn.vision.system
 	import flash.events.IOErrorEvent;
 	import flash.filesystem.File;
 	
+	
 	public class VSFile extends File implements IID, IName
 	{
 		
@@ -36,8 +37,7 @@ package cn.vision.system
 		
 		public function VSFile($path:String = null)
 		{
-			addEventListener(IOErrorEvent.IO_ERROR, 
-				handlerIOError, true, 0, true);
+			addEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true, 0, true);
 			
 			super($path);
 			

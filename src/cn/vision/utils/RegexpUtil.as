@@ -1,7 +1,6 @@
 package cn.vision.utils
 {
 	
-	
 	/**
 	 * 
 	 * 正则表达式工具。
@@ -42,7 +41,7 @@ package cn.vision.utils
 					}
 					else
 					{
-						if ($meta.hasOwnProperty(p) && $meta[p] != null)
+						if ($meta.hasOwnProperty(p) || $meta[p] != undefined)
 							$target = $target.replace(i, $meta[p].toString());
 					}
 				}

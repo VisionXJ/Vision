@@ -13,12 +13,15 @@ package cn.vision.pattern.core
 	 */
 	
 	
+	import cn.vision.consts.state.CommandStateConsts;
 	import cn.vision.core.VSEventDispatcher;
 	import cn.vision.core.vs;
 	import cn.vision.events.StateEvent;
 	import cn.vision.events.pattern.CommandEvent;
 	import cn.vision.interfaces.IState;
-	import cn.vision.states.pattern.commands.*;
+	import cn.vision.pattern.data.Store;
+	import cn.vision.states.pattern.core.command.*;
+	import cn.vision.utils.StateUtil;
 	
 	
 	/**
@@ -53,7 +56,7 @@ package cn.vision.pattern.core
 		
 		/**
 		 * 
-		 * <code>Command</<code>构造函数。
+		 * 构造函数。
 		 * 
 		 */
 		
@@ -61,48 +64,7 @@ package cn.vision.pattern.core
 		{
 			super();
 			
-			initializeStates();
-		}
-		
-		
-		/**
-		 * 状态初始化。
-		 */
-		protected function initializeStates():void
-		{
-			commandStateIdle = new IdleCommandState;
-			commandStateRun  = new RunCommandState;
-			commandStateOff  = new OffCommandState;
-			
-			vs::state = commandStateIdle;
-		}
-		
-		
-		/**
-		 * 
-		 * 命令开始，发送命令开始事件。
-		 * 
-		 */
-		
-		protected function commandStart():void
-		{
-			vs::executing = true;
-			state = commandStateRun;
-			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_START, this));
-		}
-		
-		
-		/**
-		 * 
-		 * 命令结束，发送命令结束事件。
-		 * 
-		 */
-		
-		protected function commandEnd():void
-		{
-			vs::executing = false;
-			state = commandStateOff;
-			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_END, this));
+			initialize();
 		}
 		
 		
@@ -127,8 +89,89 @@ package cn.vision.pattern.core
 		public function execute():void
 		{
 			commandStart();
-			
 			commandEnd();
+		}
+		
+		
+		/**
+		 * 
+		 * 变量初始化。
+		 * 
+		 */
+		
+		protected function initializeVariables():void
+		{
+			vs::state = CommandStateConsts.INITIALIZE;
+			
+			stateStore = new Store;
+		}
+		
+		
+		/**
+		 * 
+		 * 状态初始化。
+		 * 
+		 */
+		
+		protected function initializeStates():void
+		{
+			stateStore.registData(CommandStateConsts.INITIALIZE, new CommandInitializeState);
+			stateStore.registData(CommandStateConsts.IDLE      , new CommandIdleState);
+			stateStore.registData(CommandStateConsts.RUNNING   , new CommandRunningState);
+			stateStore.registData(CommandStateConsts.FINISHED  , new CommandFinishedState);
+		}
+		
+		
+		/**
+		 * 
+		 * 初始化完毕。
+		 * 
+		 */
+		
+		protected function initializeComplete():void
+		{
+			state = CommandStateConsts.IDLE;
+		}
+		
+		
+		/**
+		 * 
+		 * 命令开始，发送命令开始事件。
+		 * 
+		 */
+		
+		protected function commandStart():void
+		{
+			vs::executing = true;
+			state = CommandStateConsts.RUNNING;
+			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_START, this));
+		}
+		
+		
+		/**
+		 * 
+		 * 命令结束，发送命令结束事件。
+		 * 
+		 */
+		
+		protected function commandEnd():void
+		{
+			vs::executing = false;
+			state = CommandStateConsts.FINISHED;
+			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_END, this));
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		private function initialize():void
+		{
+			initializeVariables();
+			
+			initializeStates();
+			
+			initializeComplete();
 		}
 		
 		
@@ -148,7 +191,7 @@ package cn.vision.pattern.core
 		 * @inheritDoc
 		 */
 		
-		public function get lastState():State
+		public function get lastState():String
 		{
 			return vs::lastState;
 		}
@@ -178,7 +221,7 @@ package cn.vision.pattern.core
 		 * @inheritDoc
 		 */
 		
-		public function get state():State
+		public function get state():String
 		{
 			return vs::state;
 		}
@@ -186,17 +229,15 @@ package cn.vision.pattern.core
 		/**
 		 * @private
 		 */
-		public function set state($value:State):void
+		public function set state($value:String):void
 		{
-			if (vs::state.title != $value.title)
+			if ($value != vs::state)
 			{
 				vs::lastState = vs::state;
 				vs::state = $value;
 				
-				if (vs::lastState) 
-					vs::lastState.freeze();
-				if (vs::state)
-					vs::state.active();
+				//冻结上一个状态并激活当前状态
+				StateUtil.vs::changeState(lastState, state, stateStore);
 				
 				dispatchEvent(new StateEvent(StateEvent.STATE_CHANGE, vs::lastState, vs::state));
 			}
@@ -204,30 +245,9 @@ package cn.vision.pattern.core
 		
 		
 		/**
-		 * 
-		 * 命令闲置时的状态。
-		 * 
+		 * @private
 		 */
-		
-		protected var commandStateIdle:State;
-		
-		
-		/**
-		 * 
-		 * 命令运行时的状态。
-		 * 
-		 */
-		
-		protected var commandStateRun :State;
-		
-		
-		/**
-		 * 
-		 * 命令运行完毕后的状态。
-		 * 
-		 */
-		
-		protected var commandStateOff :State;
+		protected var stateStore:Store;
 		
 		
 		/**
@@ -238,12 +258,12 @@ package cn.vision.pattern.core
 		/**
 		 * @private
 		 */
-		vs var lastState:State;
+		vs var lastState:String;
 		
 		/**
 		 * @private
 		 */
-		vs var state:State;
+		vs var state:String;
 		
 		/**
 		 * @private

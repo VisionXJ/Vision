@@ -17,6 +17,8 @@ package cn.vision.events.pattern
 	import cn.vision.core.vs;
 	import cn.vision.pattern.core.Command;
 	
+	import flash.events.Event;
+	
 	
 	public class QueueEvent extends VSEvent
 	{
@@ -36,6 +38,16 @@ package cn.vision.events.pattern
 			super($type, $bubbles, $cancelable);
 			
 			initialize($command);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function clone():Event
+		{
+			return new QueueEvent(type, command, bubbles, cancelable);
 		}
 		
 		

@@ -18,8 +18,6 @@ package cn.vision.utils
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	import flash.utils.describeType;
-	import flash.utils.getDefinitionByName;
-	import flash.utils.getQualifiedClassName;
 	
 	
 	public final class ObjectUtil extends NoInstance
@@ -44,11 +42,11 @@ package cn.vision.utils
 			if ($value)
 			{
 				//获取全名
-				var typeName:String = getQualifiedClassName($value);
+				var typeName:String = ClassUtil.getClassName($value);
 				//切出包名
 				var packageName:String = typeName.split("::")[0];
 				//获取Class
-				var type:Class = getDefinitionByName(typeName) as Class;
+				var type:Class = ClassUtil.getClassByName(typeName);
 				//注册Class
 				registerClassAlias(packageName, type);
 				//复制对象
@@ -72,14 +70,10 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		public static function convertXML($value:Object, $name:String):XML
+		public static function convertXML($value:Object, $name:String = "root"):XML
 		{
-			$name = $name || "xml";
 			var xml:XML = new XML("<" + $name + "/>");
-			for (var key:String in $value) 
-			{
-				xml[key] = $value[key];
-			}
+			for (var key:String in $value) xml[key] = $value[key];
 			return xml;
 		}
 		

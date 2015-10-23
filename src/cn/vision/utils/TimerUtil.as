@@ -1,8 +1,5 @@
 package cn.vision.utils
 {
-	import flash.events.TimerEvent;
-	import flash.utils.Dictionary;
-	import flash.utils.Timer;
 	
 	/**
 	 * 
@@ -14,6 +11,10 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
+	
+	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	
 	public class TimerUtil

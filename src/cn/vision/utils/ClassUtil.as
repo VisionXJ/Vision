@@ -36,9 +36,25 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		public static function getClass($value:*):*
+		public static function getClass($value:*):Class
 		{
-			return getDefinitionByName(getQualifiedClassName($value));
+			return getClassByName(getClassName($value));
+		}
+		
+		
+		/**
+		 * 
+		 * 根据完全限定名获取对象的类。
+		 * 
+		 * @param $qualifiedName:String 完全限定名。
+		 * 
+		 * @return <code>Class</code>
+		 * 
+		 */
+		
+		public static function getClassByName($qualifiedName:String):Class
+		{
+			return CLASS_DIC[$qualifiedName] = CLASS_DIC[$qualifiedName] || getDefinitionByName($qualifiedName);
 		}
 		
 		
@@ -155,7 +171,7 @@ package cn.vision.utils
 		
 		public static function validateMetadata($value:*):Boolean
 		{
-			return  $value is String || 
+			return $value is String || 
 					$value is uint || 
 					$value is int || 
 					$value is Number || 
@@ -205,6 +221,11 @@ package cn.vision.utils
 		 * @private
 		 */
 		private static const QUALIFIED_NAME_DIC:Dictionary = new Dictionary;
+		
+		/**
+		 * @private
+		 */
+		private static const CLASS_DIC:Object = {};
 		
 	}
 }

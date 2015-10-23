@@ -13,11 +13,10 @@ package cn.vision.consts
 	 */
 	
 	
-	import cn.vision.core.NoInstance;
 	import cn.vision.core.vs;
 	
 	
-	public final class MathConsts extends NoInstance
+	public final class MathConsts extends Consts
 	{
 		
 		/**

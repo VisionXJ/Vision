@@ -55,6 +55,13 @@ import flash.utils.Timer;
 
 final class App
 {
+	
+	/**
+	 * 
+	 * 构造函数。
+	 * 
+	 */
+	
 	public function App($app:Sprite, $handler:Function, $args:Array)
 	{
 		app     = $app;

@@ -1,4 +1,4 @@
 package cn.vision.core
 {
-	public namespace vs = "http://www.xjcc.cn/";
+	public namespace vs = "http://www.xjcc.cn/vision";
 }

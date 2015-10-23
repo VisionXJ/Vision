@@ -12,10 +12,8 @@ package cn.vision.consts
 	 * 
 	 */
 	
-	import cn.vision.core.NoInstance;
 	
-	
-	public final class ProtocolConsts extends NoInstance
+	public final class ProtocolConsts extends Consts
 	{
 		
 		/**

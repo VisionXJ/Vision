@@ -13,10 +13,7 @@ package cn.vision.consts
 	 */
 	
 	
-	import cn.vision.core.NoInstance;
-	
-	
-	public final class FileTypeConsts extends NoInstance
+	public final class FileTypeConsts extends Consts
 	{
 		
 		/**

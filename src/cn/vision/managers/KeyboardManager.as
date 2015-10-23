@@ -50,14 +50,15 @@ package cn.vision.managers
 		{
 			if(!stage && $stage)
 			{
-				stage = $stage;
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, handlerKeyDown);
-				stage.addEventListener(KeyboardEvent.KEY_UP, handlerKeyUp);
 				sequenceMap = {};
 				parallelMap = {};
 				orderMap = {};
-				funckeysArr.length = 0;
 				funckeysMap = {};
+				funckeysArr.length = 0;
+				
+				stage = $stage;
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, handlerKeyDown);
+				stage.addEventListener(KeyboardEvent.KEY_UP, handlerKeyUp);
 			}
 		}
 		

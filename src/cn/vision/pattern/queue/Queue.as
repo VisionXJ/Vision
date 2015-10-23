@@ -13,10 +13,15 @@ package cn.vision.pattern.queue
 	 */
 	
 	
+	import cn.vision.consts.state.QueueStateConsts;
 	import cn.vision.core.VSEventDispatcher;
+	import cn.vision.core.vs;
+	import cn.vision.events.StateEvent;
 	import cn.vision.events.pattern.QueueEvent;
 	import cn.vision.pattern.core.Command;
-	import cn.vision.utils.LogUtil;
+	import cn.vision.pattern.data.Store;
+	import cn.vision.states.pattern.core.queue.*;
+	import cn.vision.utils.StateUtil;
 	
 	
 	/**
@@ -67,6 +72,8 @@ package cn.vision.pattern.queue
 		public function Queue()
 		{
 			super();
+			
+			initialize();
 		}
 		
 		
@@ -111,12 +118,53 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
+		 * 变量初始化。
+		 * 
+		 */
+		
+		protected function initializeVariables():void
+		{
+			vs::state = QueueStateConsts.INITIALIZE;
+			
+			stateStore = new Store;
+		}
+		
+		
+		/**
+		 * 
+		 * 状态初始化。
+		 * 
+		 */
+		
+		protected function initializeStates():void
+		{
+			stateStore.registData(QueueStateConsts.INITIALIZE, new QueueInitializeState);
+			stateStore.registData(QueueStateConsts.IDLE      , new QueueIdleState);
+			stateStore.registData(QueueStateConsts.RUNNING   , new QueueRunningState);
+		}
+		
+		
+		/**
+		 * 
+		 * 初始化完毕。
+		 * 
+		 */
+		
+		protected function initializeComplete():void
+		{
+			state = QueueStateConsts.IDLE;
+		}
+		
+		
+		/**
+		 * 
 		 * 管理器结束执行任务时调用此方法发送事件。
 		 * 
 		 */
 		
 		protected function queueEnd():void
 		{
+			state = QueueStateConsts.IDLE;
 			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_END));
 		}
 		
@@ -129,6 +177,7 @@ package cn.vision.pattern.queue
 		
 		protected function queueStart():void
 		{
+			state = QueueStateConsts.RUNNING;
 			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_START));
 		}
 		
@@ -155,6 +204,73 @@ package cn.vision.pattern.queue
 		{
 			dispatchEvent(new QueueEvent(QueueEvent.STEP_START, $command));
 		}
+		
+		
+		/**
+		 * @private
+		 */
+		private function initialize():void
+		{
+			initializeVariables();
+			
+			initializeStates();
+			
+			initializeComplete();
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		public function get lastState():String
+		{
+			return vs::lastState;
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		public function get state():String
+		{
+			return vs::state;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set state($value:String):void
+		{
+			if ($value != vs::state)
+			{
+				vs::lastState = vs::state;
+				vs::state = $value;
+				
+				//冻结上一个状态并激活当前状态
+				StateUtil.vs::changeState(lastState, state, stateStore);
+				
+				dispatchEvent(new StateEvent(StateEvent.STATE_CHANGE, vs::lastState, vs::state));
+			}
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		protected var stateStore:Store;
+		
+		
+		/**
+		 * @private
+		 */
+		vs var lastState:String;
+		
+		/**
+		 * @private
+		 */
+		vs var state:String;
 		
 	}
 }
