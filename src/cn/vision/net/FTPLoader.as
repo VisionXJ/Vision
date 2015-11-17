@@ -118,7 +118,7 @@ package cn.vision.net
 			if (resolveRequest($request))
 			{
 				vs::loading = true;
-				vs::bytesLoaded = 0;
+				vs::bytesLoaded = vs::bytesTotal = 0;
 				vs::speed = 0;
 				vs::fileName = request.localURL.split("\\").pop();
 				time = getTimer();
@@ -135,7 +135,6 @@ package cn.vision.net
 				else
 				{
 					socketCtrlCreate();
-					
 					deleteTemp();
 					
 					ctrlSocket.connect(host, port);
@@ -451,10 +450,9 @@ package cn.vision.net
 		 * 下载。
 		 * @private
 		 */
-		private function command213($resetBytesTotal:Boolean = true):void
+		private function command213():void
 		{
-			if ($resetBytesTotal)
-				vs::bytesTotal = Number(data.substr(4));
+			if(!bytesTotal) vs::bytesTotal = Number(data.substr(4));
 			trace("FTPLoader.command213()", fileName, bytesTotal);
 			socketDataCreate();
 			dataSocket.connect(dataHost, dataPort);
@@ -500,7 +498,7 @@ package cn.vision.net
 				temp.deleteFile();
 				streamOpen();
 				vs::bytesLoaded = 0;
-				command213(false);
+				command213();
 			}
 			else
 			{
@@ -673,7 +671,7 @@ package cn.vision.net
 				}
 				else
 				{
-					command213(false);
+					command213();
 				}
 			}
 		}
