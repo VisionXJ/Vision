@@ -104,7 +104,7 @@ package cn.vision.utils
 		 * 删除数组的一个或多个元素。
 		 * 
 		 * @param $array:* Array或Vector。
-		 * @param $args 要追加到数组中的一个或多个值。
+		 * @param $args 要删除的元素。
 		 * 
 		 * @return uint 一个整数，表示该数组的新长度。
 		 * 
@@ -158,7 +158,6 @@ package cn.vision.utils
 		 * 删除数组中相同的元素，确保唯一性，并返回新的数组。
 		 * 
 		 * @param $array:* Array或Vector。
-		 * @param $args 一个或多个要插入到数组开头的数字、元素或变量。
 		 * 
 		 * @return Array 新的数组。
 		 * 
