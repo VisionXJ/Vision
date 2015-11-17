@@ -13,9 +13,9 @@ package cn.vision.pattern.queue
 	 */
 	
 	
+	import cn.vision.collections.Map;
 	import cn.vision.consts.CommandPriorityConsts;
 	import cn.vision.core.vs;
-	import cn.vision.collections.Map;
 	import cn.vision.events.pattern.CommandEvent;
 	import cn.vision.pattern.core.Command;
 	import cn.vision.utils.ArrayUtil;
@@ -51,9 +51,7 @@ package cn.vision.pattern.queue
 				vs::executing = true;
 				queueStart();
 			}
-			FUNC[$command.priority] 
-				? FUNC[$command.priority]($command) 
-				: FUNC[CommandPriorityConsts.NORMAL]($command);
+			(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
 		}
 		
 		

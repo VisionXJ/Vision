@@ -46,7 +46,6 @@ package cn.vision.errors
 		 */
 		private function initialize():void
 		{
-			vs::className = ClassUtil.getClassName(this);
 			vs::vid = IDUtil.generateID();
 			name = StringUtil.lowercaseInitials(className);
 		}
@@ -58,7 +57,7 @@ package cn.vision.errors
 		
 		public function get className():String
 		{
-			return vs::className;
+			return vs::className = vs::className || ClassUtil.getClassName(this);
 		}
 		
 		

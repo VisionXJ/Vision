@@ -39,6 +39,7 @@ package cn.vision.collections
 		public function Map()
 		{
 			super();
+			
 			initialize();
 		}
 		
@@ -78,13 +79,12 @@ package cn.vision.collections
 		 */
 		private function initialize():void
 		{
-			vs::className = ClassUtil.getClassName(this);
-			vs::id = IDUtil.generateID();
-			
 			itemObject = {};
 			itemNameArray = [];
 			nameIndexObject = {};
 			itemIndexDictionary = new Dictionary;
+			
+			vs::id = IDUtil.generateID();
 		}
 		
 		
@@ -217,7 +217,7 @@ package cn.vision.collections
 		
 		override flash_proxy function getProperty($name:*):*
 		{
-			return itemObject[StringUtil.toString($name)];
+			return itemObject ? itemObject[StringUtil.toString($name)] : null;
 		}
 		
 		
@@ -405,7 +405,7 @@ package cn.vision.collections
 		
 		public function get className():String
 		{
-			return vs::className;
+			return vs::className = vs::className || ClassUtil.getClassName(this);
 		}
 		
 		

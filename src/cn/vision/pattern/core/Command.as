@@ -183,7 +183,7 @@ package cn.vision.pattern.core
 		
 		public function get executing():Boolean
 		{
-			return Boolean(vs::executing);
+			return vs::executing as Boolean;
 		}
 		
 		

@@ -39,6 +39,15 @@ package cn.vision.net
 	
 	/**
 	 * 
+	 * 文件加载流被服务器关闭时派发此事件。
+	 * 
+	 */
+	
+	[Event(name="close", type="flash.events.Event")]
+	
+	
+	/**
+	 * 
 	 * 文件加载完毕时派发此事件。
 	 * 
 	 */
@@ -111,17 +120,27 @@ package cn.vision.net
 				vs::loading = true;
 				vs::bytesLoaded = 0;
 				vs::speed = 0;
+				vs::fileName = request.localURL.split("\\").pop();
 				time = getTimer();
-				if(!ctrlSocket)
+				count = 0;
+				
+				file = new VSFile(localURL);
+				temp = new VSFile(localURL + ".tmp");
+				
+				if (file.exists)
 				{
-					ctrlSocket = new Socket;
-					ctrlSocket.addEventListener(Event.CLOSE, handlerCtrlClose);
-					ctrlSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-					ctrlSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
-					ctrlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
+					close();
+					dispatchEvent(new Event(Event.COMPLETE));
 				}
-				ctrlSocket.connect(host, port);
-				createTimer(timeout, handlerCtrlConnectTimeout);
+				else
+				{
+					socketCtrlCreate();
+					
+					deleteTemp();
+					
+					ctrlSocket.connect(host, port);
+					createTimer(timeout, handlerCtrlConnectTimeout);
+				}
 			}
 			else throw new FTPRequestError;
 		}
@@ -138,34 +157,15 @@ package cn.vision.net
 			if (vs::loading)
 			{
 				vs::loading = false;
-				if (stream) stream.close();
-				if (temp && file && temp.exists && temp.size == bytesTotal) temp.moveTo(file);
-				if (ctrlSocket)
-				{
-					if (ctrlSocket.connected)
-					{
-						ctrlSocket.writeUTFBytes("QUIT\n\r");
-						ctrlSocket.flush();
-					}
-					ctrlSocket.removeEventListener(Event.CLOSE, handlerCtrlClose);
-					ctrlSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-					ctrlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
-					ctrlSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-					DebugUtil.execute(ctrlSocket.close, false);
-				}
-				if (dataSocket)
-				{
-					dataSocket.removeEventListener(Event.CLOSE, handlerDataClose);
-					dataSocket.removeEventListener(Event.CONNECT, handlerDataConnect);
-					dataSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-					dataSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerDataProgress);
-					dataSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-					DebugUtil.execute(dataSocket.close, false);
-				}
+				
 				removeTimer();
-				stream = null;
-				temp = file = null;
-				ctrlSocket = dataSocket = null;
+				
+				socketDataRemove();
+				socketCtrlRemove();
+				
+				streamClose();
+				
+				moveFile();
 			}
 		}
 		
@@ -201,24 +201,11 @@ package cn.vision.net
 		private function createTimer($delay:Number, $handler:Function):void
 		{
 			removeTimer();
-			timerHandler = $handler;
 			if(!timer && $delay)
 			{
+				timerHandler = $handler;
 				timer = new Timer($delay * 1000);
 				timer.addEventListener(TimerEvent.TIMER, timerHandler);
-				timer.start();
-			}
-		}
-		
-		/**
-		 * @private
-		 */
-		private function resetTimer():void
-		{
-			timerCount = 0;
-			if (timer)
-			{
-				timer.reset();
 				timer.start();
 			}
 		}
@@ -233,7 +220,183 @@ package cn.vision.net
 				timer.stop();
 				timer.removeEventListener(TimerEvent.TIMER, timerHandler);
 				timer = null;
+				timerHandler = null;
 			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function resetTimer():void
+		{
+			if (timeout)
+			{
+				count = 0;
+				if (timer)
+				{
+					timer.reset();
+					timer.start();
+				}
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function streamOpen():void
+		{
+			if(!stream && temp)
+			{
+				stream = new FileStream;
+				stream.open(temp, FileMode.APPEND);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function streamClose():void
+		{
+			if (stream) 
+			{
+				stream.close();
+				stream = null;
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketCtrlCreate():void
+		{
+			if(!ctrlSocket)
+			{
+				ctrlSocket = new Socket;
+				ctrlSocket.addEventListener(Event.CLOSE, handlerCtrlClose);
+				ctrlSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerCtrlDefault);
+				ctrlSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
+				ctrlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerCtrlDefault);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketCtrlRemove():void
+		{
+			if (ctrlSocket)
+			{
+				if (ctrlSocket.connected)
+				{
+					ctrlSocket.writeMultiByte("QUIT\r\n", "utf8");
+					ctrlSocket.flush();
+					ctrlSocket.close();
+				}
+				ctrlSocket.removeEventListener(Event.CLOSE, handlerCtrlClose);
+				ctrlSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerCtrlDefault);
+				ctrlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
+				ctrlSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerCtrlDefault);
+				ctrlSocket = null;
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketDataCreate():void
+		{
+			if(!dataSocket)
+			{
+				dataSocket = new Socket;
+				dataSocket.addEventListener(Event.CLOSE, handlerDataClose);
+				dataSocket.addEventListener(Event.CONNECT, handlerDataConnect);
+				dataSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerDataIOError);
+				dataSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerDataProgress);
+				dataSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDataDefault);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketDataRemove():void
+		{
+			if (dataSocket)
+			{
+				if (dataSocket.connected) dataSocket.close();
+				dataSocket.removeEventListener(Event.CLOSE, handlerDataClose);
+				dataSocket.removeEventListener(Event.CONNECT, handlerDataConnect);
+				dataSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerDataIOError);
+				dataSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerDataProgress);
+				dataSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDataDefault);
+				dataSocket = null;
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function requestFile():void
+		{
+			if (temp.exists && temp.size > 0)
+			{
+				vs::bytesLoaded = temp.size;
+				trace("FTPLoader.resume broken downloads", fileName, bytesLoaded, bytesTotal);
+				ctrlSocket.writeMultiByte("REST " + bytesLoaded + "\r\n", "utf8");
+			}
+			ctrlSocket.writeMultiByte("RETR " + remoteURL + "\r\n", "utf8");
+			ctrlSocket.flush();
+		}
+		
+		/**
+		 * @private
+		 */
+		private function moveFile():void
+		{
+			if (bytesTotal && file && !file.exists && 
+				temp && temp.exists && temp.size == bytesTotal)
+			{
+				trace("move file start", fileName)
+				try
+				{
+					temp.moveTo(file, true);
+				}
+				catch(e:Error)
+				{
+					trace(e.getStackTrace());
+				}
+				trace("move file complete", fileName);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function deleteTemp():void
+		{
+			if (temp && temp.exists) 
+			{
+				temp.deleteFile();
+				trace("temp file delete", fileName);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function delayClose():void
+		{
+			streamClose();
+			socketDataRemove();
+			createTimer(1, handlerCloseTimer);
+		}
+		
+		/**
+		 * @private
+		 */
+		private function execute($code:String):void
+		{
+			if (this[$code] is Function) this[$code]();
 		}
 		
 		
@@ -247,8 +410,8 @@ package cn.vision.net
 			{
 				resetTimer();
 				avoid = true;
-				ctrlSocket.writeUTFBytes("USER " + userName + "\n\r");
-				ctrlSocket.writeUTFBytes("PASS " + passWord + "\n\r");
+				ctrlSocket.writeMultiByte("USER " + userName + "\r\n", "utf8");
+				ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
 				ctrlSocket.flush();
 			}
 		}
@@ -261,7 +424,7 @@ package cn.vision.net
 		{
 			resetTimer();
 			avoid = false;
-			ctrlSocket.writeUTFBytes("PASV\n\r");
+			ctrlSocket.writeMultiByte("PASV\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
@@ -280,7 +443,7 @@ package cn.vision.net
 			var p2:int = a2.pop();
 			dataHost = a2.join(".");
 			dataPort = (p2 * 256) + p1;
-			ctrlSocket.writeUTFBytes("SIZE " + remoteURL + "\n\r");
+			ctrlSocket.writeMultiByte("SIZE " + remoteURL + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
@@ -288,18 +451,12 @@ package cn.vision.net
 		 * 下载。
 		 * @private
 		 */
-		private function command213():void
+		private function command213($resetBytesTotal:Boolean = true):void
 		{
-			vs::bytesTotal = Number(data.substr(4));
-			if(!dataSocket)
-			{
-				dataSocket = new Socket;
-				dataSocket.addEventListener(Event.CLOSE, handlerDataClose);
-				dataSocket.addEventListener(Event.CONNECT, handlerDataConnect);
-				dataSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-				dataSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerDataProgress);
-				dataSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-			}
+			if ($resetBytesTotal)
+				vs::bytesTotal = Number(data.substr(4));
+			trace("FTPLoader.command213()", fileName, bytesTotal);
+			socketDataCreate();
 			dataSocket.connect(dataHost, dataPort);
 			createTimer(timeout, handlerDataConnectTimeout);
 		}
@@ -334,26 +491,24 @@ package cn.vision.net
 		 */
 		private function command550():void
 		{
-			dispatchEvent(new IOErrorEvent(
-				IOErrorEvent.IO_ERROR,
-				false, false, data.substr(4), 2035));
-		}
-		
-		/**
-		 * 完毕处理。
-		 * @private
-		 */
-		private function command226():void
-		{
-			createTimer(.01, handlerDataCompleteTimer);
-		}
-		
-		/**
-		 * @private
-		 */
-		private function execute($code:String):void
-		{
-			this[$code]();
+			var bool:Boolean = data.indexOf("No support for resume of ASCII transfer") != -1;
+			trace("FTPLoader.command550() unresumable", bool, fileName);
+			if (bool)
+			{
+				socketDataRemove();
+				streamClose();
+				temp.deleteFile();
+				streamOpen();
+				vs::bytesLoaded = 0;
+				command213(false);
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(
+					IOErrorEvent.IO_ERROR,
+					false, false, data.substr(4), 2035));
+			}
 		}
 		
 		
@@ -362,10 +517,23 @@ package cn.vision.net
 		 */
 		private function handlerCtrlClose($e:Event):void
 		{
-			if (loading) ctrlSocket.connect(host, port);
+			if (loaded)
+			{
+				trace("FTPLoader.handlerCtrlClose() complete", fileName, bytesLoaded, bytesTotal);
+				delayClose();
+			}
 			else
 			{
-				handlerDataCompleteTimer();
+				trace("FTPLoader.handlerCtrlClose() connect", fileName, bytesLoaded, bytesTotal);
+				if (bytesTotal > 0)
+				{
+					ctrlSocket.connect(host, port);
+				}
+				else
+				{
+					close();
+					dispatchEvent(new Event(Event.CLOSE));
+				}
 			}
 		}
 		
@@ -374,11 +542,18 @@ package cn.vision.net
 		 */
 		private function handlerCtrlProgress($e:ProgressEvent):void
 		{
-			data = ctrlSocket.readUTFBytes(ctrlSocket.bytesAvailable);
-			var list:Array = data.split("\n");
-			for each (var item:String in list)
+			var temp:String = ctrlSocket.readUTFBytes(ctrlSocket.bytesAvailable);
+			var list:Array = temp.split("\n");
+			var filter:Function = function($item:*, $index:int, $array:Array):Boolean
 			{
-				var cmd:String = item.substr(0, 3);
+				return !StringUtil.isEmpty($item.substr(0, 3));
+			};
+			list = list.filter(filter, null);
+			while (list.length)
+			{
+				data = list.shift();
+				trace(data, fileName, bytesLoaded, bytesTotal);
+				var cmd:String = data.substr(0, 3);
 				if(!StringUtil.isEmpty(cmd))
 					DebugUtil.execute(execute, false, "command" + cmd);
 			}
@@ -389,10 +564,17 @@ package cn.vision.net
 		 */
 		private function handlerCtrlConnectTimeout($e:TimerEvent):void
 		{
-			close();
-			dispatchEvent(new IOErrorEvent(
-				IOErrorEvent.IO_ERROR, 
-				false, false, "连接FTP服务器控制层超时！", 2036));
+			trace("FTPLoader.handlerCtrlConnectTimeout()", fileName);
+			if (loaded)
+			{
+				delayClose();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
+						false, false, "连接FTP服务器控制层超时！", 2036))
+			}
 		}
 		
 		/**
@@ -400,14 +582,15 @@ package cn.vision.net
 		 */
 		private function handlerDataClose($e:Event):void
 		{
-			if (temp && temp.exists && temp.size < bytesTotal)
+			trace("FTPLoader.handlerDataClose()", fileName, bytesLoaded, bytesTotal);
+			if (loaded)
 			{
-				dataSocket.connect(dataHost, dataPort);
+				delayClose();
 			}
 			else
 			{
-				close();
-				dispatchEvent(new Event(Event.COMPLETE));
+				dataSocket.connect(dataHost, dataPort);
+				resetTimer();
 			}
 		}
 		
@@ -416,31 +599,10 @@ package cn.vision.net
 		 */
 		private function handlerDataConnect($e:Event):void
 		{
-			file = file || new VSFile(localURL);
-			if (file.exists && file.size == bytesTotal)
-			{
-				close();
-				dispatchEvent(new Event(Event.COMPLETE));
-			}
-			else
-			{
-				temp = temp || new VSFile(localURL + ".tmp");
-				if (temp.exists)
-				{
-					vs::bytesLoaded = temp.size;
-					ctrlSocket.writeUTFBytes("REST " + bytesLoaded + "\n\r");
-				}
-				if(!stream)
-				{
-					stream = new FileStream;
-					stream.open(temp, FileMode.APPEND);
-				}
-				ctrlSocket.writeUTFBytes("RETR " + remoteURL + "\n\r");
-				ctrlSocket.flush();
-				
-				createTimer(timeout, handlerDataProgressTimeout);
-			}
-			
+			trace("FTPLoader.handlerDataConnect()");
+			streamOpen();
+			requestFile();
+			createTimer(timeout, handlerDataProgressTimeout);
 		}
 		
 		/**
@@ -451,10 +613,11 @@ package cn.vision.net
 			resetTimer();
 			var bytes:ByteArray = new ByteArray;
 			dataSocket.readBytes(bytes, 0, dataSocket.bytesAvailable);
-			vs::bytesLoaded += bytes.bytesAvailable;
-			vs::speed = bytesLoaded / (getTimer() - time);
 			stream.writeBytes(bytes, 0, bytes.bytesAvailable);
-			dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, 
+			vs::bytesLoaded = temp.size;
+			vs::speed = bytesLoaded / (getTimer() - time);
+			dispatchEvent(new ProgressEvent(
+				ProgressEvent.PROGRESS, 
 				false, false, bytesLoaded, bytesTotal));
 		}
 		
@@ -463,10 +626,17 @@ package cn.vision.net
 		 */
 		private function handlerDataConnectTimeout($e:TimerEvent = null):void
 		{
-			close();
-			dispatchEvent(new IOErrorEvent(
-				IOErrorEvent.IO_ERROR, 
-				false, false, "连接FTP服务器数据层超时！", 2036));
+			trace("FTPLoader.handlerDataConnectTimeout()", fileName);
+			if (loaded)
+			{
+				delayClose();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
+						false, false, "连接FTP服务器数据层超时！", 2036));
+			}
 		}
 		
 		/**
@@ -474,31 +644,66 @@ package cn.vision.net
 		 */
 		private function handlerDataProgressTimeout($e:TimerEvent):void
 		{
-			if (++timerCount < 2)
+			if (++count < 2)
 			{
-				DebugUtil.execute(dataSocket.close);
+				if (dataSocket.connected) dataSocket.close();
 				dataSocket.connect(dataHost, dataPort);
 			}
 			else handlerDataConnectTimeout();
 		}
 		
+		
 		/**
 		 * @private
 		 */
-		private function handlerDataCompleteTimer($e:TimerEvent = null):void
+		private function handlerDataIOError($e:IOErrorEvent):void
 		{
-			if ((file && file.exists) || (temp && temp.size == bytesTotal))
+			if (loaded)
 			{
-				close();
-				dispatchEvent(new Event(Event.COMPLETE));
+				trace("FTPLoader.handlerDataIOError() complete");
+				delayClose();
 			}
+			else
+			{
+				trace("FTPLoader.handlerDataIOError() ioError", fileName);
+				if(++count > 1)
+				{
+					close();
+					dispatchEvent($e.clone());
+				}
+				else
+				{
+					command213(false);
+				}
+			}
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		private function handlerCloseTimer($e:TimerEvent):void
+		{
+			close();
+			dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
 		/**
 		 * @private
 		 */
-		private function handlerDefault($e:Event):void
+		private function handlerCtrlDefault($e:Event):void
 		{
+			trace("FTPLoader.handlerCtrlDefault()", $e.type);
+			close();
+			dispatchEvent($e.clone());
+		}
+		
+		/**
+		 * @private
+		 */
+		private function handlerDataDefault($e:Event):void
+		{
+			trace("FTPLoader.handlerDataDefault()", $e.type);
 			close();
 			dispatchEvent($e.clone());
 		}
@@ -530,6 +735,18 @@ package cn.vision.net
 		
 		/**
 		 * 
+		 * 文件名。
+		 * 
+		 */
+		
+		public function get fileName():String
+		{
+			return vs::fileName;
+		}
+		
+		
+		/**
+		 * 
 		 * host地址。
 		 * 
 		 */
@@ -539,6 +756,24 @@ package cn.vision.net
 			return request ? request.host : null;
 		}
 		
+		
+		/**
+		 * 
+		 * 文件是否已下载完毕。
+		 * 
+		 */
+		
+		public function get loaded():Boolean
+		{
+			var result:Boolean = file && file.exists;
+			trace("loaded:", "file exist:", file && file.exists, " temp size:", temp.size, " total:", bytesTotal);
+			if(!result)
+			{
+				if (bytesTotal && temp.exists) 
+					result = (temp.size == bytesTotal);
+			}
+			return result;
+		}
 		
 		/**
 		 * 
@@ -713,18 +948,23 @@ package cn.vision.net
 		/**
 		 * @private
 		 */
-		private var timerCount:uint;
+		private var count:uint;
 		
 		
 		/**
 		 * @private
 		 */
-		vs var bytesLoaded:Number;
+		vs var bytesLoaded:Number = 0;
 		
 		/**
 		 * @private
 		 */
-		vs var bytesTotal:Number;
+		vs var bytesTotal:Number = 0;
+		
+		/**
+		 * @private
+		 */
+		vs var fileName:String;
 		
 		/**
 		 * @private

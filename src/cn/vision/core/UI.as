@@ -127,7 +127,7 @@ package cn.vision.core
 		
 		public function get className():String
 		{
-			return vs::className || (vs::className = ClassUtil.getClassName(this));
+			return vs::className = vs::className || ClassUtil.getClassName(this);
 		}
 		
 		

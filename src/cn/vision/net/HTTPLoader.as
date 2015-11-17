@@ -19,6 +19,7 @@ package cn.vision.net
 	import cn.vision.core.VSEventDispatcher;
 	import cn.vision.core.vs;
 	import cn.vision.errors.HTTPRequestError;
+	import cn.vision.interfaces.ITimeout;
 	import cn.vision.system.VSFile;
 	
 	import flash.events.Event;
@@ -70,7 +71,7 @@ package cn.vision.net
 	[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
 	
 	
-	public final class HTTPLoader extends VSEventDispatcher
+	public final class HTTPLoader extends VSEventDispatcher implements ITimeout
 	{
 		
 		/**
@@ -157,7 +158,7 @@ package cn.vision.net
 				vs::loading = false;
 				if (stream) stream.close();
 				if ( temp && file && temp.exists && temp.size == bytesTotal && 
-					(!file.exists || file.exists && file.size != bytesTotal)) temp.moveTo(file);
+					(!file.exists || file.exists && file.size != bytesTotal)) temp.moveTo(file, true);
 				if (loader)
 				{
 					loader.removeEventListener(Event.COMPLETE, handlerDefault);
@@ -300,6 +301,27 @@ package cn.vision.net
 		
 		
 		/**
+		 * @inheritDoc
+		 */
+		
+		public function get timeout():uint
+		{
+			return vs::timeout;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set timeout($value:uint):void
+		{
+			if ($value != vs::timeout)
+			{
+				vs::timeout = $value;
+			}
+		}
+		
+		
+		/**
 		 * @private
 		 */
 		private var time:int;
@@ -349,6 +371,11 @@ package cn.vision.net
 		 * @private
 		 */
 		vs var speed:Number;
+		
+		/**
+		 * @private
+		 */
+		vs var timeout:uint;
 		
 	}
 }

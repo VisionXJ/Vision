@@ -39,12 +39,13 @@ package cn.vision.net
 		 * 
 		 */
 		
-		public function FTPRequest($host:String = null,
-								   $userName:String = null,
-								   $passWord:String = null,
-								   $port:uint = 21,
-								   $remoteURL:String = null,
-								   $localURL:String = null)
+		public function FTPRequest(
+			$host:String = null,
+			$userName:String = null,
+			$passWord:String = null,
+			$port:uint = 21,
+			$remoteURL:String = null,
+			$localURL :String = null)
 		{
 			super();
 			
@@ -55,19 +56,20 @@ package cn.vision.net
 		/**
 		 * @private
 		 */
-		private function initialize($host:String,
-									$userName:String,
-									$passWord:String,
-									$port:uint,
-									$remoteURL:String,
-									$localURL:String):void
+		private function initialize(
+			$host:String,
+			$userName:String,
+			$passWord:String,
+			$port:uint,
+			$remoteURL:String,
+			$localURL :String):void
 		{
 			host = $host;
 			port = $port;
 			userName = $userName;
 			passWord = $passWord;
 			remoteURL = $remoteURL;
-			localURL = $localURL;
+			localURL  = $localURL;
 		}
 		
 		

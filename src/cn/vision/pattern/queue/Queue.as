@@ -21,6 +21,7 @@ package cn.vision.pattern.queue
 	import cn.vision.pattern.core.Command;
 	import cn.vision.pattern.data.Store;
 	import cn.vision.states.pattern.core.queue.*;
+	import cn.vision.utils.DebugUtil;
 	import cn.vision.utils.StateUtil;
 	
 	
@@ -165,7 +166,7 @@ package cn.vision.pattern.queue
 		protected function queueEnd():void
 		{
 			state = QueueStateConsts.IDLE;
-			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_END));
+			dispatchEvent(eventQueueEnd);
 		}
 		
 		
@@ -178,7 +179,7 @@ package cn.vision.pattern.queue
 		protected function queueStart():void
 		{
 			state = QueueStateConsts.RUNNING;
-			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_START));
+			dispatchEvent(eventQueueStart);
 		}
 		
 		
@@ -190,7 +191,8 @@ package cn.vision.pattern.queue
 		
 		protected function stepEnd($command:Command):void
 		{
-			dispatchEvent(new QueueEvent(QueueEvent.STEP_END, $command));
+			eventStepEnd.vs::command = $command;
+			dispatchEvent(eventStepEnd);
 		}
 		
 		
@@ -202,7 +204,8 @@ package cn.vision.pattern.queue
 		
 		protected function stepStart($command:Command):void
 		{
-			dispatchEvent(new QueueEvent(QueueEvent.STEP_START, $command));
+			eventStepStart.vs::command = $command;
+			dispatchEvent(eventStepStart);
 		}
 		
 		
@@ -260,6 +263,26 @@ package cn.vision.pattern.queue
 		 * @private
 		 */
 		protected var stateStore:Store;
+		
+		/**
+		 * @private
+		 */
+		private var eventQueueStart:QueueEvent = new QueueEvent(QueueEvent.QUEUE_START);
+		
+		/**
+		 * @private
+		 */
+		private var eventQueueEnd:QueueEvent = new QueueEvent(QueueEvent.QUEUE_END);
+		
+		/**
+		 * @private
+		 */
+		private var eventStepStart:QueueEvent = new QueueEvent(QueueEvent.STEP_START);
+		
+		/**
+		 * @private
+		 */
+		private var eventStepEnd:QueueEvent = new QueueEvent(QueueEvent.STEP_END);
 		
 		
 		/**

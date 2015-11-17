@@ -13,12 +13,14 @@ package cn.vision.pattern.queue
 	 */
 	
 	
+	import cn.vision.collections.Map;
 	import cn.vision.consts.CommandPriorityConsts;
 	import cn.vision.core.VSEventDispatcher;
 	import cn.vision.core.vs;
-	import cn.vision.collections.Map;
 	import cn.vision.events.pattern.CommandEvent;
 	import cn.vision.pattern.core.Command;
+	
+	import flash.events.Event;
 	
 	
 	/**

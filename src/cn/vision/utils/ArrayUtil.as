@@ -237,7 +237,7 @@ package cn.vision.utils
 				var result:Boolean = $value is Array;
 				if(!result)
 				{
-					var type:String = describeType($value).@name.toString();
+					var type:String = ClassUtil.getClassName($value);
 					result = (type.length > 18 && type.slice(0, 19) == "__AS3__.vec::Vector");
 				}
 			}

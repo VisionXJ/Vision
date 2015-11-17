@@ -42,7 +42,6 @@ package cn.vision.core
 		 */
 		private function initialize():void
 		{
-			vs::className = ClassUtil.getClassName(this);
 			vs::vid = IDUtil.generateID();
 		}
 		
@@ -53,7 +52,7 @@ package cn.vision.core
 		
 		public function get className():String
 		{
-			return vs::className;
+			return vs::className = vs::className || ClassUtil.getClassName(this);
 		}
 		
 		
