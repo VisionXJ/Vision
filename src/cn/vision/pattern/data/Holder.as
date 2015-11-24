@@ -12,7 +12,7 @@ package cn.vision.pattern.data
 	import cn.vision.core.VSObject;
 	
 	
-	public class Store extends VSObject
+	public class Holder extends VSObject
 	{
 		
 		/**
@@ -21,7 +21,7 @@ package cn.vision.pattern.data
 		 * 
 		 */
 		
-		public function Store()
+		public function Holder()
 		{
 			super();
 			
@@ -37,7 +37,7 @@ package cn.vision.pattern.data
 		
 		public function clear():void
 		{
-			store = new Map;
+			holder.clear();
 		}
 		
 		
@@ -58,8 +58,8 @@ package cn.vision.pattern.data
 			var result:Boolean = $key && $data;
 			if (result)
 			{
-				result = ! store[$key];
-				if (result)store[$key] = $data;
+				result = ! holder[$key];
+				if (result)holder[$key] = $data;
 			}
 			return result;
 		}
@@ -78,8 +78,8 @@ package cn.vision.pattern.data
 		
 		public function removeData($key:String):Boolean
 		{
-			var result:Boolean = store[$key];
-			if (result) delete store[$key];
+			var result:Boolean = holder[$key];
+			if (result) delete holder[$key];
 			return result;
 		}
 		
@@ -97,7 +97,7 @@ package cn.vision.pattern.data
 		
 		public function retrieveData($key:String):*
 		{
-			return store[$key] ? store[$key] : null;
+			return holder[$key] ? holder[$key] : null;
 		}
 		
 		
@@ -106,7 +106,7 @@ package cn.vision.pattern.data
 		 */
 		private function initialize():void
 		{
-			store = new Map;
+			holder = new Map;
 		}
 		
 		
@@ -118,14 +118,14 @@ package cn.vision.pattern.data
 		
 		public function get length():uint
 		{
-			return store.length;
+			return holder.length;
 		}
 		
 		
 		/**
 		 * @private
 		 */
-		private var store:Map;
+		private var holder:Map;
 		
 	}
 }

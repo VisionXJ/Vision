@@ -19,7 +19,7 @@ package cn.vision.pattern.queue
 	import cn.vision.events.StateEvent;
 	import cn.vision.events.pattern.QueueEvent;
 	import cn.vision.pattern.core.Command;
-	import cn.vision.pattern.data.Store;
+	import cn.vision.pattern.data.Holder;
 	import cn.vision.states.pattern.core.queue.*;
 	import cn.vision.utils.DebugUtil;
 	import cn.vision.utils.StateUtil;
@@ -127,7 +127,7 @@ package cn.vision.pattern.queue
 		{
 			vs::state = QueueStateConsts.INITIALIZE;
 			
-			stateStore = new Store;
+			stateStore = new Holder;
 		}
 		
 		
@@ -262,7 +262,7 @@ package cn.vision.pattern.queue
 		/**
 		 * @private
 		 */
-		protected var stateStore:Store;
+		protected var stateStore:Holder;
 		
 		/**
 		 * @private

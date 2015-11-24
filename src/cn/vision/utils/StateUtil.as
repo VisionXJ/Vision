@@ -17,7 +17,7 @@ package cn.vision.utils
 	import cn.vision.core.NoInstance;
 	import cn.vision.core.vs;
 	import cn.vision.pattern.core.State;
-	import cn.vision.pattern.data.Store;
+	import cn.vision.pattern.data.Holder;
 	
 	
 	public final class StateUtil extends NoInstance
@@ -32,7 +32,7 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		vs static function freezeState($name:String, $store:Store):void
+		vs static function freezeState($name:String, $store:Holder):void
 		{
 			var state:State = $store.retrieveData($name);
 			if (state) state.freeze();
@@ -48,7 +48,7 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		vs static function activeState($name:String, $store:Store):void
+		vs static function activeState($name:String, $store:Holder):void
 		{
 			var state:State = $store.retrieveData($name);
 			if (state) state.active();
@@ -65,7 +65,7 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		vs static function changeState($old:String, $new:String, $store:Store):void
+		vs static function changeState($old:String, $new:String, $store:Holder):void
 		{
 			var oldState:State = $store.retrieveData($old);
 			var newState:State = $store.retrieveData($new);

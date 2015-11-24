@@ -19,7 +19,7 @@ package cn.vision.pattern.core
 	import cn.vision.events.StateEvent;
 	import cn.vision.events.pattern.CommandEvent;
 	import cn.vision.interfaces.IState;
-	import cn.vision.pattern.data.Store;
+	import cn.vision.pattern.data.Holder;
 	import cn.vision.states.pattern.core.command.*;
 	import cn.vision.utils.StateUtil;
 	
@@ -103,7 +103,7 @@ package cn.vision.pattern.core
 		{
 			vs::state = CommandStateConsts.INITIALIZE;
 			
-			stateStore = new Store;
+			stateStore = new Holder;
 		}
 		
 		
@@ -247,7 +247,7 @@ package cn.vision.pattern.core
 		/**
 		 * @private
 		 */
-		protected var stateStore:Store;
+		protected var stateStore:Holder;
 		
 		
 		/**

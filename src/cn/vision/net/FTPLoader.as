@@ -6,6 +6,21 @@ package cn.vision.net
 	 * FTP文件加载存储器，支持断点续传。<br>
 	 * AIR Only
 	 * 
+	 * @example
+	 * <listing version="3.0">
+	 * 		var loader:FTPLoader = new FTPLoader;
+	 * 		var request:FTPRequest = new FTPRequest(host, userName, passWord, port, loadURL, saveURL);
+	 * 		var loader_completeHandler:Function = function(e:Event):void
+	 * 		{
+	 * 			trace("load complete");
+	 * 		};
+	 * 		var loader_ioErrorHandler:Function = function(e:IOErrorEvent):void
+	 * 		{
+	 * 			trace("load ioError");
+	 * 		};
+	 * 		loader.load(request);
+	 * </listing>
+	 * 
 	 * @see cn.vision.net.FTPRequest
 	 * 
 	 * @author vision
@@ -340,7 +355,6 @@ package cn.vision.net
 			if (temp.exists && temp.size > 0)
 			{
 				vs::bytesLoaded = temp.size;
-				trace("FTPLoader.resume broken downloads", fileName, bytesLoaded, bytesTotal);
 				ctrlSocket.writeMultiByte("REST " + bytesLoaded + "\r\n", "utf8");
 			}
 			ctrlSocket.writeMultiByte("RETR " + remoteURL + "\r\n", "utf8");
@@ -355,16 +369,7 @@ package cn.vision.net
 			if (bytesTotal && file && !file.exists && 
 				temp && temp.exists && temp.size == bytesTotal)
 			{
-				trace("move file start", fileName)
-				try
-				{
-					temp.moveTo(file, true);
-				}
-				catch(e:Error)
-				{
-					trace(e.getStackTrace());
-				}
-				trace("move file complete", fileName);
+				temp.moveTo(file, true);
 			}
 		}
 		
@@ -376,18 +381,18 @@ package cn.vision.net
 			if (temp && temp.exists) 
 			{
 				temp.deleteFile();
-				trace("temp file delete", fileName);
 			}
 		}
 		
 		/**
+		 * 有时文件传输完毕后dataSocket不会立刻关闭，此时移动临时文件至正式文件会出现卡死的情况，此处做一个延迟移动。
 		 * @private
 		 */
 		private function delayClose():void
 		{
 			streamClose();
 			socketDataRemove();
-			createTimer(1, handlerCloseTimer);
+			createTimer(.5, handlerCloseTimer);
 		}
 		
 		/**
@@ -453,7 +458,6 @@ package cn.vision.net
 		private function command213():void
 		{
 			if(!bytesTotal) vs::bytesTotal = Number(data.substr(4));
-			trace("FTPLoader.command213()", fileName, bytesTotal);
 			socketDataCreate();
 			dataSocket.connect(dataHost, dataPort);
 			createTimer(timeout, handlerDataConnectTimeout);
@@ -490,7 +494,6 @@ package cn.vision.net
 		private function command550():void
 		{
 			var bool:Boolean = data.indexOf("No support for resume of ASCII transfer") != -1;
-			trace("FTPLoader.command550() unresumable", bool, fileName);
 			if (bool)
 			{
 				socketDataRemove();
@@ -517,12 +520,10 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				trace("FTPLoader.handlerCtrlClose() complete", fileName, bytesLoaded, bytesTotal);
 				delayClose();
 			}
 			else
 			{
-				trace("FTPLoader.handlerCtrlClose() connect", fileName, bytesLoaded, bytesTotal);
 				if (bytesTotal > 0)
 				{
 					ctrlSocket.connect(host, port);
@@ -550,7 +551,6 @@ package cn.vision.net
 			while (list.length)
 			{
 				data = list.shift();
-				trace(data, fileName, bytesLoaded, bytesTotal);
 				var cmd:String = data.substr(0, 3);
 				if(!StringUtil.isEmpty(cmd))
 					DebugUtil.execute(execute, false, "command" + cmd);
@@ -562,7 +562,6 @@ package cn.vision.net
 		 */
 		private function handlerCtrlConnectTimeout($e:TimerEvent):void
 		{
-			trace("FTPLoader.handlerCtrlConnectTimeout()", fileName);
 			if (loaded)
 			{
 				delayClose();
@@ -580,7 +579,6 @@ package cn.vision.net
 		 */
 		private function handlerDataClose($e:Event):void
 		{
-			trace("FTPLoader.handlerDataClose()", fileName, bytesLoaded, bytesTotal);
 			if (loaded)
 			{
 				delayClose();
@@ -597,7 +595,6 @@ package cn.vision.net
 		 */
 		private function handlerDataConnect($e:Event):void
 		{
-			trace("FTPLoader.handlerDataConnect()");
 			streamOpen();
 			requestFile();
 			createTimer(timeout, handlerDataProgressTimeout);
@@ -624,7 +621,6 @@ package cn.vision.net
 		 */
 		private function handlerDataConnectTimeout($e:TimerEvent = null):void
 		{
-			trace("FTPLoader.handlerDataConnectTimeout()", fileName);
 			if (loaded)
 			{
 				delayClose();
@@ -658,12 +654,10 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				trace("FTPLoader.handlerDataIOError() complete");
 				delayClose();
 			}
 			else
 			{
-				trace("FTPLoader.handlerDataIOError() ioError", fileName);
 				if(++count > 1)
 				{
 					close();
@@ -691,7 +685,6 @@ package cn.vision.net
 		 */
 		private function handlerCtrlDefault($e:Event):void
 		{
-			trace("FTPLoader.handlerCtrlDefault()", $e.type);
 			close();
 			dispatchEvent($e.clone());
 		}
@@ -701,7 +694,6 @@ package cn.vision.net
 		 */
 		private function handlerDataDefault($e:Event):void
 		{
-			trace("FTPLoader.handlerDataDefault()", $e.type);
 			close();
 			dispatchEvent($e.clone());
 		}
@@ -764,7 +756,6 @@ package cn.vision.net
 		public function get loaded():Boolean
 		{
 			var result:Boolean = file && file.exists;
-			trace("loaded:", "file exist:", file && file.exists, " temp size:", temp.size, " total:", bytesTotal);
 			if(!result)
 			{
 				if (bytesTotal && temp.exists) 
@@ -781,7 +772,7 @@ package cn.vision.net
 		
 		public function get loading():Boolean
 		{
-			return Boolean(vs::loading);
+			return vs::loading as Boolean;
 		}
 		
 		

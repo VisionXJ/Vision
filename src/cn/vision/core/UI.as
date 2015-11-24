@@ -20,7 +20,7 @@ package cn.vision.core
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.IName;
 	import cn.vision.interfaces.IState;
-	import cn.vision.pattern.data.Store;
+	import cn.vision.pattern.data.Holder;
 	import cn.vision.states.core.ui.*;
 	import cn.vision.utils.ClassUtil;
 	import cn.vision.utils.IDUtil;
@@ -59,7 +59,7 @@ package cn.vision.core
 			vs::state = UIStateConsts.INITIALIZE;
 			vs::vid = IDUtil.generateID();
 			
-			stateStore = new Store;
+			stateStore = new Holder;
 		}
 		
 		
@@ -227,7 +227,7 @@ package cn.vision.core
 		/**
 		 * @private
 		 */
-		protected var stateStore:Store;
+		protected var stateStore:Holder;
 		
 		
 		/**
