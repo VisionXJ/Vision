@@ -37,6 +37,7 @@ package cn.vision.net
 	import cn.vision.interfaces.ITimeout;
 	import cn.vision.system.VSFile;
 	import cn.vision.utils.DebugUtil;
+	import cn.vision.utils.LogUtil;
 	import cn.vision.utils.StringUtil;
 	
 	import flash.events.Event;
@@ -415,9 +416,18 @@ package cn.vision.net
 				resetTimer();
 				avoid = true;
 				ctrlSocket.writeMultiByte("USER " + userName + "\r\n", "utf8");
-				ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
 				ctrlSocket.flush();
 			}
+		}
+		
+		/**
+		 * 输入密码。
+		 * @private
+		 */
+		private function command331():void
+		{
+			ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
+			ctrlSocket.flush();
 		}
 		
 		/**
@@ -570,7 +580,7 @@ package cn.vision.net
 			{
 				close();
 				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
-						false, false, "连接FTP服务器控制层超时！", 2036))
+						false, false, "连接FTP服务器控制层超时！", 2036));
 			}
 		}
 		

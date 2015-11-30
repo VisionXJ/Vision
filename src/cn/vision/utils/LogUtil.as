@@ -58,12 +58,13 @@ package cn.vision.utils
 		 */
 		private static function initialize():void
 		{
-			if(!file)
+			var n:Date = new Date;
+			var e:String = "log/" + n.fullYear + "-" + (n.month + 1) + "-" + n.date + ".log";
+			var s:String = FileUtil.resolvePathApplication(e);
+			if(!file || file.nativePath != s)
 			{
-				var n:Date = new Date;
-				var e:String = "log/" + n.fullYear + "-" + (n.month + 1) + "-" + n.date + ".log";
 				file = new VSFile(FileUtil.resolvePathApplication(e));
-				stream = new FileStream;
+				stream = stream || new FileStream;
 				stream.open(file, FileMode.APPEND);
 				
 				file.size && print(StringUtil.lineEnding);
