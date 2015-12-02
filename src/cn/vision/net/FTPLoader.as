@@ -443,6 +443,15 @@ package cn.vision.net
 		}
 		
 		/**
+		 * 下载完毕避免等待处理。
+		 * @private
+		 */
+		private function command226():void
+		{
+			createTimer(.5, handlerDataCompleteTimeout);
+		}
+		
+		/**
 		 * 设定数据传输socket的IP与端口，并获取文件大小。
 		 * @private
 		 */
@@ -526,6 +535,15 @@ package cn.vision.net
 		/**
 		 * @private
 		 */
+		private function handlerCtrlDefault($e:Event):void
+		{
+			close();
+			dispatchEvent($e.clone());
+		}
+		
+		/**
+		 * @private
+		 */
 		private function handlerCtrlClose($e:Event):void
 		{
 			if (loaded)
@@ -543,6 +561,23 @@ package cn.vision.net
 					close();
 					dispatchEvent(new Event(Event.CLOSE));
 				}
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function handlerCtrlConnectTimeout($e:TimerEvent):void
+		{
+			if (loaded)
+			{
+				delayClose();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
+					false, false, "连接FTP服务器控制层超时！", 2036));
 			}
 		}
 		
@@ -570,18 +605,10 @@ package cn.vision.net
 		/**
 		 * @private
 		 */
-		private function handlerCtrlConnectTimeout($e:TimerEvent):void
+		private function handlerDataDefault($e:Event):void
 		{
-			if (loaded)
-			{
-				delayClose();
-			}
-			else
-			{
-				close();
-				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
-						false, false, "连接FTP服务器控制层超时！", 2036));
-			}
+			close();
+			dispatchEvent($e.clone());
 		}
 		
 		/**
@@ -603,11 +630,36 @@ package cn.vision.net
 		/**
 		 * @private
 		 */
+		private function handlerDataCompleteTimeout($e:TimerEvent):void
+		{
+			delayClose();
+		}
+		
+		/**
+		 * @private
+		 */
 		private function handlerDataConnect($e:Event):void
 		{
 			streamOpen();
 			requestFile();
 			createTimer(timeout, handlerDataProgressTimeout);
+		}
+		
+		/**
+		 * @private
+		 */
+		private function handlerDataConnectTimeout($e:TimerEvent = null):void
+		{
+			if (loaded)
+			{
+				delayClose();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
+					false, false, "连接FTP服务器数据层超时！", 2036));
+			}
 		}
 		
 		/**
@@ -624,23 +676,6 @@ package cn.vision.net
 			dispatchEvent(new ProgressEvent(
 				ProgressEvent.PROGRESS, 
 				false, false, bytesLoaded, bytesTotal));
-		}
-		
-		/**
-		 * @private
-		 */
-		private function handlerDataConnectTimeout($e:TimerEvent = null):void
-		{
-			if (loaded)
-			{
-				delayClose();
-			}
-			else
-			{
-				close();
-				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, 
-						false, false, "连接FTP服务器数据层超时！", 2036));
-			}
 		}
 		
 		/**
@@ -688,24 +723,6 @@ package cn.vision.net
 		{
 			close();
 			dispatchEvent(new Event(Event.COMPLETE));
-		}
-		
-		/**
-		 * @private
-		 */
-		private function handlerCtrlDefault($e:Event):void
-		{
-			close();
-			dispatchEvent($e.clone());
-		}
-		
-		/**
-		 * @private
-		 */
-		private function handlerDataDefault($e:Event):void
-		{
-			close();
-			dispatchEvent($e.clone());
 		}
 		
 		
