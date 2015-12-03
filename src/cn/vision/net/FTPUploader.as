@@ -105,28 +105,11 @@ package cn.vision.net
 			if (vs::uploading)
 			{
 				vs::uploading = false;
-				if (stream) stream.close();
-				if (ctrlSocket)
-				{
-					if (ctrlSocket.connected)
-					{
-						ctrlSocket.writeUTFBytes("QUIT\n\r");
-						ctrlSocket.flush();
-					}
-					ctrlSocket.removeEventListener(Event.CLOSE, handlerCtrlClose);
-					ctrlSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-					ctrlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
-					ctrlSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-					DebugUtil.execute(ctrlSocket.close, false);
-				}
-				if (dataSocket)
-				{
-					DebugUtil.execute(dataSocket.close, false);
-				}
+				streamClose();
+				socketCtrlRemove();
+				socketDataRemove();
 				removeTimer();
-				stream = null;
 				file = null;
-				ctrlSocket = dataSocket = null;
 			}
 		}
 		
@@ -153,17 +136,9 @@ package cn.vision.net
 				{
 					if (file.exists)
 					{
-						stream = new FileStream;
-						stream.open(file, FileMode.READ);
+						streamOpen();
+						socketCtrlCreate();
 						
-						if(!ctrlSocket)
-						{
-							ctrlSocket = new Socket;
-							ctrlSocket.addEventListener(Event.CLOSE, handlerCtrlClose);
-							ctrlSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
-							ctrlSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
-							ctrlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-						}
 						ctrlSocket.connect(host, port);
 						createTimer(timeout, handlerCtrlConnectTimeout);
 					}
@@ -210,6 +185,87 @@ package cn.vision.net
 				}
 			}
 			return result;
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketCtrlCreate():void
+		{
+			if(!ctrlSocket)
+			{
+				ctrlSocket = new Socket;
+				ctrlSocket.addEventListener(Event.CLOSE, handlerCtrlClose);
+				ctrlSocket.addEventListener(IOErrorEvent.IO_ERROR, handlerCtrlDefault);
+				ctrlSocket.addEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
+				ctrlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerCtrlDefault);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketCtrlRemove():void
+		{
+			if (ctrlSocket)
+			{
+				if (ctrlSocket.connected)
+				{
+					ctrlSocket.writeMultiByte("QUIT\r\n", "utf8");
+					ctrlSocket.flush();
+					ctrlSocket.close();
+				}
+				ctrlSocket.removeEventListener(Event.CLOSE, handlerCtrlClose);
+				ctrlSocket.removeEventListener(IOErrorEvent.IO_ERROR, handlerCtrlDefault);
+				ctrlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
+				ctrlSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerCtrlDefault);
+				ctrlSocket = null;
+			}
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		private function socketDataCreate():void
+		{
+			if(!dataSocket) dataSocket = new Socket;
+		}
+		
+		/**
+		 * @private
+		 */
+		private function socketDataRemove():void
+		{
+			if (dataSocket)
+			{
+				if (dataSocket.connected) dataSocket.close();
+				dataSocket = null;
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function streamOpen():void
+		{
+			if(!stream)
+			{
+				stream = new FileStream;
+				stream.open(file, FileMode.READ);
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private function streamClose():void
+		{
+			if (stream) 
+			{
+				stream.close();
+				stream = null;
+			}
 		}
 		
 		/**
@@ -272,10 +328,19 @@ package cn.vision.net
 			{
 				resetTimer();
 				avoid = true;
-				ctrlSocket.writeUTFBytes("USER " + userName + "\n\r");
-				ctrlSocket.writeUTFBytes("PASS " + passWord + "\n\r");
+				ctrlSocket.writeMultiByte("USER " + userName + "\r\n", "utf8");
 				ctrlSocket.flush();
 			}
+		}
+		
+		/**
+		 * 输入密码。
+		 * @private
+		 */
+		private function command331():void
+		{
+			ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
+			ctrlSocket.flush();
 		}
 		
 		/**
@@ -286,8 +351,7 @@ package cn.vision.net
 		{
 			resetTimer();
 			avoid = false;
-			ctrlSocket.writeUTFBytes("TYPE I\n\r");
-			
+			ctrlSocket.writeMultiByte("TYPE I\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
@@ -298,8 +362,8 @@ package cn.vision.net
 		private function command200():void
 		{
 			resetTimer();
-			ctrlSocket.writeUTFBytes("DELE " + remoteURL + "\n\r");
-			ctrlSocket.writeUTFBytes("PASV\n\r");
+			ctrlSocket.writeMultiByte("DELE " + remoteURL + "\r\n", "utf8");
+			ctrlSocket.writeMultiByte("PASV\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
@@ -319,11 +383,10 @@ package cn.vision.net
 			dataHost = a2.join(".");
 			dataPort = (p2 * 256) + p1;
 			
-			dataSocket = new Socket;
+			socketDataCreate();
 			dataSocket.connect(dataHost, dataPort);
-			//createTimer(timeout, handlerDataConnectTimeout);
 			
-			ctrlSocket.writeUTFBytes("STOR " + remoteURL + "\n\r");
+			ctrlSocket.writeMultiByte("STOR " + remoteURL + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
@@ -357,25 +420,25 @@ package cn.vision.net
 		 */
 		private function command530():void
 		{
-			close();
-			dispatchEvent(new IOErrorEvent(
-				IOErrorEvent.IO_ERROR,
-				false, false, data.substr(4), 2035));
+			if (data.indexOf("Please login with USER and PASS")!= -1)
+			{
+				ctrlSocket.writeMultiByte("USER " + userName + "\r\n", "utf8");
+				ctrlSocket.flush();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(
+					IOErrorEvent.IO_ERROR,
+					false, false, data.substr(4), 2035));
+			}
 		}
 		
-		/**
-		 * 文件不存在。
-		 * @private
-		 */
-		private function command550():void
-		{
-		}
-		
 		
 		/**
 		 * @private
 		 */
-		private function handlerDefault($e:Event):void
+		private function handlerCtrlDefault($e:Event):void
 		{
 			close();
 			dispatchEvent($e.clone());
@@ -395,11 +458,17 @@ package cn.vision.net
 		 */
 		private function handlerCtrlProgress($e:ProgressEvent):void
 		{
-			data = ctrlSocket.readUTFBytes(ctrlSocket.bytesAvailable);
-			var list:Array = data.split("\n");
-			for each (var item:String in list)
+			var temp:String = ctrlSocket.readUTFBytes(ctrlSocket.bytesAvailable);
+			var list:Array = temp.split("\n");
+			var filter:Function = function($item:*, $index:int, $array:Array):Boolean
 			{
-				var cmd:String = item.substr(0, 3);
+				return !StringUtil.isEmpty($item.substr(0, 3));
+			};
+			list = list.filter(filter, null);
+			while (list.length)
+			{
+				data = list.shift();
+				var cmd:String = data.substr(0, 3);
 				if(!StringUtil.isEmpty(cmd))
 					DebugUtil.execute(execute, false, "command" + cmd);
 			}

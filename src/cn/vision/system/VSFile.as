@@ -50,7 +50,6 @@ package cn.vision.system
 		 */
 		private function initialize():void
 		{
-			vs::className = ClassUtil.getClassName(this);
 			vs::vid = IDUtil.generateID();
 			
 			if (exists) 
@@ -77,7 +76,7 @@ package cn.vision.system
 		
 		public function get className():String
 		{
-			return vs::className;
+			return vs::className = (vs::className || ClassUtil.getClassName(this));
 		}
 		
 		
