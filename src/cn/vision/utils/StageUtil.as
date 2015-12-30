@@ -177,6 +177,7 @@ final class App
 	 */
 	private function handlerAddedToStage(e:Event):void
 	{
+		app.removeEventListener(Event.ADDED_TO_STAGE, handlerAddedToStage);
 		if (stage)
 		{
 			assignStageWH();

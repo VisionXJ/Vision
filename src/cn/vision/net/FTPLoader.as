@@ -274,10 +274,8 @@ package cn.vision.net
 		{
 			if (stream) 
 			{
-				LogUtil.log("FTPLoader.streamClose");
 				stream.close();
 				stream = null;
-				LogUtil.log("========================");
 			}
 		}
 		
@@ -303,7 +301,6 @@ package cn.vision.net
 		{
 			if (ctrlSocket)
 			{
-				LogUtil.log("FTPLoader.socketCtrlRemove");
 				if (ctrlSocket.connected)
 				{
 					try
@@ -322,7 +319,6 @@ package cn.vision.net
 				ctrlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerCtrlProgress);
 				ctrlSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerCtrlDefault);
 				ctrlSocket = null;
-				LogUtil.log("========================");
 			}
 		}
 		
@@ -349,7 +345,6 @@ package cn.vision.net
 		{
 			if (dataSocket)
 			{
-				LogUtil.log("FTPLoader.socketDataRemove");
 				if (dataSocket.connected) 
 				{
 					try
@@ -367,7 +362,6 @@ package cn.vision.net
 				dataSocket.removeEventListener(ProgressEvent.SOCKET_DATA, handlerDataProgress);
 				dataSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDataDefault);
 				dataSocket = null;
-				LogUtil.log("========================");
 			}
 		}
 		
@@ -393,11 +387,9 @@ package cn.vision.net
 			if (bytesTotal && file && !file.exists && 
 				temp && temp.exists && temp.size == bytesTotal)
 			{
-				LogUtil.log("move file start:", fileName);
 				//如果不先取消temp的其他操作，文件移动过程中会出现导致软件卡死的现象。
 				temp.cancel();
 				temp.moveTo(file, true);
-				LogUtil.log("move file end:", fileName);
 			}
 		}
 		
@@ -418,7 +410,6 @@ package cn.vision.net
 		 */
 		private function delayClose():void
 		{
-			LogUtil.log("FTPLoader.delayClose()", fileName);
 			streamClose();
 			socketCtrlRemove();
 			socketDataRemove();
@@ -577,7 +568,6 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				LogUtil.log("FTPLoader.handlerCtrlClose()", fileName);
 				delayClose();
 			}
 			else
@@ -601,7 +591,6 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				LogUtil.log("FTPLoader.handlerCtrlConnectTimeout()", fileName);
 				delayClose();
 			}
 			else
@@ -649,7 +638,6 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				LogUtil.log("FTPLoader.handlerDataClose()", fileName);
 				delayClose();
 			}
 			else
@@ -666,7 +654,6 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				LogUtil.log("FTPLoader.handlerDataCompleteTimer()", fileName);
 				delayClose();
 			}
 			else
@@ -697,7 +684,6 @@ package cn.vision.net
 		{
 			if (loaded)
 			{
-				LogUtil.log("FTPLoader.handlerDataConnectTimeout()", fileName);
 				delayClose();
 			}
 			else
