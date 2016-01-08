@@ -61,6 +61,17 @@ package cn.vision.system
 		 * @inheritDoc
 		 */
 		
+		override public function copyToAsync($newLocation:FileReference, $overwrite:Boolean=false):void
+		{
+			cancel();
+			super.copyToAsync($newLocation, $overwrite);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
 		override public function deleteFile():void
 		{
 			cancel();
@@ -72,7 +83,29 @@ package cn.vision.system
 		 * @inheritDoc
 		 */
 		
+		override public function deleteFileAsync():void
+		{
+			cancel();
+			super.deleteFileAsync();
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
 		override public function moveTo($newLocation:FileReference, $overwrite:Boolean=false):void
+		{
+			cancel();
+			super.moveTo($newLocation, $overwrite);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function moveToAsync($newLocation:FileReference, $overwrite:Boolean=false):void
 		{
 			cancel();
 			super.moveTo($newLocation, $overwrite);
