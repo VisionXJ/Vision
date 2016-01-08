@@ -21,6 +21,7 @@ package cn.vision.system
 	
 	import flash.events.IOErrorEvent;
 	import flash.filesystem.File;
+	import flash.net.FileReference;
 	
 	
 	public class VSFile extends File implements IID, IName
@@ -42,6 +43,39 @@ package cn.vision.system
 			super($path);
 			
 			initialize();
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function copyTo($newLocation:FileReference, $overwrite:Boolean=false):void
+		{
+			cancel();
+			super.copyTo($newLocation, $overwrite);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function deleteFile():void
+		{
+			cancel();
+			super.deleteFile();
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function moveTo($newLocation:FileReference, $overwrite:Boolean=false):void
+		{
+			cancel();
+			super.moveTo($newLocation, $overwrite);
 		}
 		
 		
