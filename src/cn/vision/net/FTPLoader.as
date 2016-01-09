@@ -445,6 +445,7 @@ package cn.vision.net
 		 */
 		private function command331():void
 		{
+			resetTimer();
 			ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}

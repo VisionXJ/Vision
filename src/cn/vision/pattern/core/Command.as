@@ -142,9 +142,12 @@ package cn.vision.pattern.core
 		
 		protected function commandStart():void
 		{
-			vs::executing = true;
-			state = CommandStateConsts.RUNNING;
-			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_START, this));
+			if(!vs::executing)
+			{
+				vs::executing = true;
+				state = CommandStateConsts.RUNNING;
+				dispatchEvent(new CommandEvent(CommandEvent.COMMAND_START, this));
+			}
 		}
 		
 		
@@ -156,9 +159,12 @@ package cn.vision.pattern.core
 		
 		protected function commandEnd():void
 		{
-			vs::executing = false;
-			state = CommandStateConsts.FINISHED;
-			dispatchEvent(new CommandEvent(CommandEvent.COMMAND_END, this));
+			if (vs::executing)
+			{
+				vs::executing = false;
+				state = CommandStateConsts.FINISHED;
+				dispatchEvent(new CommandEvent(CommandEvent.COMMAND_END, this));
+			}
 		}
 		
 		

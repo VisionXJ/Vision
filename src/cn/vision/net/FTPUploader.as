@@ -129,9 +129,9 @@ package cn.vision.net
 			if (resolveRequest($request))
 			{
 				vs::uploading = true;
+				vs::fileName = request.localURL.split("\\").pop();
 				
 				file = new VSFile(localURL);
-				
 				try
 				{
 					if (file.exists)
@@ -339,6 +339,7 @@ package cn.vision.net
 		 */
 		private function command331():void
 		{
+			resetTimer();
 			ctrlSocket.writeMultiByte("PASS " + passWord + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}
@@ -434,6 +435,18 @@ package cn.vision.net
 			}
 		}
 		
+		/**
+		 * 不能创建文件。
+		 * @private
+		 */
+		private function command553():void
+		{
+			close();
+			dispatchEvent(new IOErrorEvent(
+				IOErrorEvent.IO_ERROR, 
+				false, false, data, 2036));
+		}
+		
 		
 		/**
 		 * @private
@@ -468,6 +481,7 @@ package cn.vision.net
 			while (list.length)
 			{
 				data = list.shift();
+				trace(data);
 				var cmd:String = data.substr(0, 3);
 				if(!StringUtil.isEmpty(cmd))
 					DebugUtil.execute(execute, false, "command" + cmd);
@@ -488,6 +502,18 @@ package cn.vision.net
 		
 		/**
 		 * 
+		 * 文件名。
+		 * 
+		 */
+		
+		public function get fileName():String
+		{
+			return vs::fileName;
+		}
+		
+		
+		/**
+		 * 
 		 * host地址。
 		 * 
 		 */
@@ -496,7 +522,6 @@ package cn.vision.net
 		{
 			return request ? request.host : null;
 		}
-		
 		
 		
 		/**
@@ -647,6 +672,11 @@ package cn.vision.net
 		 */
 		private var timerHandler:Function;
 		
+		
+		/**
+		 * @private
+		 */
+		vs var fileName:String;
 		
 		/**
 		 * @private
