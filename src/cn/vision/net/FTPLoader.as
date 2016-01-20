@@ -388,6 +388,7 @@ package cn.vision.net
 				temp && temp.exists && temp.size == bytesTotal)
 			{
 				//如果不先取消temp的其他操作，文件移动过程中会出现导致软件卡死的现象。
+				temp.cancel();
 				temp.moveTo(file, true);
 			}
 		}
@@ -399,6 +400,7 @@ package cn.vision.net
 		{
 			if (temp && temp.exists) 
 			{
+				temp.cancel();
 				temp.deleteFile();
 			}
 		}

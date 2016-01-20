@@ -11,7 +11,7 @@ package cn.vision.data
 	import cn.vision.core.vs;
 	
 	
-	public final class Tip
+	public class Tip
 	{
 		
 		/**
