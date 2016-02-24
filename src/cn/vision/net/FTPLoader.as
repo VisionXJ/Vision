@@ -180,6 +180,7 @@ package cn.vision.net
 				
 				streamClose();
 				
+				LogUtil.log(fileName + " FTPLader.close()");
 				moveFile();
 			}
 		}
@@ -388,8 +389,10 @@ package cn.vision.net
 				temp && temp.exists && temp.size == bytesTotal)
 			{
 				//如果不先取消temp的其他操作，文件移动过程中会出现导致软件卡死的现象。
+				LogUtil.log(fileName + " move start");
 				temp.cancel();
 				temp.moveTo(file, true);
+				LogUtil.log(fileName + " move end");
 			}
 		}
 		
@@ -400,7 +403,6 @@ package cn.vision.net
 		{
 			if (temp && temp.exists) 
 			{
-				temp.cancel();
 				temp.deleteFile();
 			}
 		}
@@ -756,6 +758,7 @@ package cn.vision.net
 		private function handlerCloseTimer($e:TimerEvent):void
 		{
 			vs::loading = false;
+			LogUtil.log(fileName + " FTPLader.handlerCloseTimer()");
 			moveFile();
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
