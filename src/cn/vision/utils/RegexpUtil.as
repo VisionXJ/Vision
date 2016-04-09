@@ -42,7 +42,7 @@ package cn.vision.utils
 					else
 					{
 						if ($meta.hasOwnProperty(p) || $meta[p] != undefined)
-							$target = $target.replace(i, $meta[p].toString());
+							$target = $target.replace(i, String($meta[p]));
 					}
 				}
 			}

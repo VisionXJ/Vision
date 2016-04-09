@@ -38,156 +38,24 @@ package cn.vision.system
 		
 		public function VSFile($path:String = null)
 		{
-			addEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true, 0, true);
+			//addEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true, 0, true);
 			
 			super($path);
 			
-			initialize();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function copyTo($newLocation:FileReference, $overwrite:Boolean=false):void
-		{
-			cancel();
-			super.copyTo($newLocation, $overwrite);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function copyToAsync($newLocation:FileReference, $overwrite:Boolean=false):void
-		{
-			cancel();
-			super.copyToAsync($newLocation, $overwrite);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function deleteDirectory($deleteDirectoryContents:Boolean = false):void
-		{
-			cancel();
-			super.deleteDirectory($deleteDirectoryContents);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function deleteDirectoryAsync($deleteDirectoryContents:Boolean=false):void
-		{
-			cancel();
-			super.deleteDirectoryAsync($deleteDirectoryContents);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function deleteFile():void
-		{
-			cancel();
-			super.deleteFile();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function deleteFileAsync():void
-		{
-			cancel();
-			super.deleteFileAsync();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function getDirectoryListing():Array
-		{
-			cancel();
-			return super.getDirectoryListing();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function getDirectoryListingAsync():void
-		{
-			cancel();
-			super.getDirectoryListingAsync();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function moveTo($newLocation:FileReference, $overwrite:Boolean=false):void
-		{
-			cancel();
-			super.moveTo($newLocation, $overwrite);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function moveToAsync($newLocation:FileReference, $overwrite:Boolean=false):void
-		{
-			cancel();
-			super.moveToAsync($newLocation, $overwrite);
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function moveToTrash():void
-		{
-			cancel();
-			super.moveToTrash();
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		
-		override public function moveToTrashAsync():void
-		{
-			cancel();
-			super.moveToTrashAsync();
+			initialize($path);
 		}
 		
 		
 		/**
 		 * @private
 		 */
-		private function initialize():void
+		private function initialize($path:String):void
 		{
 			vs::vid = IDUtil.generateID();
 			
-			if (exists) 
+			if ($path && exists) 
 			{
-				removeEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true);
+				//removeEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true);
 				
 				canonicalize();
 			}
@@ -197,10 +65,10 @@ package cn.vision.system
 		/**
 		 * @private
 		 */
-		private function handlerIOError($e:IOErrorEvent):void
+		/*private function handlerIOError($e:IOErrorEvent):void
 		{
 			removeEventListener(IOErrorEvent.IO_ERROR, handlerIOError, true);
-		}
+		}*/
 		
 		
 		/**

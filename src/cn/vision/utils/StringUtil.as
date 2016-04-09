@@ -88,6 +88,16 @@ package cn.vision.utils
 			return !($value && $value != "");
 		}
 		
+		public static function trim($value:String, $begin:Boolean = true, $end:Boolean = true):String
+		{
+			if ($value)
+			{
+				if ($begin) $value = $value.replace(TRIM_B, "");
+				if ($end  ) $value = $value.replace(TRIM_E, "");
+			}
+			return $value;
+		}
+		
 		
 		/**
 		 * 
@@ -107,6 +117,17 @@ package cn.vision.utils
 		 * @private
 		 */
 		private static var lineEndingSymbol:String;
+		
+		
+		/**
+		 * @private
+		 */
+		private static const TRIM_B:RegExp = /^\s*/;
+		
+		/**
+		 * @private
+		 */
+		private static const TRIM_E:RegExp = /\s*$/;
 		
 	}
 }

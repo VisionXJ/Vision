@@ -61,6 +61,19 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 转换数据为另一类型。
+		 * 
+		 */
+		
+		public static function convert($value:Object, $type:Class, ...$args):*
+		{
+			
+			return null;
+		}
+		
+		
+		/**
+		 * 
 		 * 转换XML
 		 * 
 		 * @param $value:* 需要转换的Object实例。
