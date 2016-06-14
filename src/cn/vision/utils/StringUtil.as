@@ -15,8 +15,6 @@ package cn.vision.utils
 	
 	import cn.vision.core.NoInstance;
 	
-	import flash.filesystem.File;
-	
 	
 	public final class StringUtil extends NoInstance
 	{
@@ -109,7 +107,12 @@ package cn.vision.utils
 		
 		public static function get lineEnding():String
 		{
-			return lineEndingSymbol || (lineEndingSymbol = File.lineEnding);
+			if(!lineEndingSymbol)
+			{
+				var fileClass:Class = ClassUtil.getClassByName("flash.filesystem.File");
+				lineEndingSymbol = fileClass ? fileClass.lineEnding : "\n";
+			}
+			return lineEndingSymbol;
 		}
 		
 		

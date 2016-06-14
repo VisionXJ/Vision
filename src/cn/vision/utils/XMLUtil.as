@@ -30,7 +30,7 @@ package cn.vision.utils
 		 * 
 		 * @param $value:* 要转换的XML或XMLList。
 		 * @param $type:Class (default = String) 目标类型。
-		 * @param $args 其他附加参数。
+		 * @param $args 其他附加参数，如转换XML时，需要附加根节点名称。
 		 * 
 		 * @return 返回目标类型。
 		 * 
