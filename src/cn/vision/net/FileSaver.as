@@ -324,7 +324,15 @@ package cn.vision.net
 			stream.position = stream.bytesAvailable;
 			var movable:Boolean = (data.length - stream.position) <= 0;
 			removeOpenListener();
-			movable ? move() : write();
+			if (movable) 
+			{
+				back();
+				move();
+			}
+			else
+			{
+				write();
+			}
 		}
 		
 		/**

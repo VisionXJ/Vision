@@ -38,7 +38,7 @@ package cn.vision.utils
 				var name:String = ClassUtil.getClassName($data, false);
 				name = name.toLowerCase() + "2ByteArray";
 				var result:ByteArray = ByteArrayUtil[name] ? 
-					ByteArrayUtil[name]($data) : string2Bytearray($data.toString());
+					ByteArrayUtil[name]($data) : string2ByteArray($data.toString());
 			}
 			return result;
 		}
@@ -55,7 +55,7 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function string2Bytearray($data:String):ByteArray
+		private static function string2ByteArray($data:String):ByteArray
 		{
 			var bytes:ByteArray = new ByteArray;
 			bytes.writeUTFBytes($data);
@@ -65,10 +65,11 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function object2Bytearray($data:Object):ByteArray
+		private static function object2ByteArray($data:Object):ByteArray
 		{
+			var json:String = JSON.stringify($data, null, "\t");
 			var bytes:ByteArray = new ByteArray;
-			bytes.writeObject($data);
+			bytes.writeUTFBytes(json);
 			return bytes;
 		}
 		
