@@ -23,6 +23,7 @@ package cn.vision.utils
 		 * 执行函数。
 		 * 
 		 * @param $func:Function 执行的函数。
+		 * @param $pring:Boolean 是否打印输出信息。
 		 * @param $args 执行函数的参数。
 		 * 
 		 * @return * 当调用函数有返回值时，返回调用函数指定的值。

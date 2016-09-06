@@ -46,12 +46,36 @@ package cn.vision.pattern.queue
 		
 		override public function execute($command:Command = null):void
 		{
-			if(!vs::executing)
+			if (immediateExecute)
 			{
-				vs::executing = true;
-				queueStart();
+				if(!vs::executing)
+				{
+					vs::executing = true;
+					queueStart();
+				}
+				
+				if ($command)
+				{
+					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
+				}
 			}
-			(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
+			else
+			{
+				if(!$command)
+				{
+					if(!vs::executing)
+					{
+						vs::executing = true;
+						queueStart();
+					}
+					executeCommand();
+				}
+				else
+				{
+					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
+				}
+			}
+			
 		}
 		
 		
@@ -63,7 +87,7 @@ package cn.vision.pattern.queue
 		{
 			if ($command)
 			{
-				var index:int = commandsIdle.indexOf($command);
+				var index:int = indexOf($command);
 				var result:Boolean = index > -1 && index < commandsIdle.length - 1;
 				if (result) ArrayUtil.order(commandsIdle, index, commandsIdle.length - 1);
 			}
@@ -75,11 +99,21 @@ package cn.vision.pattern.queue
 		 * @inheritDoc
 		 */
 		
+		override public function indexOf($command:Command):int
+		{
+			return commandsIdle.indexOf($command);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
 		override public function shift($command:Command, $close:Boolean = false):Boolean
 		{
 			if(!$command.executing)
 			{
-				var index:int = commandsIdle.indexOf($command);
+				var index:int = indexOf($command);
 				var result:Boolean = index > 0;
 				if (result)
 				{
@@ -107,22 +141,25 @@ package cn.vision.pattern.queue
 		
 		protected function executeCommand():void
 		{
-			if (commandsIdle.length)
+			if (immediateExecute || vs::executing)
 			{
-				if (executor.acceptable)
+				if (commandsIdle.length)
 				{
-					//闲置队列中还有命令，检测Executor能否接受新命令执行。
-					//可接受新命令，抽取并执行。
-					executor.execute(ArrayUtil.shift(commandsIdle));
+					if (executor.acceptable)
+					{
+						//闲置队列中还有命令，检测Executor能否接受新命令执行。
+						//可接受新命令，抽取并执行。
+						executor.execute(ArrayUtil.shift(commandsIdle));
+					}
 				}
-			}
-			else
-			{
-				if(!executor.num)
+				else
 				{
-					//队列中的命令已执行完毕，判断当前是否还有任务在执行。
-					vs::executing = false;
-					queueEnd();
+					if(!executor.num)
+					{
+						//队列中的命令已执行完毕，判断当前是否还有任务在执行。
+						vs::executing = false;
+						queueEnd();
+					}
 				}
 			}
 		}
@@ -260,6 +297,15 @@ package cn.vision.pattern.queue
 		{
 			return executor.num;
 		}
+		
+		
+		/**
+		 * 
+		 * 标识命令是否立即执行还是需要手动调用执行。
+		 * 
+		 */
+		
+		public var immediateExecute:Boolean = true;
 		
 		
 		/**

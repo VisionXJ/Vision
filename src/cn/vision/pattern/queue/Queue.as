@@ -119,6 +119,18 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
+		 * 查找某个命令是否存在，如不存在则返回-1。
+		 * 
+		 */
+		
+		public function indexOf($command:Command):int
+		{
+			return -1;
+		}
+		
+		
+		/**
+		 * 
 		 * 变量初始化。
 		 * 
 		 */
@@ -166,7 +178,7 @@ package cn.vision.pattern.queue
 		protected function queueEnd():void
 		{
 			state = QueueStateConsts.IDLE;
-			dispatchEvent(eventQueueEnd);
+			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_END));
 		}
 		
 		
@@ -179,7 +191,7 @@ package cn.vision.pattern.queue
 		protected function queueStart():void
 		{
 			state = QueueStateConsts.RUNNING;
-			dispatchEvent(eventQueueStart);
+			dispatchEvent(new QueueEvent(QueueEvent.QUEUE_START));
 		}
 		
 		
@@ -191,8 +203,7 @@ package cn.vision.pattern.queue
 		
 		protected function stepEnd($command:Command):void
 		{
-			eventStepEnd.vs::command = $command;
-			dispatchEvent(eventStepEnd);
+			dispatchEvent(new QueueEvent(QueueEvent.STEP_END, $command));
 		}
 		
 		
@@ -204,8 +215,7 @@ package cn.vision.pattern.queue
 		
 		protected function stepStart($command:Command):void
 		{
-			eventStepStart.vs::command = $command;
-			dispatchEvent(eventStepStart);
+			dispatchEvent(new QueueEvent(QueueEvent.STEP_START, $command));
 		}
 		
 		
@@ -263,26 +273,6 @@ package cn.vision.pattern.queue
 		 * @private
 		 */
 		protected var stateStore:Holder;
-		
-		/**
-		 * @private
-		 */
-		private var eventQueueStart:QueueEvent = new QueueEvent(QueueEvent.QUEUE_START);
-		
-		/**
-		 * @private
-		 */
-		private var eventQueueEnd:QueueEvent = new QueueEvent(QueueEvent.QUEUE_END);
-		
-		/**
-		 * @private
-		 */
-		private var eventStepStart:QueueEvent = new QueueEvent(QueueEvent.STEP_START);
-		
-		/**
-		 * @private
-		 */
-		private var eventStepEnd:QueueEvent = new QueueEvent(QueueEvent.STEP_END);
 		
 		
 		/**

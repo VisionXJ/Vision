@@ -41,14 +41,22 @@ package cn.vision.utils
 					}
 					else
 					{
-						if ($meta.hasOwnProperty(p) || $meta[p] != undefined)
-							$target = $target.replace(i, String($meta[p]));
+						var rep:String = DebugUtil.execute(getTag, false, $meta, p);
+						if (rep) $target = $target.replace(i, rep);
 					}
 				}
 			}
 			return $target;
 		}
 		
+		
+		/**
+		 * @private
+		 */
+		private static function getTag($meta:*, $key:String):String
+		{
+			return String($meta[$key]);
+		}
 		
 		/**
 		 * @private

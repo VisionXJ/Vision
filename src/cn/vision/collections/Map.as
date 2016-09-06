@@ -17,6 +17,7 @@ package cn.vision.collections
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.ILength;
 	import cn.vision.interfaces.IName;
+	import cn.vision.utils.ArrayUtil;
 	import cn.vision.utils.ClassUtil;
 	import cn.vision.utils.IDUtil;
 	import cn.vision.utils.StringUtil;
@@ -71,6 +72,20 @@ package cn.vision.collections
 			var map:Map = new Map;
 			for (var key:String in this) map[key] = this[key];
 			return map;
+		}
+		
+		
+		/**
+		 * 
+		 * 对自身的一个拷贝。
+		 * 
+		 */
+		
+		public function toArray():Array
+		{
+			var result:Array = [];
+			for each (var item:* in this) ArrayUtil.push(result, item);
+			return result;
 		}
 		
 		

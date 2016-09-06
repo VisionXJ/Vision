@@ -17,9 +17,12 @@ package cn.vision.utils
 	
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
+	import flash.display.IBitmapDrawable;
+	import flash.display.JPEGEncoderOptions;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.utils.ByteArray;
 	
 	
 	public final class BitmapUtil extends NoInstance
@@ -42,7 +45,7 @@ package cn.vision.utils
 		 * 
 		 */
 		
-		public static function draw($source:DisplayObject,
+		public static function draw($source:IBitmapDrawable,
 									$width:Number = NaN,
 									$height:Number = NaN,
 									$transparent:Boolean = true,
@@ -53,11 +56,35 @@ package cn.vision.utils
 									$clipRect:Rectangle = null,
 									$smoothing:Boolean = false):BitmapData
 		{
-			if (!($width  > 0)) $width  = $source.width;
-			if (!($height > 0)) $height = $source.height;
+			var source:Object = ($source as Object);
+			if (!($width  > 0)) $width  = source.width;
+			if (!($height > 0)) $height = source.height;
 			var bmd:BitmapData = new BitmapData($width, $height, $transparent, $fillColor);
 			bmd.draw($source, $matrix, $colorTransform, $blendMode, $clipRect, $smoothing);
 			return bmd;
+		}
+		
+		
+		/**
+		 * 
+		 * 编码jpg二进制字节流。
+		 * 
+		 * @param $bitmapData:BitmapData 需要转换的位图。
+		 * @param $quality:Number (default = 80) 图片质量，0-100之间的数值。
+		 * 
+		 */
+		
+		public static function encodeJPG($bitmapData:BitmapData, $quality:Number = 80):ByteArray
+		{
+			if ($bitmapData)
+			{
+				$quality = isNaN($quality) ? 80 : $quality;
+				$quality = MathUtil.clamp($quality, 0, 100);
+				const options:JPEGEncoderOptions = new JPEGEncoderOptions($quality);
+				var bytes:ByteArray = $bitmapData.encode($bitmapData.rect, options);
+				bytes.position = 0;
+			}
+			return bytes;
 		}
 		
 	}

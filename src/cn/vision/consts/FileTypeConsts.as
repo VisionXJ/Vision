@@ -36,6 +36,15 @@ package cn.vision.consts
 		
 		/**
 		 * 
+		 * jpg文件名后缀。
+		 * 
+		 */
+		
+		public static const JPEG:String = "jpeg";
+		
+		
+		/**
+		 * 
 		 * mp3文件名后缀。
 		 * 
 		 */

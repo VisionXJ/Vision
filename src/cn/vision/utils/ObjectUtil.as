@@ -24,6 +24,21 @@ package cn.vision.utils
 	public final class ObjectUtil extends NoInstance
 	{
 		
+		
+		/**
+		 * 
+		 * 清空一个Object。<br>
+		 * 
+		 * @param $value:* 要清空的对象。
+		 * 
+		 */
+		
+		public static function clear($value:Object):void
+		{
+			for (var key:String in $value) delete $value[key];
+		}
+		
+		
 		/**
 		 * 
 		 * 复制一个对象。<br>
@@ -39,22 +54,21 @@ package cn.vision.utils
 		
 		public static function clone($value:*):*
 		{
-			var result:*;
 			if ($value != null)
 			{
 				//获取全名
-				var typeName:String = ClassUtil.getClassName($value);
+				const typeName:String = ClassUtil.getClassName($value);
 				//切出包名
-				var packageName:String = typeName.split("::")[0];
+				const packageName:String = typeName.split("::")[0];
 				//获取Class
-				var type:Class = ClassUtil.getClassByName(typeName);
+				const type:Class = ClassUtil.getClassByName(typeName);
 				//注册Class
 				registerClassAlias(packageName, type);
 				//复制对象
-				var copier:ByteArray = new ByteArray;
+				const copier:ByteArray = new ByteArray;
 				copier.writeObject($value);
 				copier.position = 0;
-				result = copier.readObject();
+				var result:* = copier.readObject();
 			}
 			return result;
 		}
@@ -62,7 +76,7 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 转换数据为另一类型，数据类型的互转，支持int，uint，Number，String，XML，XMLList，Object之间的互相转换，支持JSON字符串转Object。
+		 * 转换数据为另一类型，数据类型的互转，支持int，uint，Number，String，XML，XMLList，Object，Date之间的互相转换，支持JSON字符串转Object。
 		 * 
 		 * @param $value:* 需要转换的值。
 		 * @param $type:Class 要转换成的类型。
@@ -120,6 +134,7 @@ package cn.vision.utils
 			return obj;
 		}
 		
+		
 		/**
 		 * @private
 		 */
@@ -135,18 +150,15 @@ package cn.vision.utils
 		 */
 		private static function retrieveConvertFunction($fr:String, $to:String):Function
 		{
+			var result:Function;
+			
 			if ($to == "Boolean" || $to == "Number")
-			{
-				var result:Function = ObjectUtil["convertObject2" + $to];
-			}
+				result = ObjectUtil["convertObject2" + $to];
 			else if ($fr == "XMLList" && $to == "Object")
-			{
 				result = convertXMLList2Array;
-			}
 			else
-			{
-				result = ObjectUtil["convert" + $fr + "2" + $to]
-			}
+				result = ObjectUtil["convert" + $fr + "2" + $to];
+			
 			return result;
 		}
 		
@@ -155,13 +167,9 @@ package cn.vision.utils
 		 */
 		private static function convertObject2Boolean($value:*):Boolean
 		{
-			return!($value == "" || 
-					($value == "0") || 
-					($value == "false") || 
-					($value == "False") || 
-					($value == 0) || 
-					($value == false) || 
-					($value == undefined));
+			return!($value == "" || ($value == "0") || 
+					($value == "false") || ($value == "False") || 
+					($value == 0) || ($value == false) || ($value == undefined));
 		}
 		
 		/**
@@ -186,7 +194,7 @@ package cn.vision.utils
 				{
 					case "Array":
 						for each (var i:* in $value[key])
-							xml.appendChild(convertObject2XML(i, key));
+						xml.appendChild(convertObject2XML(i, key));
 						break;
 					case "Object":
 						xml.appendChild(convertObject2XML($value[key], key));
@@ -201,8 +209,67 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH:MM:SS"):Date
+		private static function convertDate2String($date:Date, $formater:String = "YYYY-MM-DD HH12:MI:SS:MS", $zeroize:Boolean = true):String
 		{
+			const regExpYear:RegExp = /YY{1,3}/;
+			const vectorYear:Array = $formater.match(regExpYear);
+			if (vectorYear && vectorYear.length)
+			{
+				const formatYear:String = vectorYear[0];
+				var stringYear:String = String($date.fullYear);
+				if(formatYear == "YY") stringYear = stringYear.substr(2);
+				$formater = $formater.replace(regExpYear, stringYear);
+			}
+			
+			const regExpHour:RegExp = /HH(24|12)?/;
+			const vectorHour:Array = $formater.match(regExpHour);
+			if (vectorHour && vectorHour.length)
+			{
+				const formatHour:String = vectorHour[0];
+				const endfix:String = formatHour == "HH12" ?($date.hours < 12 ? " a.m." : " p.m."): "";
+				const numberHour:Number = formatHour == "HH12" ?($date.hours < 12 ? $date.hours : $date.hours - 12): $date.hours;
+				const stringHour:String = ($zeroize ? StringUtil.formatUint(numberHour, 2) : numberHour) + endfix;
+				$formater = $formater.replace(regExpHour, stringHour);
+			}
+			
+			const stringMonth:String = $zeroize 
+				? StringUtil.formatUint($date.month + 1, 2) 
+				: String($date.month + 1);
+			const stringDate:String = $zeroize 
+				? StringUtil.formatUint($date.date, 2) 
+				: String($date.date);
+			const stringMinutes:String = $zeroize
+				? StringUtil.formatUint($date.minutes, 2)
+				: String($date.minutes);
+			const stringSeconds:String = $zeroize
+				? StringUtil.formatUint($date.seconds, 2)
+				: String($date.seconds);
+			const stringMilliseconds:String = $zeroize
+				? StringUtil.formatUint($date.milliseconds, 3)
+				: String($date.milliseconds);
+			
+			return $formater.replace(/MM/, stringMonth)
+				.replace(/DD/, stringDate)
+				.replace(/MI/, stringMinutes)
+				.replace(/SS/, stringSeconds)
+				.replace(/MS/, stringMilliseconds);
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH12:MI:SS:MS"):Date
+		{
+			/*$value = StringUtil.trim($value);
+			var date:Date = new Date, index:int, value:Number;
+			index = $formater.search("YYYY");
+			if (index!= -1) 
+			{
+			value = Number($value.substr(index, 4));
+			}
+			index = $formater.search("MM");
+			if (index!= -1) date.month = Number($value.substr(index, 4));
+			*/
 			return new Date($value);
 		}
 		
@@ -213,6 +280,16 @@ package cn.vision.utils
 		{
 			if ($value && $value.charAt(0) == "#") $value = "0x" + $value.substr(1);
 			return uint($value);
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertuint2String($value:uint, $radix:uint = 16, $prefix:String = "0x"):String
+		{
+			$prefix = ($prefix=="#") ? "#" : "0x";
+			$prefix = $radix == 16 ? $prefix : "";
+			return $prefix + $value.toString($radix);
 		}
 		
 		/**
@@ -269,7 +346,7 @@ package cn.vision.utils
 			{
 				result = {};
 				for each (var i:* in at)
-					result[i.name()]= i.toString();
+				result[i.name()]= i.toString();
 				
 				for each(i in ls) 
 				{
@@ -300,6 +377,7 @@ package cn.vision.utils
 		 */
 		private static const CONVERTABLE:Object = 
 		{
+			"Date": true,
 			"String": true, 
 			"Boolean": true, 
 			"uint": true, 
@@ -309,5 +387,6 @@ package cn.vision.utils
 			"XMLList": true, 
 			"Object": true
 		}
+		
 	}
 }

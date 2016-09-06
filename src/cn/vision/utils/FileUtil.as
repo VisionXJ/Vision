@@ -14,8 +14,11 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
+	import cn.vision.system.VSFile;
 	
 	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
 	
 	
 	public final class FileUtil extends NoInstance
@@ -32,6 +35,26 @@ package cn.vision.utils
 		{
 			var arr:Array = url.split(".");
 			return arr[arr.length - 1];
+		}
+		
+		
+		/**
+		 * 
+		 * 保存字符串到文件。
+		 * 
+		 * @param $path:String 文件路径。
+		 * @param $data:String 要保存的字符串。
+		 * 
+		 */
+		
+		public static function saveUTF($path:String, $data:String):void
+		{
+			var file:VSFile = new VSFile($path);
+			var stream:FileStream = new FileStream;
+			stream.open(file, FileMode.WRITE);
+			stream.writeUTFBytes($data);
+			stream.close();
+			file = null;
 		}
 		
 		
