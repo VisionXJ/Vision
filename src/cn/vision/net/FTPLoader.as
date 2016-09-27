@@ -359,7 +359,7 @@ package cn.vision.net
 				{
 					dispatchEvent(new SecurityErrorEvent(
 						SecurityErrorEvent.SECURITY_ERROR,
-						false, false, "该文件已经在加载。"))
+						false, false, "文件 " + remoteURL + " 已经在加载。"))
 				}
 			}
 		}
@@ -425,6 +425,7 @@ package cn.vision.net
 			{
 				//LogUtil.log("FTPLoader.closeInternal() complete", $complete, "loading:", vs::loading, fileName);
 				vs::loading = moving = false;
+				removeTimer();
 				socketDataRemove();
 				socketCtrlRemove();
 				streamClose();
@@ -530,8 +531,7 @@ package cn.vision.net
 			if (++reloadCount < maxReload)
 			{
 				//服务端关闭了数据套接字需要重新连接
-				//LogUtil.log("FTPLoader.command421()", "reload", data, fileName);
-				LogUtil.log(fileName, "连接数据层超时，重新连接");
+				//LogUtil.log(fileName, "连接数据层超时，重新连接");
 				reloadFile();
 			}
 			else
@@ -570,8 +570,7 @@ package cn.vision.net
 			if (bool)
 			{
 				//不支持断点续传，重新下载
-				//LogUtil.log("FTPLoader.command550()", fileName);
-				LogUtil.log(fileName, "FTP不支持断点续传，重新下载。");
+				//LogUtil.log(fileName, "FTP不支持断点续传，重新下载。");
 				reloadFile(true);
 			}
 			else
@@ -598,9 +597,12 @@ package cn.vision.net
 			}
 			else
 			{
-				LogUtil.log(fileName, "无法连接控制层", host, port);
+				//LogUtil.log(fileName, "无法连接控制层", host, port);
 				closeInternal(false);
-				dispatchEvent($e.clone());
+				var e:IOErrorEvent = new IOErrorEvent(IOErrorEvent.IO_ERROR, 
+					false, false, "无法链接控制层，" + host + ":" + port, 2037);
+				vs::code = 501;
+				dispatchEvent(e);
 			}
 		}
 		
@@ -649,8 +651,7 @@ package cn.vision.net
 					if (++reloadCount < maxReload)
 					{
 						//服务端关闭了数据套接字，有丢包情况，需要重新下载
-						//LogUtil.log("FTPLoader.handlerDataDefault()", $e.type, "losted", fileName);
-						LogUtil.log(fileName, "连接数据层断开，重新连接。");
+						//LogUtil.log(fileName, "连接数据层断开，重新连接。");
 						reloadFile();
 					}
 					else

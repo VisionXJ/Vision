@@ -49,12 +49,12 @@ package cn.vision.utils
 									$width:Number = NaN,
 									$height:Number = NaN,
 									$transparent:Boolean = true,
+									$smoothing:Boolean = false,
 									$fillColor:uint = 0,
 									$matrix:Matrix = null,
 									$colorTransform:ColorTransform = null,
 									$blendMode:String = null,
-									$clipRect:Rectangle = null,
-									$smoothing:Boolean = false):BitmapData
+									$clipRect:Rectangle = null):BitmapData
 		{
 			var source:Object = ($source as Object);
 			if (!($width  > 0)) $width  = source.width;
