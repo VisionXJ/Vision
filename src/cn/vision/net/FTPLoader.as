@@ -576,7 +576,7 @@ package cn.vision.net
 			else
 			{
 				//LogUtil.log("下载失败，文件不存在", fileName);
-				vs::code = "530";
+				vs::code = "550";
 				closeInternal(false);
 				dispatchEvent(new IOErrorEvent(
 					IOErrorEvent.IO_ERROR,
@@ -885,7 +885,7 @@ package cn.vision.net
 		 * 
 		 */
 		
-		public var maxReload:uint = 20;
+		public var maxReload:uint = 5;
 		
 		
 		/**
