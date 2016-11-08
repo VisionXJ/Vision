@@ -346,12 +346,12 @@ package cn.vision.utils
 			{
 				result = {};
 				for each (var i:* in at)
-				result[i.name()]= i.toString();
+					result[i.name()]= i.toString();
 				
 				for each(i in ls) 
 				{
 					var n:String = i.name();
-					var o:* = (i.children().length() <= 1) ? i.toString() : convertXML2Object(i);
+					var o:* = (i.children()[0].children().length() == 0) ? i.toString() : convertXML2Object(i);
 					var t:* = result[n];
 					t ? (t is Array ? t[t.length] = o : result[n] = [t,o]) : result[n] = o;
 				}
