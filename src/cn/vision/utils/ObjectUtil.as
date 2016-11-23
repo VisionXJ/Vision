@@ -125,7 +125,7 @@ package cn.vision.utils
 				var accessor:Object = obj.accessor = {};
 				for each (var item:XML in xml.accessor)
 				{
-					var name:String = item.@name;
+					var name:String = item.@name;   //读取 XML中的类的属性
 					accessor[name] = {};
 					accessor[name].type   = item.@type  .toString();
 					accessor[name].access = item.@access.toString();
