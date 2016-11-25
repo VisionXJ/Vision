@@ -209,68 +209,117 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertDate2String($date:Date, $formater:String = "YYYY-MM-DD HH12:MI:SS:MS", $zeroize:Boolean = true):String
+		private static function convertDate2String($date:Date, $formater:String = "YYYY-MM-DD HH:MI:SS:MS", $zeroize:Boolean = true):String
 		{
-			const regExpYear:RegExp = /YY{1,3}/;
-			const vectorYear:Array = $formater.match(regExpYear);
-			if (vectorYear && vectorYear.length)
+			if ($date)
 			{
-				const formatYear:String = vectorYear[0];
-				var stringYear:String = String($date.fullYear);
-				if(formatYear == "YY") stringYear = stringYear.substr(2);
-				$formater = $formater.replace(regExpYear, stringYear);
+				if ($formater)
+				{
+					$formater = $formater.toUpperCase();
+					const vectorYear:Array = $formater.match(regExpYear);
+					if (vectorYear && vectorYear.length)
+					{
+						const formatYear:String = vectorYear[0];
+						var stringYear:String = String($date.fullYear);
+						if(formatYear == "YY") stringYear = stringYear.substr(2);
+						$formater = $formater.replace(regExpYear, stringYear);
+					}
+					
+					const vectorHour:Array = $formater.match(regExpHour);
+					if (vectorHour && vectorHour.length)
+					{
+						const formatHour:String = vectorHour[0];
+						const endfix:String = formatHour == "HH12" ?($date.hours < 12 ? "a.m." : "p.m."): "";
+						const numberHour:Number = formatHour == "HH12" ?($date.hours < 12 ? $date.hours : $date.hours - 12): $date.hours;
+						const stringHour:String = ($zeroize ? StringUtil.formatUint(numberHour, 2) : numberHour) + endfix;
+						$formater = $formater.replace(regExpHour, stringHour);
+					}
+					
+					const stringMonth:String = $zeroize 
+						? StringUtil.formatUint($date.month + 1, 2) 
+						: String($date.month + 1);
+					const stringDate:String = $zeroize 
+						? StringUtil.formatUint($date.date, 2) 
+						: String($date.date);
+					const stringMinutes:String = $zeroize
+						? StringUtil.formatUint($date.minutes, 2)
+						: String($date.minutes);
+					const stringSeconds:String = $zeroize
+						? StringUtil.formatUint($date.seconds, 2)
+						: String($date.seconds);
+					const stringMilliseconds:String = $zeroize
+						? StringUtil.formatUint($date.milliseconds, 3)
+						: String($date.milliseconds);
+					
+					$formater = $formater.replace(/MM/, stringMonth)
+						.replace(/DD/, stringDate)
+						.replace(/MI/, stringMinutes)
+						.replace(/SS/, stringSeconds)
+						.replace(/MS/, stringMilliseconds);
+				}
+				else
+				{
+					$formater = $date.toString();
+				}
 			}
-			
-			const regExpHour:RegExp = /HH(24|12)?/;
-			const vectorHour:Array = $formater.match(regExpHour);
-			if (vectorHour && vectorHour.length)
+			else
 			{
-				const formatHour:String = vectorHour[0];
-				const endfix:String = formatHour == "HH12" ?($date.hours < 12 ? " a.m." : " p.m."): "";
-				const numberHour:Number = formatHour == "HH12" ?($date.hours < 12 ? $date.hours : $date.hours - 12): $date.hours;
-				const stringHour:String = ($zeroize ? StringUtil.formatUint(numberHour, 2) : numberHour) + endfix;
-				$formater = $formater.replace(regExpHour, stringHour);
+				throw new ArgumentError("参数 $date 不能为空", 6001);
 			}
-			
-			const stringMonth:String = $zeroize 
-				? StringUtil.formatUint($date.month + 1, 2) 
-				: String($date.month + 1);
-			const stringDate:String = $zeroize 
-				? StringUtil.formatUint($date.date, 2) 
-				: String($date.date);
-			const stringMinutes:String = $zeroize
-				? StringUtil.formatUint($date.minutes, 2)
-				: String($date.minutes);
-			const stringSeconds:String = $zeroize
-				? StringUtil.formatUint($date.seconds, 2)
-				: String($date.seconds);
-			const stringMilliseconds:String = $zeroize
-				? StringUtil.formatUint($date.milliseconds, 3)
-				: String($date.milliseconds);
-			
-			return $formater.replace(/MM/, stringMonth)
-				.replace(/DD/, stringDate)
-				.replace(/MI/, stringMinutes)
-				.replace(/SS/, stringSeconds)
-				.replace(/MS/, stringMilliseconds);
+			return $formater;
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH12:MI:SS:MS"):Date
+		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH:MI:SS:MS"):Date
 		{
-			/*$value = StringUtil.trim($value);
-			var date:Date = new Date, index:int, value:Number;
-			index = $formater.search("YYYY");
-			if (index!= -1) 
+			var result:Date;
+			if ($value)
 			{
-			value = Number($value.substr(index, 4));
+				$value = StringUtil.trim($value);
+				$formater = $formater || "YYYY-MM-DD HH:MI:SS:MS";
+				$formater = StringUtil.trim($formater.toUpperCase());
+				
+				if ($formater == "MS")
+				{
+					var temp:Number = Number($value);
+					if (isNaN(temp))
+						throw new ArgumentError("参数 $value 不合法，必须是正整数", 6002);
+					else
+						result = new Date(Number($value));
+				}
+				else
+				{
+					var params:Array = [null, null, null, null, null, null, null];
+					for (var i:uint = 0; i < 7; i++)
+					{
+						var exp:String = DATE_REGEXPS[i]
+						var index:int = $formater.indexOf(exp);
+						if (index != -1)
+						{
+							var value:* = Number($value.substr(index, exp.length));
+							if (isNaN(value) || value == null) 
+							{
+								value = null;
+							}
+							else
+							{
+								value = uint(MathUtil.abs(value));
+								if (exp == "MM") value-= 1;
+							}
+							params[i] = value;
+						}
+					}
+					result = new Date(params[0], params[1], params[2], 
+						params[3], params[4], params[5], params[6]);
+				}
 			}
-			index = $formater.search("MM");
-			if (index!= -1) date.month = Number($value.substr(index, 4));
-			*/
-			return new Date($value);
+			else
+			{
+				throw new ArgumentError("参数 $value 不能为空", 6001);
+			}
+			return result;
 		}
 		
 		/**
@@ -387,6 +436,21 @@ package cn.vision.utils
 			"XMLList": true, 
 			"Object": true
 		}
+		
+		/**
+		 * @private
+		 */
+		private static const regExpYear:RegExp = /YY{1,3}/;
+		
+		/**
+		 * @private
+		 */
+		private static const regExpHour:RegExp = /HH(24|12)?/;
+		
+		/**
+		 * @private
+		 */
+		private static const DATE_REGEXPS:Array = ["YYYY", "MM", "DD", "HH", "MI", "SS", "MS"];
 		
 	}
 }
