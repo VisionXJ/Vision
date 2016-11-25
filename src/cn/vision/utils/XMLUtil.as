@@ -69,7 +69,7 @@ package cn.vision.utils
 						if ($vo.hasOwnProperty(name) && $vo[name] != undefined && 
 							validateMetadataType(type.accessor[name].type)) $vo[name] = item;
 					}
-					list = $xml.children();
+					list = $xml.children();   //获取 XML的标签
 					for each (item in list)
 					{
 						name = item.name().toString();
@@ -119,7 +119,7 @@ package cn.vision.utils
 		 */
 		private static function convertBoolean($value:*):Boolean
 		{
-			return!($value == "0" || 
+			return !($value == "0" || 
 					($value == "false") || 
 					($value == "False") || 
 					($value == 0) || 

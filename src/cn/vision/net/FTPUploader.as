@@ -36,6 +36,10 @@ package cn.vision.net
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
 	
+	import org.osmf.events.MediaPlayerCapabilityChangeEvent;
+	
+	import spark.skins.spark.windowChrome.RestoreButtonSkin;
+	
 	
 	/**
 	 * 
@@ -180,7 +184,7 @@ package cn.vision.net
 					request.localURL  != $request.localURL));
 				if(!result)
 				{
-					request = $request;
+					request = $request;					
 					result  = request.available;
 				}
 			}
@@ -447,6 +451,19 @@ package cn.vision.net
 				false, false, data, 2036));
 		}
 		
+		/**
+		 * 
+		 * 未找到定义的文件夹。
+		 * @private
+		 * 
+		 */
+		private function command550():void
+		{
+			resetTimer();
+			var terNo:String = request.remoteURL.split("\\")[1];
+			ctrlSocket.writeMultiByte("MKD \\ShotcutPic\\" + terNo + "\r\n", "utf8");
+			ctrlSocket.flush();
+		}
 		
 		/**
 		 * @private
@@ -687,6 +704,7 @@ package cn.vision.net
 		 * @private
 		 */
 		vs var timeout:uint;
+		
 		
 	}
 }

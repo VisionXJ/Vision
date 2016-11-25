@@ -70,7 +70,7 @@ package cn.vision.utils
 		
 		public static function resolvePathApplication($url:String):String
 		{
-			var file:File = File.applicationDirectory.resolvePath($url);
+			var file:File = File.applicationDirectory.resolvePath($url);  //启动 EXE文件的位置。
 			file.canonicalize();
 			return file.nativePath;
 		}
@@ -124,7 +124,7 @@ package cn.vision.utils
 		
 		public static function resolvePathDesktop($url:String):String
 		{
-			var file:File = File.desktopDirectory.resolvePath($url);
+			var file:File = File.desktopDirectory.resolvePath($url);   //在桌面上追加路径
 			file.canonicalize();
 			return file.nativePath;
 		}

@@ -68,7 +68,7 @@ package cn.vision.net
 			addEventListener(Event.COMPLETE, handlerDefault);
 			addEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
 			addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-			addEventListener(ProgressEvent.PROGRESS, handlerProgress);
+			addEventListener(ProgressEvent.PROGRESS, handlerProgress);  //下载过程中 收到数据时调度
 			
 			super.load($request);
 		}
