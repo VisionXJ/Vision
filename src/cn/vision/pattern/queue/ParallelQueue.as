@@ -39,6 +39,20 @@ package cn.vision.pattern.queue
 		
 		
 		/**
+		 * @inheritDoc
+		 */
+		
+		override public function close():void
+		{
+			if (executing)
+			{
+				executor.close();
+				vs::executing = false;
+			}
+		}
+		
+		
+		/**
 		 * 
 		 * 执行命令。
 		 * 
@@ -228,18 +242,6 @@ package cn.vision.pattern.queue
 		private function executeStartHandler($e:CommandEvent):void
 		{
 			stepStart($e.command);
-		}
-		
-		
-		/**
-		 * 
-		 * 是否在执行命令中。
-		 * 
-		 */
-		
-		public function get executing():Boolean
-		{
-			return Boolean(vs::executing);
 		}
 		
 		

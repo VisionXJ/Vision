@@ -60,6 +60,27 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
+		 * 停止执行所有正在执行的命令。
+		 * 
+		 */
+		
+		public function close():void
+		{
+			if (commands.length)
+			{
+				for each (var command:Command in commands)
+				{
+					command.removeEventListener(CommandEvent.COMMAND_START, handlerCommandExecuteStart);
+					command.removeEventListener(CommandEvent.COMMAND_END  , handlerCommandExecuteEnd);
+					command.close();
+				}
+				commands.clear();
+			}
+		}
+		
+		
+		/**
+		 * 
 		 * 执行一个命令，只要未达到最大限制。
 		 * 
 		 */
