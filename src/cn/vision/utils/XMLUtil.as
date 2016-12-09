@@ -76,7 +76,7 @@ package cn.vision.utils
 						if ($vo.hasOwnProperty(name))
 						{
 							validateMetadataType(type.accessor[name].type)
-								? $vo[name] = convert(item, ClassUtil.getClass(type.accessor[name].type))
+								? $vo[name] = ObjectUtil.convert(item, ClassUtil.getClassByName(type.accessor[name].type))
 								: map(item, $vo[name]);
 						}
 					}
@@ -135,24 +135,26 @@ package cn.vision.utils
 			if ($value is XMLList)
 			{
 				var r:* = [];
+				//对 XMLList遍历。得到的一个 XML类型。
 				for each (var i:* in $value)
 					r[r.length] = convertObject(i);
 			}
 			else if ($value is XML)
 			{
-				var ls:XMLList = $value.children();
-				var at:XMLList = $value.attributes();
+				var ls:XMLList = $value.children();    //获取子集。
+				var at:XMLList = $value.attributes(); //获取属性集。
 				var l1:uint = ls.length();
 				
 				if (l1 < 1 && at.length() == 0)
 				{
+					//如果只有一个 XML标签且无属性，则直接获取其值。
 					r = String($value);
 				}
 				else
 				{
 					r = {};
 					for each (i in at)
-						r["@" + i.name()]= i.toString();
+						r["@" + i.name()]= i.toString();   //存储该 XML的属性。格式: [@属性名 ]-> 属性值。
 					
 					for each(i in ls) 
 					{
@@ -160,6 +162,8 @@ package cn.vision.utils
 						var o:* = (i.children().length() <= 1) ? i.toString() : convertObject(i);
 						var t:* = r[n];
 						t ? (t is Array ? t[t.length] = o : r[n] = [t,o]) : r[n] = o;
+						//1.判定 t是否存在 (是否为第一次进入):是则对 r[n]赋值 o。其中,o为子类遍历。
+					   //2.判定 r[n]内部存的为何类型。如果有多个则累加进去，否则在本身累加。
 					}
 				}
 			}

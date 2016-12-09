@@ -42,6 +42,40 @@ package cn.vision.utils
 			}
 			return result;
 		}
+	
+		
+		
+		/**
+		 * 
+		 * 比较2个日期年月日的大小，只会比较年月日，不会比较时分秒。<br>
+		 * <br>
+		 * 特别地，该方法允许$date1是一个非时间格式。如此，则表示为无限期。即直接返回为1。(一般为EndDate)
+		 * 
+		 * @param $date1:Date 第一个日期。可以非时间格式，但会被解析为无限期。
+		 * @param $date2:Date 第二个日期。且必须为时间格式。
+		 * 
+		 * @return int 值为 -1，$date1 早于 $date2；值为 0，$date1 等于 $date2；值为1，$date1 晚于 $date2。
+		 * 
+		 */
+		
+		public static function compareDate_SP($date1:Date, $date2:Date):int
+		{
+			var v1:Boolean = validate($date1);
+			var v2:Boolean = validate($date2);
+			
+			if (!v1) return 1;    //如果v1非时间类型，则表示无限期。
+			else if (v2)
+			{
+				var result:int   = MathUtil.compare($date1.fullYear, $date2.fullYear);
+				result = result || MathUtil.compare($date1.month   , $date2.month);
+				result = result || MathUtil.compare($date1.date    , $date2.date);
+			}
+			else
+			{
+				throw new DateArgumentError;
+			}
+			return result;
+		}
 		
 		
 		/**
