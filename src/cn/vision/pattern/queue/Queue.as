@@ -84,10 +84,7 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		public function execute($command:Command = null):void
-		{
-			
-		}
+		public function execute($command:Command = null):void { }
 		
 		
 		/**
@@ -99,10 +96,7 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		public function shift($command:Command, $close:Boolean = false):Boolean
-		{
-			return false;
-		}
+		public function shift($command:Command, $close:Boolean = false):Boolean { return false; }
 		
 		
 		/**
@@ -111,10 +105,16 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		public function delay($command:Command):Boolean
-		{
-			return false;
-		}
+		public function delay($command:Command):Boolean { return false; }
+		
+		
+		/**
+		 * 
+		 * 队列停止执行。
+		 * 
+		 */
+		
+		public function close():void { }
 		
 		
 		/**
@@ -233,6 +233,18 @@ package cn.vision.pattern.queue
 		
 		
 		/**
+		 * 
+		 * 是否在执行命令中。
+		 * 
+		 */
+		
+		public function get executing():Boolean
+		{
+			return vs::executing as Boolean;
+		}
+		
+		
+		/**
 		 * @inheritDoc
 		 */
 		
@@ -274,6 +286,12 @@ package cn.vision.pattern.queue
 		 */
 		protected var stateStore:Holder;
 		
+		
+		
+		/**
+		 * @private
+		 */
+		vs var executing:Boolean;
 		
 		/**
 		 * @private
