@@ -460,8 +460,13 @@ package cn.vision.net
 		private function command550():void
 		{
 			resetTimer();
-			var terNo:String = request.remoteURL.split("\\")[1];
-			ctrlSocket.writeMultiByte("MKD \\ShotcutPic\\" + terNo + "\r\n", "utf8");
+			
+			//解析上传文件夹的路径。
+			var tempURL:String = remoteURL.indexOf("\\") == -1 
+				? remoteURL : remoteURL.replace(/\\/g, "/");
+			tempURL = tempURL.slice(0, tempURL.lastIndexOf("/"));
+			
+			ctrlSocket.writeMultiByte("MKD " + tempURL + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}
 		
