@@ -67,7 +67,7 @@ package cn.vision.utils
 		
 		public static function isEmpty($value:String):Boolean
 		{
-			return !($value && $value != "");
+			return !($value && $value != "" && $value != "null");
 		}
 		
 		
