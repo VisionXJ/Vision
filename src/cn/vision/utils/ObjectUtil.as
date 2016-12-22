@@ -87,11 +87,11 @@ package cn.vision.utils
 		public static function convert($value:*, $type:Class = null, ...$args):*
 		{
 			$type = $type || String;
-			if ($value != null && convertableMetadata($value, $type))
+			var fr:String = ClassUtil.getClassName($value, false);
+			var to:String = ClassUtil.getClassName($type , false);
+			if (convertableMetadata(fr, to))
 			{
-				var convertFunc:Function = retrieveConvertFunction(
-					ClassUtil.getClassName($value, false), 
-					ClassUtil.getClassName($type , false));
+				var convertFunc:Function = retrieveConvertFunction(fr, to);
 				if (convertFunc != null)
 				{
 					ArrayUtil.unshift($args, $value);
@@ -104,7 +104,6 @@ package cn.vision.utils
 			}
 			return result;
 		}
-		
 		
 		/**
 		 * 
@@ -138,11 +137,9 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertableMetadata($value:*, $type:Class):Boolean
+		private static function convertableMetadata($fr:String, $to:String):Boolean
 		{
-			var fr:String = ClassUtil.getClassName($value, false);
-			var to:String = ClassUtil.getClassName($type , false);
-			return CONVERTABLE[fr] && CONVERTABLE[to];
+			return ($to == "Number" || $to == "Boolean") ? true : (CONVERTABLE[$fr] && CONVERTABLE[$to]);
 		}
 		
 		/**
@@ -175,10 +172,10 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertObject2Number($value:*):Number
+		private static function convertObject2Number($value:*, $default:Number = NaN):Number
 		{
 			var r:Number = Number($value);
-			return isNaN(r) ? 0 : r;
+			return isNaN(r) ? $default : r;
 		}
 		
 		/**
@@ -331,6 +328,13 @@ package cn.vision.utils
 			return uint($value);
 		}
 		
+		private static function convertString2Number($value:String, $default:Number = NaN):Number
+		{
+			var result:Number = Number($value);
+			if (isNaN(result) && !isNaN($default)) result = $default;
+			return result;
+		}
+		
 		/**
 		 * @private
 		 */
@@ -426,6 +430,8 @@ package cn.vision.utils
 		 */
 		private static const CONVERTABLE:Object = 
 		{
+			"null": true, 
+			"void": true, 
 			"Date": true,
 			"String": true, 
 			"Boolean": true, 

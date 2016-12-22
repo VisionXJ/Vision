@@ -42,6 +42,17 @@ package cn.vision.pattern.queue
 		 * @inheritDoc
 		 */
 		
+		override public function clear():void
+		{
+			close();
+			commandsIdle.length = 0;
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
 		override public function close():void
 		{
 			if (executing)

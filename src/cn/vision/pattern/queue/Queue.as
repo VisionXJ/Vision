@@ -80,6 +80,18 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
+		 * 清空命令。
+		 * 
+		 */
+		
+		public function clear():void
+		{
+			
+		}
+		
+		
+		/**
+		 * 
 		 * 执行命令。
 		 * 
 		 */
