@@ -440,7 +440,8 @@ package cn.vision.utils
 			"Number": true, 
 			"XML" : true, 
 			"XMLList": true, 
-			"Object": true
+			"Object": true,
+			"Array" : true
 		}
 		
 		/**

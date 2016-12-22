@@ -29,6 +29,7 @@ package cn.vision.net
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
+	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.net.Socket;
@@ -133,7 +134,7 @@ package cn.vision.net
 			if (resolveRequest($request))
 			{
 				vs::uploading = true;
-				vs::fileName = request.localURL.split("\\").pop();
+				vs::fileName = request.localURL.split(File.separator).pop();
 				
 				file = new VSFile(localURL);
 				try
@@ -409,6 +410,23 @@ package cn.vision.net
 			dataSocket.close();
 		}
 		
+		
+		
+		/**
+		 * 
+		 * Linux系统下的上传数据。
+		 * 
+		 */
+		
+		private function command257():void
+		{
+			if (data.indexOf("successfully") == -1)
+			{
+				dispatchEvent(new Event(Event.CANCEL));
+			}
+		}
+		
+		
 		/**
 		 * 完毕处理。
 		 * @private
@@ -445,10 +463,23 @@ package cn.vision.net
 		 */
 		private function command553():void
 		{
-			close();
-			dispatchEvent(new IOErrorEvent(
-				IOErrorEvent.IO_ERROR, 
-				false, false, data, 2036));
+			//Linux下的处理。
+			if (data.indexOf("Could not create file") != -1)
+			{
+//				解析上传文件夹的路径。
+				var tempURL:String = remoteURL.indexOf("\\") == -1 
+					? remoteURL : remoteURL.replace(/\\/g, '/');
+				tempURL = tempURL.slice(0, tempURL.lastIndexOf("/"));
+				ctrlSocket.writeMultiByte("MKD " + tempURL + "\r\n", "utf8");
+				ctrlSocket.flush();
+			}
+			else
+			{
+				close();
+				dispatchEvent(new IOErrorEvent(
+					IOErrorEvent.IO_ERROR, 
+					false, false, data, 2036));
+			}
 		}
 		
 		/**
@@ -461,11 +492,12 @@ package cn.vision.net
 		{
 			resetTimer();
 			
+			if (data.split(" ")[1] == "Delete") return;
+			
 			//解析上传文件夹的路径。
 			var tempURL:String = remoteURL.indexOf("\\") == -1 
-				? remoteURL : remoteURL.replace(/\\/g, "/");
+				? remoteURL : remoteURL.replace(/\\/g, '/');
 			tempURL = tempURL.slice(0, tempURL.lastIndexOf("/"));
-			
 			ctrlSocket.writeMultiByte("MKD " + tempURL + "\r\n", "utf8");
 			ctrlSocket.flush();
 		}

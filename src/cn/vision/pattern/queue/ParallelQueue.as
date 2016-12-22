@@ -268,6 +268,11 @@ package cn.vision.pattern.queue
 		}
 		
 		
+		
+		
+		
+		
+		
 		/**
 		 * 
 		 * 剩余需要执行的任务个数，不包含当前正在执行的任务。
@@ -336,7 +341,7 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		protected var commandsIdle:Vector.<Command>;
+		public var commandsIdle:Vector.<Command>;
 		
 		
 		/**
