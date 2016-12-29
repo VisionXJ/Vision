@@ -14,11 +14,11 @@ package cn.vision.utils
 	
 	
 	
-	import cn.vision.core.NoInstance;
-	
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	import flash.utils.describeType;
+	
+	import cn.vision.core.NoInstance;
 	
 	
 	public final class ObjectUtil extends NoInstance
@@ -404,7 +404,7 @@ package cn.vision.utils
 				for each(i in ls) 
 				{
 					var n:String = i.name();
-					var o:* = (i.children()[0].children().length() == 0) ? i.toString() : convertXML2Object(i);
+					var o:* = i.children()[0] ? ((i.children()[0].children().length() == 0) ? i.toString() : convertXML2Object(i)) : i.toString();
 					var t:* = result[n];
 					t ? (t is Array ? t[t.length] = o : result[n] = [t,o]) : result[n] = o;
 				}
