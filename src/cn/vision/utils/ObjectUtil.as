@@ -272,6 +272,9 @@ package cn.vision.utils
 		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH:MI:SS:MS"):Date
 		{
 			var result:Date;
+			
+			if ($value == "null") return null;
+			
 			if ($value)
 			{
 				$value = StringUtil.trim($value);
