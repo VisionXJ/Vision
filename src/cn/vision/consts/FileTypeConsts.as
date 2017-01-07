@@ -78,5 +78,14 @@ package cn.vision.consts
 		
 		public static const TMP:String = "tmp";
 		
+		
+		/**
+		 * 
+		 * xml文件名后缀。
+		 * 
+		 */
+		
+		public static const XML:String = "xml";
+		
 	}
 }
