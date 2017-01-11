@@ -162,11 +162,12 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertObject2Boolean($value:*):Boolean
+		private static function convertObject2Boolean($value:*, $default:Boolean = false):Boolean
 		{
-			return!($value == "" || ($value == "0") || 
-					($value == "false") || ($value == "False") || 
-					($value == 0) || ($value == false) || ($value == undefined));
+			return $value == undefined ? $default
+				: !($value == "" || $value == "0" || 
+					$value == "false" || $value == "False" || 
+					$value == 0 || $value == false);
 		}
 		
 		/**
