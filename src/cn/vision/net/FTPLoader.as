@@ -884,7 +884,7 @@ package cn.vision.net
 		 * 
 		 */
 		
-		public var maxReload:uint = 5;
+		public var maxReload:uint = 2;
 		
 		
 		/**
