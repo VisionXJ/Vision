@@ -559,7 +559,6 @@ package cn.vision.net
 		}
 		
 		/**
-		 * FTP上文件不存在。
 		 * @private
 		 */
 		private function command530():void
@@ -574,7 +573,7 @@ package cn.vision.net
 		}
 		
 		/**
-		 * 文件不存在。
+		 * FTP上文件不存在。
 		 * @private
 		 */
 		private function command550():void
