@@ -425,6 +425,7 @@ package cn.vision.net
 			{
 				//LogUtil.log("FTPLoader.closeInternal() complete", $complete, "loading:", vs::loading, fileName);
 				vs::loading = moving = false;
+				quitCtrl();
 				removeTimer();
 				socketDataRemove();
 				socketCtrlRemove();
@@ -451,6 +452,18 @@ package cn.vision.net
 		private function execute($code:String):void
 		{
 			if (this[$code] is Function) this[$code]();
+		}
+		
+		/**
+		 * @private
+		 */
+		private function quitCtrl():void
+		{
+			if (ctrlSocket && ctrlSocket.connected)
+			{
+				ctrlSocket.writeMultiByte("QUIT \r\n", "utf8");
+				ctrlSocket.flush();
+			}
 		}
 		
 		
