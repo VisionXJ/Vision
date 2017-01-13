@@ -165,5 +165,47 @@ package cn.vision.utils
 			return file.nativePath;
 		}
 		
+		
+		/**
+		 * 
+		 * 判定两个文件是否为相同。<br>
+		 * 特别的，如果参数存在文件夹类型则直接返回为false。
+		 * 
+		 * @return 俩文件相同则返回true。
+		 * 
+		 */
+		
+		public static function compareFile($file1:File, $file2:File):Boolean
+		{
+			var result:Boolean;
+			
+			//不存在或者为文件夹类型都返回为 false。
+			if ($file1.exists && $file2.exists && 
+				!$file1.isDirectory && !$file2.isDirectory)
+			{
+				var stream1:FileStream = new FileStream;
+				var stream2:FileStream = new FileStream;
+				
+				stream1.open($file1, FileMode.READ);
+				stream2.open($file2, FileMode.READ);
+				
+				//如果长度不相等则直接返回 false。
+				result = stream1.bytesAvailable == stream2.bytesAvailable;
+				
+				var readAble:uint = stream1.bytesAvailable;
+				
+				while (result && (stream1.position != readAble))
+				{
+					if (stream1.readByte() != stream2.readByte())
+						result = false;
+				}
+				
+				stream1.close();
+				stream2.close();
+			}
+			
+		 	return result; 
+		}
+		
 	}
 }
