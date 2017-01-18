@@ -536,7 +536,7 @@ package cn.vision.net
 		}
 		
 		/**
-		 * 用户名或密码错误。
+		 * 下载失败。
 		 * @private
 		 */
 		private function command421():void
