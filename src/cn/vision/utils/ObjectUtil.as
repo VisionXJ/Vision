@@ -19,6 +19,7 @@ package cn.vision.utils
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	import flash.utils.describeType;
+	import flash.utils.getQualifiedClassName;
 	
 	
 	public final class ObjectUtil extends NoInstance
@@ -76,19 +77,38 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 比较两个Object是否相同。
-		 * 
-		 * @param $a:Object 需要转换的值。
-		 * @param $type:Class 要转换成的类型。
-		 * $args 附加参数。
+		 * 两个对象的比较。<br>
+		 * 支持的类型为：uint,Number,int,Array,Object,Boolean和String。<br>
+		 * 特别地，当参数之一存在null、undefined或者NaN之一时会返回false。
+		 * @return 相同则返回为true。
 		 * 
 		 */
 		
-		public static function compare($a:Object, $b:Object):Boolean
+		public static function compare(a:Object, b:Object):Boolean
 		{
-			return false;
+			//基本类型不一致直接返回 false。
+			var result:Boolean = typeof(a) == typeof(b); 
+			
+			if (result && DIC[typeof(a)])
+			{
+				switch(typeof(a))
+				{
+					//非基本类型需要特别比较。
+					case "object":   
+					{
+						result = judgeObject(a, b);
+						break;
+					}
+					//基本类型可以直接比较。
+					default:
+					{
+						result = a == b;
+						break;
+					}
+				}
+			}
+			return result;
 		}
-		
 		
 		/**
 		 * 
@@ -445,6 +465,127 @@ package cn.vision.utils
 			return result;
 		}
 		
+		
+		/**
+		 * 
+		 * 判断传入的对象为哪种非基本类型。
+		 * 
+		 */
+		
+		private static function judgeObject(a:Object, b:Object):Boolean
+		{
+			//类不同直接返回 false。
+			var result:Boolean = getQualifiedClassName(a) == getQualifiedClassName(b);
+			
+			if (result)
+			{
+				if (a is Array)
+				{
+					result = compareArray(a as Array, b as Array);
+				}
+				else if (a is Object)
+				{
+					result = compareObject(a, b);
+				}
+				else
+				{
+					//对于非基本类型暂时只支持 Array和 Object的判定。
+					result = false;
+				}
+			}
+			
+			return result;
+		}
+		
+		
+		/**
+		 * 
+		 * Object类型比较。
+		 * 
+		 */
+		
+		private static function compareObject(a:Object, b:Object):Boolean
+		{
+			var result:Boolean = getObjectLength(a) == getObjectLength(b);
+			
+			if (result)
+			{
+				for (var sa:String in a)
+				{
+					if (a[sa] != b[sa])
+					{
+						if (b[sa] && typeof(b[sa]) == "object" && typeof(a[sa]) == "object")
+						{
+							result = compare(a[sa], b[sa]);
+						}
+						else
+						{
+							result = false;
+						}
+					}
+					
+					if (!result) break;
+				}
+			}
+			
+			return result;
+		}
+		
+	
+		/**
+		 * 
+		 * 数组类型比较。
+		 * 
+		 */
+		
+		private static function compareArray(a:Array, b:Array):Boolean
+		{
+			var result:Boolean = a.length == b.length;
+			var i:uint = 0;
+			
+			while (result && i < a.length)
+			{
+				if (a[i] != b[i])
+				{
+					if (typeof(b[i]) == "object" && typeof(a[i]) == "object")
+					{
+						result = compare(a[i], b[i]);
+					}
+					else
+					{
+						result = false;	
+					}
+				}
+				i++;
+			}
+			return result;
+		}
+		
+		
+		/**
+		 * 
+		 * 获得Object数组的长度。
+		 * 
+		 */
+		
+		private static function getObjectLength(o:Object):uint
+		{
+			var i:uint;
+			
+			for (var s:String in o) i++;
+			
+			return i;
+		}
+		
+		
+		private static const DIC:Object = {
+			"object"  : true,
+			"uint"    : true,
+			"int"     : true,
+			"number"  : true,
+			"boolean" : true,
+			"string"  : true
+		};
 		
 		/**
 		 * @private

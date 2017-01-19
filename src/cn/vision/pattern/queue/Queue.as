@@ -126,7 +126,7 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		public function exist($command:Command):Boolean { }
+		public function exist($command:Command):Boolean { return false }
 		
 		
 		/**
