@@ -14,11 +14,11 @@ package cn.vision.utils
 	
 	
 	
+	import cn.vision.core.NoInstance;
+	
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	import flash.utils.describeType;
-	
-	import cn.vision.core.NoInstance;
 	
 	
 	public final class ObjectUtil extends NoInstance
@@ -76,6 +76,22 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 比较两个Object是否相同。
+		 * 
+		 * @param $a:Object 需要转换的值。
+		 * @param $type:Class 要转换成的类型。
+		 * $args 附加参数。
+		 * 
+		 */
+		
+		public static function compare($a:Object, $b:Object):Boolean
+		{
+			return false;
+		}
+		
+		
+		/**
+		 * 
 		 * 转换数据为另一类型，数据类型的互转，支持int，uint，Number，String，XML，XMLList，Object，Date之间的互相转换，支持JSON字符串转Object。
 		 * 
 		 * @param $value:* 需要转换的值。
@@ -104,6 +120,7 @@ package cn.vision.utils
 			}
 			return result;
 		}
+		
 		
 		/**
 		 * 

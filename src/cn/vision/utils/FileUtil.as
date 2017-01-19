@@ -40,6 +40,29 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 从文本文件中读取字符串。
+		 * 
+		 * @param $path:String 文件绝对路径。
+		 * 
+		 */
+		
+		public static function readUTF($absolutePath:String):String
+		{
+			var file:VSFile = new VSFile($absolutePath);
+			if (file.exists)
+			{
+				var stream:FileStream = new FileStream;
+				stream.open(file, FileMode.READ);
+				var result:String = stream.readUTFBytes(stream.bytesAvailable);
+				stream.close();
+				file = null;
+			}
+			return result;
+		}
+		
+		
+		/**
+		 * 
 		 * 保存字符串到文件。
 		 * 
 		 * @param $path:String 文件路径。
