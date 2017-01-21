@@ -101,35 +101,10 @@ package cn.vision.pattern.queue
 					FUNC[$command.priority] :
 					FUNC[CommandPriorityConsts.NORMAL])($command);
 			}
-			/*if (immediateExecute)
-			{
-				if(!vs::executing)
-				{
-					vs::executing = true;
-					queueStart();
-				}
-				
-				if ($command)
-				{
-					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
-				}
-			}
 			else
 			{
-				if(!$command)
-				{
-					if(!vs::executing)
-					{
-						vs::executing = true;
-						queueStart();
-					}
-					executeCommand();
-				}
-				else
-				{
-					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
-				}
-			}*/
+				executeCommand();
+			}
 		}
 		
 		
@@ -137,9 +112,23 @@ package cn.vision.pattern.queue
 		 * @inheritDoc
 		 */
 		
+		override public function exist($command:Command):Boolean
+		{
+			return executor.exist($command) || indexOf($command) >= 0;
+		}
+		
+		
+		/**
+		 * 
+		 * 查询命令在队列中的索引，如不存在返回-1，如该命令正在执行，则返回-2。
+		 * 
+		 * @param $command:Command 需要查找的Command。
+		 * 
+		 */
+		
 		override public function indexOf($command:Command):int
 		{
-			return commandsIdle.indexOf($command);
+			return executor.exist($command) ? -2 : commandsIdle.indexOf($command);
 		}
 		
 		
@@ -157,6 +146,26 @@ package cn.vision.pattern.queue
 			}
 		}
 		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function remove($command:Command):Boolean
+		{
+			var result:Boolean = true;
+			if (executor.exist($command))
+			{
+				executor.remove($command);
+			}
+			else
+			{
+				var index:int = indexOf($command);
+				if (index >= 0) commandsIdle.splice(index, 1);
+				else result = false;
+			}
+			return result;
+		}
 		
 		/**
 		 * @inheritDoc
@@ -198,7 +207,7 @@ package cn.vision.pattern.queue
 			{
 				if (commandsIdle.length)
 				{
-					if (executor.acceptable)
+					while (executor.acceptable && commandsIdle.length)
 					{
 						//闲置队列中还有命令，检测Executor能否接受新命令执行。
 						//可接受新命令，抽取并执行。
@@ -261,7 +270,10 @@ package cn.vision.pattern.queue
 		 */
 		private function callHighest($command:Command, $exec:Boolean = true):void
 		{
-			executor.execute($command);
+			if ($exec)
+				executor.execute($command);
+			else
+				ArrayUtil.unshift(commandsIdle, $command);
 		}
 		
 		
@@ -294,11 +306,6 @@ package cn.vision.pattern.queue
 		{
 			return executor.commands;
 		}
-		
-		
-		
-		
-		
 		
 		
 		/**

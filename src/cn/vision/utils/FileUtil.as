@@ -26,6 +26,51 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 删除文件。
+		 * 
+		 * @param $path:String 文件绝对路径。
+		 * 
+		 */
+		
+		public static function deleteFile($absolutePath:String):Boolean
+		{
+			var result:Boolean;
+			var file:VSFile = new VSFile($absolutePath);
+			if (file.exists)
+			{
+				try
+				{
+					file.deleteFile();
+					result = true;
+				}
+				catch(e:Error) { }
+			}
+			return result;
+		}
+		
+		/**
+		 * 
+		 * 移动文件。
+		 * 
+		 * @param $fromPath:String 需要移动的文件路径。
+		 * @param $toPath:String 移动至的路径。
+		 * @param $overwrite:Boolean (default = false) 强制覆盖。
+		 * 
+		 */
+		
+		public static function moveFile($fromPath:String, $toPath:String, $overwrite:Boolean = false):void
+		{
+			var fromFile:VSFile = new VSFile($fromPath);
+			var toFile:VSFile = new VSFile($toPath);
+			if (fromFile.exists)
+			{
+				fromFile.moveTo(toFile, $overwrite);
+			}
+		}
+		
+		
+		/**
+		 * 
 		 * 从URL获取文件类型。<br>
 		 * 注意：该方法只能简单判断文件类型。
 		 * 

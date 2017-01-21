@@ -199,6 +199,14 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
+		private static function convertvoid2String($value:*):String
+		{
+			return "";
+		}
+		
+		/**
+		 * @private
+		 */
 		private static function convertObject2Boolean($value:*, $default:Boolean = false):Boolean
 		{
 			return $value == undefined ? $default
@@ -439,13 +447,22 @@ package cn.vision.utils
 			else
 			{
 				result = {};
-				for each (var i:* in at)
-					result[i.name()]= i.toString();
-				
+				for each (var i:* in at) result[String(i.name())]= i;
+					
 				for each(i in ls) 
 				{
 					var n:String = i.name();
-					var o:* = i.children()[0] ? ((i.children()[0].children().length() == 0) ? i.toString() : convertXML2Object(i)) : i.toString();
+					var c1:* = i.children()[0];
+					if (c1)
+					{
+						var c2:* = c1.children();
+						var o:* = c1 ? ((c2.length() == 0) ? i.toString() : convertXML2Object(i)) : i.toString();
+					}
+					else
+					{
+						o = convertXML2Object(i);
+					}
+					
 					var t:* = result[n];
 					t ? (t is Array ? t[t.length] = o : result[n] = [t,o]) : result[n] = o;
 				}

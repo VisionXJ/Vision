@@ -100,6 +100,44 @@ package cn.vision.pattern.queue
 		
 		
 		/**
+		 * 
+		 * 判断某个命令是否在执行中。
+		 * 
+		 */
+		
+		public function exist($command:Command):Boolean
+		{
+			for each (var command:Command in commands)
+			{
+				if (command == $command) return true;
+			}
+			return false;
+		}
+		
+		
+		/**
+		 * 
+		 * 判断某个命令是否在执行中。
+		 * 
+		 */
+		
+		public function remove($command:Command):void
+		{
+			for each (var command:Command in commands)
+			{
+				if ($command == command) 
+				{
+					command.removeEventListener(CommandEvent.COMMAND_START, handlerCommandExecuteStart);
+					command.removeEventListener(CommandEvent.COMMAND_END  , handlerCommandExecuteEnd);
+					command.close();
+					delete commands[$command.vid];
+					break;
+				}
+			}
+		}
+		
+		
+		/**
 		 * @private
 		 */
 		private function initialize():void

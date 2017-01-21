@@ -131,7 +131,7 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
-		 * 查找某个命令在队列中是否存在，如不存在则返回-1。
+		 * 查找某个命令在队列中的索引。
 		 * 
 		 * @param $command:Command 需要查找的命令实例。
 		 * 
@@ -149,6 +149,17 @@ package cn.vision.pattern.queue
 		 */
 		
 		public function push($command:Command):void { }
+		
+		
+		/**
+		 * 
+		 * 删除某个命令实例。
+		 * 
+		 * @param $command:Command 需要删除的元素实例。
+		 * 
+		 */
+		
+		public function remove($command:Command):Boolean { return false; }
 		
 		
 		/**
