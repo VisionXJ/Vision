@@ -86,7 +86,7 @@ package cn.vision.utils
 		
 		public static function compare(a:Object, b:Object):Boolean
 		{
-			//基本类型不一致直接返回 false。
+			//基本类型不一致直接返回false。
 			var result:Boolean = typeof(a) == typeof(b); 
 			
 			if (result && DIC[typeof(a)])
@@ -170,6 +170,26 @@ package cn.vision.utils
 			return obj;
 		}
 		
+		
+		/**
+		 * 
+		 * 获得Object数组的长度。<br>
+		 * 特别地，该方法不可以获取其它诸如Array等类型的长度。
+		 * @return 该Object数组的长度。
+		 * 
+		 */
+		
+		public static function getObjArrLength(o:Object):uint
+		{
+			var i:uint = 0;
+			
+			if (ClassUtil.getClassName(o, false) == "Object")
+			{
+				for (var s:String in o) i++;
+			}
+			
+			return i;
+		}
 		
 		/**
 		 * @private
@@ -475,7 +495,7 @@ package cn.vision.utils
 		private static function judgeObject(a:Object, b:Object):Boolean
 		{
 			//类不同直接返回 false。
-			var result:Boolean = getQualifiedClassName(a) == getQualifiedClassName(b);
+			var result:Boolean = ClassUtil.getClassName(a, false) == ClassUtil.getClassName(b, false);
 			
 			if (result)
 			{
@@ -506,7 +526,7 @@ package cn.vision.utils
 		
 		private static function compareObject(a:Object, b:Object):Boolean
 		{
-			var result:Boolean = getObjectLength(a) == getObjectLength(b);
+			var result:Boolean = getObjArrLength(a) == getObjArrLength(b);
 			
 			if (result)
 			{
@@ -514,17 +534,10 @@ package cn.vision.utils
 				{
 					if (a[sa] != b[sa])
 					{
-						if (b[sa] && typeof(b[sa]) == "object" && typeof(a[sa]) == "object")
-						{
-							result = compare(a[sa], b[sa]);
-						}
-						else
-						{
-							result = false;
-						}
+						result = b[sa] && compare(a[sa], b[sa]);
+						
+						if (!result) break;
 					}
-					
-					if (!result) break;
 				}
 			}
 			
@@ -547,34 +560,12 @@ package cn.vision.utils
 			{
 				if (a[i] != b[i])
 				{
-					if (typeof(b[i]) == "object" && typeof(a[i]) == "object")
-					{
-						result = compare(a[i], b[i]);
-					}
-					else
-					{
-						result = false;	
-					}
+					result = compare(a[i], b[i]);
 				}
+				
 				i++;
 			}
 			return result;
-		}
-		
-		
-		/**
-		 * 
-		 * 获得Object数组的长度。
-		 * 
-		 */
-		
-		private static function getObjectLength(o:Object):uint
-		{
-			var i:uint;
-			
-			for (var s:String in o) i++;
-			
-			return i;
 		}
 		
 		
@@ -586,6 +577,7 @@ package cn.vision.utils
 			"boolean" : true,
 			"string"  : true
 		};
+		
 		
 		/**
 		 * @private
