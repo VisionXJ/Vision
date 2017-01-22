@@ -84,40 +84,7 @@ package cn.vision.pattern.queue
 		 * 
 		 */
 		
-		public function clear():void
-		{
-			
-		}
-		
-		
-		/**
-		 * 
-		 * 执行命令。
-		 * 
-		 */
-		
-		public function execute($command:Command = null):void { }
-		
-		
-		/**
-		 * 
-		 * 提前某个命令。
-		 * 
-		 * @param $command:Command 需要提前的命令实例。
-		 * @param $close:Boolean 是否关闭当前正在运行的命令实例。
-		 * 
-		 */
-		
-		public function shift($command:Command, $close:Boolean = false):Boolean { return false; }
-		
-		
-		/**
-		 * 
-		 * 滞后某个命令。
-		 * 
-		 */
-		
-		public function delay($command:Command):Boolean { return false; }
+		public function clear():void { }
 		
 		
 		/**
@@ -131,14 +98,80 @@ package cn.vision.pattern.queue
 		
 		/**
 		 * 
-		 * 查找某个命令是否存在，如不存在则返回-1。
+		 * 滞后某个命令。
+		 * 
+		 * @param $command:Command 需要延后的命令实例。
 		 * 
 		 */
 		
-		public function indexOf($command:Command):int
-		{
-			return -1;
-		}
+		public function delay($command:Command):Boolean { return false; }
+		
+		
+		/**
+		 * 
+		 * 执行命令。
+		 * 
+		 * @param $command:Command 需要执行的命令实例。
+		 * 
+		 */
+		
+		public function execute($command:Command = null):void { }
+		
+		
+		/**
+		 * 
+		 * 判断一个命令是否在队列中存在，判断一个命令是否存在，必须该命令正在等待被执行或执行中，已执行过的命令不算。
+		 * 
+		 * @param $command:Command 需要判断的命令实例。
+		 * 
+		 */
+		
+		public function exist($command:Command):Boolean { return false }
+		
+		
+		/**
+		 * 
+		 * 查找某个命令在队列中的索引。
+		 * 
+		 * @param $command:Command 需要查找的命令实例。
+		 * 
+		 */
+		
+		public function indexOf($command:Command):int { return -1; }
+		
+		
+		/**
+		 * 
+		 * 将命令加入队列末尾，此方法与execute不同，push操作后，命令不会立即执行。
+		 * 
+		 * @param $command:Command 要添加的命令实例。
+		 * 
+		 */
+		
+		public function push($command:Command):void { }
+		
+		
+		/**
+		 * 
+		 * 删除某个命令实例。
+		 * 
+		 * @param $command:Command 需要删除的元素实例。
+		 * 
+		 */
+		
+		public function remove($command:Command):Boolean { return false; }
+		
+		
+		/**
+		 * 
+		 * 提前某个命令。
+		 * 
+		 * @param $command:Command 需要提前的命令实例。
+		 * @param $close:Boolean 是否关闭当前正在运行的命令实例。
+		 * 
+		 */
+		
+		public function shift($command:Command, $close:Boolean = false):Boolean { return false; }
 		
 		
 		/**
@@ -297,7 +330,6 @@ package cn.vision.pattern.queue
 		 * @private
 		 */
 		protected var stateStore:Holder;
-		
 		
 		
 		/**

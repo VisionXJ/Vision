@@ -64,47 +64,6 @@ package cn.vision.pattern.queue
 		
 		
 		/**
-		 * 
-		 * 执行命令。
-		 * 
-		 */
-		
-		override public function execute($command:Command = null):void
-		{
-			if (immediateExecute)
-			{
-				if(!vs::executing)
-				{
-					vs::executing = true;
-					queueStart();
-				}
-				
-				if ($command)
-				{
-					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
-				}
-			}
-			else
-			{
-				if(!$command)
-				{
-					if(!vs::executing)
-					{
-						vs::executing = true;
-						queueStart();
-					}
-					executeCommand();
-				}
-				else
-				{
-					(FUNC[$command.priority] ? FUNC[$command.priority] : FUNC[CommandPriorityConsts.NORMAL])($command);
-				}
-			}
-			
-		}
-		
-		
-		/**
 		 * @inheritDoc
 		 */
 		
@@ -121,14 +80,92 @@ package cn.vision.pattern.queue
 		
 		
 		/**
+		 * 
+		 * 添加，执行命令。
+		 * 
+		 * @param $command:Command (default = null) 需要加入执行的命令实例。
+		 * 
+		 */
+		
+		override public function execute($command:Command = null):void
+		{
+			if(!vs::executing)
+			{
+				vs::executing = true;
+				queueStart();
+			}
+			
+			if ($command)
+			{
+				(FUNC[$command.priority] ? 
+					FUNC[$command.priority] :
+					FUNC[CommandPriorityConsts.NORMAL])($command);
+			}
+			else
+			{
+				executeCommand();
+			}
+		}
+		
+		
+		/**
 		 * @inheritDoc
+		 */
+		
+		override public function exist($command:Command):Boolean
+		{
+			return executor.exist($command) || indexOf($command) >= 0;
+		}
+		
+		
+		/**
+		 * 
+		 * 查询命令在队列中的索引，如不存在返回-1，如该命令正在执行，则返回-2。
+		 * 
+		 * @param $command:Command 需要查找的Command。
+		 * 
 		 */
 		
 		override public function indexOf($command:Command):int
 		{
-			return commandsIdle.indexOf($command);
+			return executor.exist($command) ? -2 : commandsIdle.indexOf($command);
 		}
 		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function push($command:Command):void
+		{
+			if ($command)
+			{
+				(FUNC[$command.priority] ? 
+					FUNC[$command.priority] :
+					FUNC[CommandPriorityConsts.NORMAL])($command, false);
+			}
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function remove($command:Command):Boolean
+		{
+			var result:Boolean = true;
+			if (executor.exist($command))
+			{
+				executor.remove($command);
+			}
+			else
+			{
+				var index:int = indexOf($command);
+				if (index >= 0) commandsIdle.splice(index, 1);
+				else result = false;
+			}
+			return result;
+		}
 		
 		/**
 		 * @inheritDoc
@@ -166,11 +203,11 @@ package cn.vision.pattern.queue
 		
 		protected function executeCommand():void
 		{
-			if (immediateExecute || vs::executing)
+			if (vs::executing)
 			{
 				if (commandsIdle.length)
 				{
-					if (executor.acceptable)
+					while (executor.acceptable && commandsIdle.length)
 					{
 						//闲置队列中还有命令，检测Executor能否接受新命令执行。
 						//可接受新命令，抽取并执行。
@@ -198,8 +235,8 @@ package cn.vision.pattern.queue
 			commandsIdle = new Vector.<Command>;
 			
 			executor = new Executor;
-			executor.addEventListener(CommandEvent.COMMAND_END, executeEndHandler);
-			executor.addEventListener(CommandEvent.COMMAND_START, executeStartHandler);
+			executor.addEventListener(CommandEvent.COMMAND_END, executeEndHandler, false, 0, true);
+			executor.addEventListener(CommandEvent.COMMAND_START, executeStartHandler, false, 0, true);
 			executor.limit = 3;
 			
 			FUNC[CommandPriorityConsts.NORMAL ] = callNormal;
@@ -211,29 +248,32 @@ package cn.vision.pattern.queue
 		 * 普通优先级会放在闲置队列末尾。
 		 * @private
 		 */
-		private function callNormal($command:Command):void
+		private function callNormal($command:Command, $exec:Boolean = true):void
 		{
 			ArrayUtil.push(commandsIdle, $command);
-			executeCommand();
+			if ($exec) executeCommand();
 		}
 		
 		/**
 		 * 高优先级会放在闲置队列起始位置。
 		 * @private
 		 */
-		private function callHigh($command:Command):void
+		private function callHigh($command:Command, $exec:Boolean = true):void
 		{
 			ArrayUtil.unshift(commandsIdle, $command);
-			executeCommand();
+			if ($exec) executeCommand();
 		}
 		
 		/**
 		 * 最高优先级，直接使用Executor执行。 
 		 * @private
 		 */
-		private function callHighest($command:Command):void
+		private function callHighest($command:Command, $exec:Boolean = true):void
 		{
-			executor.execute($command);
+			if ($exec)
+				executor.execute($command);
+			else
+				ArrayUtil.unshift(commandsIdle, $command);
 		}
 		
 		
@@ -266,11 +306,6 @@ package cn.vision.pattern.queue
 		{
 			return executor.commands;
 		}
-		
-		
-		
-		
-		
 		
 		
 		/**
@@ -315,15 +350,6 @@ package cn.vision.pattern.queue
 		{
 			return executor.num;
 		}
-		
-		
-		/**
-		 * 
-		 * 标识命令是否立即执行还是需要手动调用执行。
-		 * 
-		 */
-		
-		public var immediateExecute:Boolean = true;
 		
 		
 		/**
