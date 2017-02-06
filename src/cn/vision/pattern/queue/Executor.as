@@ -13,6 +13,8 @@ package cn.vision.pattern.queue
 	 */
 	
 	
+	import avmplus.USE_ITRAITS;
+	
 	import cn.vision.collections.Map;
 	import cn.vision.consts.CommandPriorityConsts;
 	import cn.vision.core.VSEventDispatcher;
@@ -39,7 +41,6 @@ package cn.vision.pattern.queue
 	 */
 	
 	[Event(name="commandEnd"  , type="cn.vision.events.pattern.CommandEvent")]
-	
 	
 	internal final class Executor extends VSEventDispatcher
 	{
@@ -75,6 +76,8 @@ package cn.vision.pattern.queue
 					command.close();
 				}
 				commands.clear();
+				
+				vs::num = 0;
 			}
 		}
 		
@@ -123,16 +126,13 @@ package cn.vision.pattern.queue
 		
 		public function remove($command:Command):void
 		{
-			for each (var command:Command in commands)
+			if (commands[$command.vid])
 			{
-				if ($command == command) 
-				{
-					command.removeEventListener(CommandEvent.COMMAND_START, handlerCommandExecuteStart);
-					command.removeEventListener(CommandEvent.COMMAND_END  , handlerCommandExecuteEnd);
-					command.close();
-					delete commands[$command.vid];
-					break;
-				}
+				$command.removeEventListener(CommandEvent.COMMAND_START, handlerCommandExecuteStart);
+				$command.removeEventListener(CommandEvent.COMMAND_END  , handlerCommandExecuteEnd);
+				$command.close();
+				delete commands[$command.vid];
+				vs::num -= 1;
 			}
 		}
 		

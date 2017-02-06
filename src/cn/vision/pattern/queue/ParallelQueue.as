@@ -164,6 +164,7 @@ package cn.vision.pattern.queue
 				if (index >= 0) commandsIdle.splice(index, 1);
 				else result = false;
 			}
+			if (lave + num == 0) vs::executing = false;
 			return result;
 		}
 		

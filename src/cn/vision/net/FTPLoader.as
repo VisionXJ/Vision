@@ -379,7 +379,8 @@ package cn.vision.net
 		 */
 		private function moveFile():void
 		{
-			if(!moving && bytesTotal &&
+			if(!moving && 
+				bytesLoaded >= bytesTotal &&
 				file &&!file.exists && 
 				temp && temp.exists)
 			{
@@ -521,6 +522,11 @@ package cn.vision.net
 			dataPort = (p2 * 256) + p1;
 			ctrlSocket.writeMultiByte("SIZE " + remoteURL + "\r\n", "utf8");
 			ctrlSocket.flush();
+		}
+		
+		private function command226():void
+		{
+			moveFile();
 		}
 		
 		/**
