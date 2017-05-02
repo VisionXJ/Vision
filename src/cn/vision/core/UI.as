@@ -13,15 +13,16 @@ package cn.vision.core
 	 */
 	
 	
-	import cn.vision.consts.state.UIStateConsts;
+	import cn.vision.collections.Holder;
+	import cn.vision.consts.UIStateConsts;
 	import cn.vision.events.StateEvent;
 	import cn.vision.interfaces.IEnable;
 	import cn.vision.interfaces.IExtra;
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.IName;
 	import cn.vision.interfaces.IState;
-	import cn.vision.pattern.data.Holder;
-	import cn.vision.states.core.ui.*;
+	import cn.vision.states.UIInitializeState;
+	import cn.vision.states.UIReadyState;
 	import cn.vision.utils.ClassUtil;
 	import cn.vision.utils.IDUtil;
 	import cn.vision.utils.StateUtil;
@@ -44,71 +45,45 @@ package cn.vision.core
 			super();
 			
 			initialize();
-		}
-		
-		
-		/**
-		 * 
-		 * 变量初始化。
-		 * 
-		 */
-		
-		protected function initializeVariables():void
-		{
-			vs::enabled = true;
-			vs::state = UIStateConsts.INITIALIZE;
-			vs::vid = IDUtil.generateID();
 			
-			stateStore = new Holder;
-		}
-		
-		
-		/**
-		 * 
-		 * 状态初始化。
-		 * 
-		 */
-		
-		protected function initializeStates():void
-		{
-			stateStore.registData(UIStateConsts.INITIALIZE, new UIInitializeState);
-			stateStore.registData(UIStateConsts.READY     , new UIReadyState);
-		}
-		
-		
-		/**
-		 * 
-		 * 初始化侦听器。
-		 * 
-		 */
-		
-		protected function initializeListeners():void
-		{
-		}
-		
-		
-		/**
-		 * 
-		 * 初始化完毕。
-		 * 
-		 */
-		
-		protected function initializeComplete():void
-		{
 			state = UIStateConsts.READY;
 		}
 		
 		
 		/**
-		 * @private
+		 * 
+		 * 组件初始化操作。
+		 * 
 		 */
-		private function initialize():void
+		
+		vs function updateProperties():void
 		{
-			initializeVariables();
 			
-			initializeStates();
+		}
+		
+		
+		
+		
+		/**
+		 * 
+		 * 组件初始化操作。
+		 * 
+		 */
+		
+		protected function initialize():void
+		{
+			//variables
+			vs::vid = IDUtil.generateID();
+			vs::enabled = true;
+			vs::state = UIStateConsts.INITIALIZE;
 			
-			initializeComplete();
+			stateStore = new Holder;
+			
+			//states
+			stateStore.registData(UIStateConsts.INITIALIZE, new UIInitializeState);
+			stateStore.registData(UIStateConsts.READY, new UIReadyState);
+			
+			//listeners
 		}
 		
 		
@@ -153,9 +128,9 @@ package cn.vision.core
 		 * @inheritDoc
 		 */
 		
-		public function get extra():Object
+		public function get extra():VSObject
 		{
-			return vs::extra || (vs::extra = {});
+			return vs::extra || (vs::extra = new VSObject);
 		}
 		
 		
@@ -185,6 +160,9 @@ package cn.vision.core
 		{
 			return vs::lastState;
 		}
+		
+		
+		
 		
 		
 		/**

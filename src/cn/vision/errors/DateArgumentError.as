@@ -13,14 +13,22 @@ package cn.vision.errors
 	 */
 	
 	
-	import cn.vision.errors.VSError;
+	import cn.vision.core.VSError;
 	
 	
 	public final class DateArgumentError extends VSError
 	{
+		
+		/**
+		 * 
+		 * 构造函数。
+		 * 
+		 */
+		
 		public function DateArgumentError()
 		{
 			super("日期参数不合法");
 		}
+		
 	}
 }

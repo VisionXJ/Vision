@@ -19,6 +19,76 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 根据URL获取主域名信息。
+		 * 
+		 * @param $url:String 
+		 * 
+		 * @return String 返回主域名字符串。
+		 * 
+		 */
+		
+		public static function getDomainName($url:String):String
+		{
+			if ($url)
+			{
+				$url = $url.replace("\\", "/");
+				$url = $url.toLowerCase();
+				var doubleSplit:Array = $url.split("//");
+				if (doubleSplit.length)
+				{
+					$url = doubleSplit[doubleSplit.length - 1];
+					var singleSplit:Array = $url.split("/");
+					if (singleSplit.length)
+					{
+						$url = singleSplit[0];
+						var colonSplit:Array = $url.split(":");
+						if (colonSplit.length)
+						{
+							$url = colonSplit[0];
+							var dotSplit:Array = $url.split(".");
+							if (dotSplit.length > 1)
+							{
+								if (isNaN(dotSplit[dotSplit.length - 1]))
+								{
+									$url = dotSplit[dotSplit.length - 2] + "." + dotSplit[dotSplit.length - 1];
+									if (URLFIX[dotSplit[dotSplit.length - 2]] && 
+										URLFIX[dotSplit[dotSplit.length - 1]])
+									{
+										$url = dotSplit[dotSplit.length - 3] + "." + $url;
+									}
+								}
+								else
+								{
+									$url = dotSplit.join(".");
+								}
+							}
+						}
+					}
+				}
+			}
+			return $url;
+		}
+		
+		
+		/**
+		 * 
+		 * 规范化url。
+		 * 
+		 * @param $url:String 
+		 * 
+		 * @return String 返回规范化后的url字符串。
+		 * 
+		 */
+		
+		public static function normalize($url:String):String
+		{
+			return ($url && $url.indexOf("http") != 0) ? "http://" + $url : $url;
+		}
+		
+		
+		
+		/**
+		 * 
 		 * 验证2个HTTP协议URI是否同一地址。
 		 * <p>
 		 * 如：http://www.baidu.com和http://www.baidu.com/和http://www.baidu.com/#
@@ -56,17 +126,26 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
-		 * 规范化url。
-		 * 
-		 * @param $url:String 
-		 * 
+		 * @private
 		 */
-		
-		public static function normalize($url:String):String
-		{
-			return ($url && $url.indexOf("http") != 0) ? "http://" + $url : $url;
-		}
+		private static const URLFIX:Object = {
+			"com" : true, 
+			"cn" : true, 
+			"edu" : true, 
+			"tw" : true, 
+			"tv" : true, 
+			"org" : true, 
+			"net" : true, 
+			"gov" : true, 
+			"biz" : true, 
+			"cc" : true, 
+			"info" : true, 
+			"us" : true, 
+			"asia" : true, 
+			"name" : true, 
+			"tel" : true,
+			"xxx" : true
+		};
 		
 	}
 }

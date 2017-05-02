@@ -14,7 +14,7 @@ package cn.vision.managers
 	
 	
 	import cn.vision.errors.SingleTonError;
-	import cn.vision.system.Callback;
+	import cn.vision.datas.Callback;
 	
 	import flash.display.Stage;
 	import flash.events.KeyboardEvent;
@@ -140,7 +140,7 @@ package cn.vision.managers
 			var key:String = "";
 			for each (var item:uint in $args) 
 				key += (key == "") ? item : "-" + item;
-			key += "-" + $keyCode.toString();
+			key += (key == "" ? "" : "-") + $keyCode;
 			return key;
 		}
 		
@@ -186,11 +186,12 @@ package cn.vision.managers
 		/**
 		 * @private
 		 */
-		private function processFuncKeys($keyCode:uint, 
-										 $ctrl:Boolean, 
-										 $shift:Boolean, 
-										 $alt:Boolean, 
-										 $up:Boolean = false):void
+		private function processFuncKeys(
+			$keyCode:uint, 
+			$ctrl:Boolean, 
+			$shift:Boolean, 
+			$alt:Boolean, 
+			$up:Boolean = false):void
 		{
 			if ($keyCode > 15 && $keyCode < 19)
 			{

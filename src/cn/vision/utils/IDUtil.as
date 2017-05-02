@@ -20,17 +20,47 @@ package cn.vision.utils
 	{
 		
 		/**
+		 * 
 		 * 生成一个新的实例ID标识。
 		 * 
-		 * @return <code>String</code>
+		 * @param $key:String (default = null) 关键字。
+		 * 
+		 * @return uint
+		 * 
 		 */
 		
-		public static function generateID():uint
+		public static function generateID($key:String = null):uint
 		{
-			return id++;
+			return $key ? (IDS[$key] = IDS[$key] == undefined ? 1 : IDS[$key] + 1) : ++id;
 		}
 		
+		
+		/**
+		 * 
+		 * 生成一个新的实例ID标识。
+		 * 
+		 * @param $key:String (default = null) 关键字。
+		 * 
+		 * @return uint
+		 * 
+		 */
+		
+		public static function registID($key:String, $id:uint):void
+		{
+			if (($key && IDS[$key] && IDS[$key] < $id) || IDS[$key] == undefined) IDS[$key] = $id;
+		}
+		
+		
+		/**
+		 * @private
+		 */
 		private static var id:uint = 0;
+		
+		
+		/**
+		 * @private
+		 */
+		private static const IDS:Object = {};
 		
 	}
 }

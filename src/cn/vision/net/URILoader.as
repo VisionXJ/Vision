@@ -5,6 +5,8 @@ package cn.vision.net
 	 * 
 	 * 继承URLLoader，增加超时检测。
 	 * 
+	 * <rebuild>
+	 * 
 	 * @author vision
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
@@ -15,6 +17,10 @@ package cn.vision.net
 	
 	import cn.vision.core.vs;
 	import cn.vision.events.TimeoutEvent;
+	import cn.vision.interfaces.IExtra;
+	import cn.vision.interfaces.IID;
+	import cn.vision.interfaces.IName;
+	import cn.vision.interfaces.IState;
 	
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -35,7 +41,7 @@ package cn.vision.net
 	[Event(name="timeout", type="cn.vision.events.TimeoutEvent")]
 	
 	
-	public class URILoader extends URLLoader
+	public class URILoader extends URLLoader //implements IExtra, IID, IName, IState
 	{
 		
 		/**
@@ -68,7 +74,7 @@ package cn.vision.net
 			addEventListener(Event.COMPLETE, handlerDefault);
 			addEventListener(IOErrorEvent.IO_ERROR, handlerDefault);
 			addEventListener(SecurityErrorEvent.SECURITY_ERROR, handlerDefault);
-			addEventListener(ProgressEvent.PROGRESS, handlerProgress);  //下载过程中 收到数据时调度
+			addEventListener(ProgressEvent.PROGRESS, handlerProgress);
 			
 			super.load($request);
 		}
@@ -177,7 +183,6 @@ package cn.vision.net
 		 * @private
 		 */
 		private var timer:Timer;
-		
 		
 		
 		/**

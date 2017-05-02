@@ -15,7 +15,7 @@ package cn.vision.events
 	
 	import cn.vision.core.VSEvent;
 	import cn.vision.core.vs;
-	import cn.vision.pattern.core.State;
+	import cn.vision.core.State;
 	
 	
 	public class StateEvent extends VSEvent

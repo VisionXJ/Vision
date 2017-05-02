@@ -14,6 +14,7 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
+	import cn.vision.utils.ClassUtil;
 	
 	
 	public final class StringUtil extends NoInstance
@@ -32,6 +33,22 @@ package cn.vision.utils
 		public static function compare($a:String, $b:String):int
 		{
 			return compareString($a, $b);
+		}
+		
+		
+		/**
+		 * 
+		 * 验证字符串是否为空。
+		 * 
+		 * @param 要验证的字符串。
+		 * 
+		 * @return Boolean true为空，false为非空。
+		 * 
+		 */
+		
+		public static function empty($value:String):Boolean
+		{
+			return !($value && $value != "");
 		}
 		
 		
@@ -57,23 +74,6 @@ package cn.vision.utils
 		
 		/**
 		 * 
-		 * 验证字符串是否为空。
-		 * 
-		 * @param 要验证的字符串。
-		 * 
-		 * @return Boolean true为空，false为非空。
-		 * 
-		 */
-		
-		public static function isEmpty($value:String):Boolean
-		{
-			return !($value && $value != "" &&
-				$value != "null" && $value != "undefined");
-		}
-		
-		
-		/**
-		 * 
 		 * 字符串如果是英文，转换首字母为大写或小写。
 		 * 
 		 * @param $value 要转换的字符串
@@ -85,22 +85,6 @@ package cn.vision.utils
 		{
 			var f:String = $value.charAt(0);
 			return ($lower ? f.toLowerCase() : f.toUpperCase()) + $value.substr(1);
-		}
-		
-		
-		/**
-		 * 
-		 * 转换任意Object为String。
-		 * 
-		 * @param $value:Object 要转换的Object。
-		 * 
-		 * @return String 转换后的String。
-		 * 
-		 */
-		
-		public static function toString($value:Object):String
-		{
-			return $value ? $value.toString() : null;
 		}
 		
 		
@@ -118,13 +102,25 @@ package cn.vision.utils
 		
 		public static function replace($value:String, $origin:String, $replace:String):String
 		{
-			if ($value && $origin)
-			{
-				if ($replace == null) $replace = "";
+			if ($value && $origin && $replace)
 				$value = $value.split($origin).join($replace);
-			}
-				
 			return $value;
+		}
+		
+		
+		/**
+		 * 
+		 * 转换任意Object为String。
+		 * 
+		 * @param $value:Object 要转换的Object。
+		 * 
+		 * @return String 转换后的String。
+		 * 
+		 */
+		
+		public static function toString($value:Object):String
+		{
+			return $value ? $value.toString() : null;
 		}
 		
 		

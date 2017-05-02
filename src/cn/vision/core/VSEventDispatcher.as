@@ -13,7 +13,6 @@ package cn.vision.core
 	 */
 	
 	
-	import cn.vision.core.vs;
 	import cn.vision.interfaces.IExtra;
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.IName;
@@ -103,9 +102,6 @@ package cn.vision.core
 		 * @private
 		 */
 		vs var vid:uint;
-		
-		
-		private const LISTENERS:Object = {};
 		
 	}
 }

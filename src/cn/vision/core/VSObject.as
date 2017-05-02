@@ -24,7 +24,7 @@ package cn.vision.core
 		
 		/**
 		 * 
-		 * <code>VSObject</code>构造函数。
+		 * 构造函数。
 		 * 
 		 */
 		

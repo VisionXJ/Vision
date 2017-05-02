@@ -11,5 +11,6 @@ package cn.vision.interfaces
 		 * @private
 		 */
 		function set enabled($value:Boolean):void
+			
 	}
 }

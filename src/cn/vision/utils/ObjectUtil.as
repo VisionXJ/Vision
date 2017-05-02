@@ -144,6 +144,30 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 从字典中获取除某些元素外的其他元素。
+		 * 
+		 * @param $dic:Object 要遍历的字典。
+		 * @param $args 要排除的元素。
+		 * 
+		 */
+		
+		public static function getItems($dic:Object, ...$args):Array
+		{
+			var result:Array, item:*;
+			for each (item in $dic) 
+			{
+				if (!($args && $args.indexOf(item) >= 0))
+				{
+					result = result || [];
+					ArrayUtil.push(result, item);
+				}
+			}
+			return result;
+		}
+		
+		
+		/**
+		 * 
 		 * 获取实例的信息。
 		 * 
 		 * @param $value:* 需要获取信息的实例。

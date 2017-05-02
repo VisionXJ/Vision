@@ -16,8 +16,8 @@ package cn.vision.utils
 	
 	import cn.vision.core.NoInstance;
 	import cn.vision.core.vs;
-	import cn.vision.pattern.core.State;
-	import cn.vision.pattern.data.Holder;
+	import cn.vision.core.State;
+	import cn.vision.collections.Holder;
 	
 	
 	public final class StateUtil extends NoInstance

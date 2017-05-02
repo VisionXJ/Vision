@@ -69,8 +69,8 @@ package cn.vision.collections
 		
 		public function clone():Map
 		{
-			var map:Map = new Map;
-			for (var key:String in this) map[key] = this[key];
+			var map:Map = new Map, key:String;
+			for (key in this) map[key] = this[key];
 			return map;
 		}
 		
@@ -83,8 +83,8 @@ package cn.vision.collections
 		
 		public function toArray():Array
 		{
-			var result:Array = [];
-			for each (var item:* in this) ArrayUtil.push(result, item);
+			var result:Array = [], item:*;
+			for each (item in this) ArrayUtil.push(result, item);
 			return result;
 		}
 		
@@ -115,8 +115,8 @@ package cn.vision.collections
 		
 		override flash_proxy function callProperty($name:*, ...$args):*
 		{
-			$name = StringUtil.toString($name);
 			var result:*;
+			$name = StringUtil.toString($name);
 			if (itemObject[$name] is Function) 
 				result = itemObject[$name].apply(itemObject, $args);
 			
@@ -135,18 +135,18 @@ package cn.vision.collections
 		
 		override flash_proxy function deleteProperty($name:*):Boolean
 		{
-			$name = StringUtil.toString($name);
 			//defines some variables
-			var order:int;
+			var order:int, index:uint, indexObj:*, name:String, value:*, i:uint;
+			$name = StringUtil.toString($name);
 			//check if itemObject[$name] exists
 			if (itemObject[$name] != undefined) 
 			{
 				//subtract length.
 				vs::length -= 1;
 				//get the index of itemObject[name] from nameIndexObject by name.
-				var index:uint = nameIndexObject[$name];
+				index = nameIndexObject[$name];
 				//store in itemIndexDictionary, may be array or uint.
-				var indexObj:* = itemIndexDictionary[itemObject[$name]];
+				indexObj = itemIndexDictionary[itemObject[$name]];
 				//may be in the map has two or more same element, 
 				//then the indexObj is an array stores sane element, 
 				//need to check the indexObj type.
@@ -173,12 +173,12 @@ package cn.vision.collections
 				//delete index record from nameIndexObject.
 				delete nameIndexObject[$name];
 				//subtract 1 for all records from index
-				for (var i:int = index; i < length; i++) 
+				for (i = index; i < length; i++) 
 				{
 					//name of current element
-					var name:String = itemNameArray[i];
+					name = itemNameArray[i];
 					//element
-					var value:Object = itemObject[name];
+					value = itemObject[name];
 					//get element indexObj
 					indexObj = itemIndexDictionary[value];
 					//check indexObj type
@@ -325,13 +325,11 @@ package cn.vision.collections
 		
 		override flash_proxy function setProperty($name:*, $value:*):void
 		{
-			//trace("Map.setProperty("+$name+","+$value+")");
-			$name = StringUtil.toString($name);
 			//defines the variables.
 			//the element index
-			var index:uint;
 			//store in itemIndexDictionary, may be array or uint.
-			var indexObj:*;
+			var index:uint, indexObj:*;
+			$name = StringUtil.toString($name);
 			//check whether object[name] exists, 
 			//then determin override the old or add new.
 			if (itemObject[$name]!= undefined) 
@@ -348,9 +346,8 @@ package cn.vision.collections
 				{
 					//the indexObj is an array, means that has same elements.
 					//get the index order from indexObj
-					var order:int = indexObj.indexOf(index);
 					//delete the index from indexObj
-					indexObj.splice(order, 1);
+					indexObj.splice(indexObj.indexOf(index), 1);
 					//if only one left, stores uint in itemIndexDictionary. 
 					if (indexObj.length== 1) 
 						itemIndexDictionary[itemObject[$name]] = indexObj[0];
@@ -459,27 +456,6 @@ package cn.vision.collections
 		
 		/**
 		 * @private
-		 */
-		vs var className:String;
-		
-		/**
-		 * @private
-		 */
-		vs var length:uint;
-		
-		/**
-		 * @private
-		 */
-		vs var name:String;
-		
-		/**
-		 * @private
-		 */
-		vs var id:uint;
-		
-		
-		/**
-		 * @private
 		 * Storage the item index in request by item.
 		 */
 		private var itemIndexDictionary:Dictionary;
@@ -501,6 +477,27 @@ package cn.vision.collections
 		 * Storage the items.
 		 */
 		private var itemObject:Object;
+		
+		
+		/**
+		 * @private
+		 */
+		vs var className:String;
+		
+		/**
+		 * @private
+		 */
+		vs var length:uint;
+		
+		/**
+		 * @private
+		 */
+		vs var name:String;
+		
+		/**
+		 * @private
+		 */
+		vs var id:uint;
 		
 	}
 }

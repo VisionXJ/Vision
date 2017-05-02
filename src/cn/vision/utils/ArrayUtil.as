@@ -61,7 +61,7 @@ package cn.vision.utils
 				var len:uint = $array.length - 1;
 				$current = Math.min($current, len);
 				$target  = Math.min($target , len);
-				var dir:String = $current < $target ? "negative"
+				var dir:String = $current < $target ? "negative" 
 					: ($target < $current ? "positive" : "");
 				ArrayUtil[dir] && ArrayUtil[dir]($array, $current, $target);
 			}
@@ -246,6 +246,7 @@ package cn.vision.utils
 		
 		/**
 		 * @private
+		 * Up2Down
 		 */
 		private static function negative($array:*, $current:uint, $target:uint):void
 		{
@@ -257,9 +258,10 @@ package cn.vision.utils
 		
 		/**
 		 * @private
+		 * Down2Up
 		 */
 		private static function positive($array:*, $current:uint, $target:uint):void
-		{
+		{		
 			var t:* = $array[$current];
 			for (var i:int = $current; i > $target; i--)
 				$array[i] = $array[i - 1];

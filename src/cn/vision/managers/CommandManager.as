@@ -14,7 +14,7 @@ package cn.vision.managers
 	
 	
 	import cn.vision.collections.Map;
-	import cn.vision.pattern.core.Command;
+	import cn.vision.core.Command;
 	import cn.vision.utils.ClassUtil;
 
 	

@@ -12,8 +12,8 @@ package cn.vision.errors
 	 * 
 	 */
 	
-	import cn.vision.core.vs;
 	import cn.vision.utils.ClassUtil;
+	import cn.vision.core.VSError;
 	
 	
 	public class SingleTonError extends VSError
@@ -27,9 +27,9 @@ package cn.vision.errors
 		 * 
 		 */
 		
-		public function SingleTonError(instance:*)
+		public function SingleTonError($instance:*)
 		{
-			super(ClassUtil.getClassName(instance) + " is single ton mode!");
+			super(ClassUtil.getClassName($instance) + " is single ton mode!");
 		}
 		
 	}

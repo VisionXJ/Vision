@@ -41,6 +41,30 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 判断num是否介于min和max之间。(即 num∈[min,max]是否成立。)
+		 * @param $min:Number 下确界
+		 * @param $num:Number 需要被判定的数
+		 * @param $max:Number 上确界
+		 * 
+		 */
+		public static function isBetween($min:Number, $num:Number, $max:Number):Boolean
+		{
+			return $min <= $num && $num <= $max;
+		}
+		
+		
+		/**
+		 * 
+		 * 返回在arg1和arg2中最靠近num的数。（若相等则返回arg1）
+		 * 
+		 */
+		public static function near($arg1:Number, $num:Number, $arg2:Number):Number
+		{
+			return abs($arg1 - $num) > abs($arg2 - $num) ? $arg2 : $arg1;
+		}
+		
+		/**
+		 * 
 		 * 角度转弧度。
 		 * 
 		 * @param $angle:Number 角度。
@@ -70,7 +94,9 @@ package cn.vision.utils
 		
 		public static function clamp($value:Number, $min:Number, $max:Number):Number
 		{
-			return Math.min(Math.max($value, $min), $max);
+			if ($value < $min) $value = $min;
+			if ($value > $max) $value = $max;
+			return $value;
 		}
 		
 		
@@ -106,7 +132,7 @@ package cn.vision.utils
 		public static function equal($a:Number, $b:Number, $accuracy:uint = 0):Boolean
 		{
 			var f:Number = Math.pow(10, $accuracy);
-			return (f == 1) ? ($a == $b) : (Math.floor(Math.abs($a - $b) * f) == 0);
+			return (f == 1) ? ($a == $b) : (Math.floor(abs($a - $b) * f) == 0);
 		}
 		
 		
@@ -154,7 +180,7 @@ package cn.vision.utils
 		
 		public static function log3($value:Number):Number
 		{
-			return Math.log($value) / MathConsts.LN3;
+			return Math.log($value) * MathConsts.vs::LN3_1;
 		}
 		
 		

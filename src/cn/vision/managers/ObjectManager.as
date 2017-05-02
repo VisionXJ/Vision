@@ -10,10 +10,6 @@ package cn.vision.managers
 	import cn.vision.collections.Map;
 	import cn.vision.utils.ClassUtil;
 	
-	import flash.net.URLLoader;
-	import flash.utils.Dictionary;
-	import flash.utils.flash_proxy;
-	
 	
 	public final class ObjectManager extends Manager
 	{

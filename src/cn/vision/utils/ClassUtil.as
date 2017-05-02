@@ -14,8 +14,6 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
-	import cn.vision.core.VSCache;
-	import cn.vision.core.vs;
 	
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
