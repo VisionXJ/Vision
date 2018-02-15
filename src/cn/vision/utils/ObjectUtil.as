@@ -5,7 +5,7 @@ package cn.vision.utils
 	 * 
 	 * <code>ObjectUtil</code>定义了一些关于<code>Object</code>的操作。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
@@ -13,27 +13,21 @@ package cn.vision.utils
 	 */
 	
 	
-	
 	import cn.vision.core.NoInstance;
 	
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
-	import flash.utils.describeType;
-	import flash.utils.getQualifiedClassName;
 	
 	
 	public final class ObjectUtil extends NoInstance
 	{
 		
-		
 		/**
-		 * 
 		 * 清空一个Object。<br>
 		 * 
 		 * @param $value:* 要清空的对象。
 		 * 
 		 */
-		
 		public static function clear($value:Object):void
 		{
 			for (var key:String in $value) delete $value[key];
@@ -41,7 +35,6 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 复制一个对象。<br>
 		 * 注意：该方法只能复制$value的类型，和Boolean, Number, uint, int, String元数据类型，
 		 * 如果$value的属性中包含其他不属于Object类型的属性，会把属性转换为Object类型；
@@ -52,7 +45,6 @@ package cn.vision.utils
 		 * @return * 与$value相同的类型的实例。
 		 * 
 		 */
-		
 		public static function clone($value:*):*
 		{
 			if ($value != null)
@@ -62,11 +54,11 @@ package cn.vision.utils
 				//切出包名
 				const packageName:String = typeName.split("::")[0];
 				//获取Class
-				const type:Class = ClassUtil.getClassByName(typeName);
+				var type:Class = ClassUtil.getClassByName(typeName);
 				//注册Class
 				registerClassAlias(packageName, type);
 				//复制对象
-				const copier:ByteArray = new ByteArray;
+				var copier:ByteArray = new ByteArray;
 				copier.writeObject($value);
 				copier.position = 0;
 				var result:* = copier.readObject();
@@ -76,143 +68,126 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 两个对象的比较。<br>
 		 * 支持的类型为：uint,Number,int,Array,Object,Boolean和String。<br>
 		 * 特别地，当参数之一存在null、undefined或者NaN之一时会返回false。
-		 * @return 相同则返回为true。
+		 * 
+		 * @param $a:* 需要比较的第一个Object。
+		 * @param $b:* 需要比较的第二个Object。
+		 * 
+		 * @return Boolean 相同则返回为true。
 		 * 
 		 */
+		public static function compare(a:*, b:*):Boolean
+		{
+			return compareInternal(a, b);
+		}
 		
-		public static function compare(a:Object, b:Object):Boolean
+		/**
+		 * @private
+		 */
+		private static function compareInternal(a:*, b:*):Boolean
 		{
 			//基本类型不一致直接返回false。
-			var result:Boolean = typeof(a) == typeof(b); 
-			
-			if (result && DIC[typeof(a)])
+			var ta:String = ClassUtil.getClassName(a);
+			var result:Boolean = ta == ClassUtil.getClassName(b);
+			if (result)
 			{
-				switch(typeof(a))
+				var cs:String = ta;
+				if (cs.indexOf("Vector") > -1)
+					if (ArrayUtil.validate(a)) cs = "Array";
+				
+				switch(cs)
 				{
-					//非基本类型需要特别比较。
-					case "object":   
-					{
-						result = judgeObject(a, b);
-						break;
-					}
-					//基本类型可以直接比较。
-					default:
+					case "int":
+					case "uint":
+					case "null":
+					case "Number":
+					case "String":
+					case "Boolean":
+					case "undefined":
 					{
 						result = a == b;
 						break;
 					}
+					case "Array":
+					{
+						result = compareArray(a, b);
+						break;
+					};
+					default:
+					{
+						result = compareObject(a, b);
+						break;
+					};
 				}
 			}
 			return result;
 		}
 		
 		/**
-		 * 
-		 * 转换数据为另一类型，数据类型的互转，支持int，uint，Number，String，XML，XMLList，Object，Date之间的互相转换，支持JSON字符串转Object。
+		 * @private
+		 */
+		private static function compareObject(a:Object, b:Object):Boolean
+		{
+			var result:Boolean = length(a) == length(b);
+			if (result)
+			{
+				for (var key:String in a)
+				{
+					if(!compareInternal(a[key], b[key])) 
+						result = false; break;
+				}
+			}
+			return result;
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function compareArray(a:Array, b:Array):Boolean
+		{
+			var l:uint = a.length, result:Boolean = l == b.length, i:int;
+			if (result)
+			{
+				for (; i < l; i += 1)
+				{
+					if (!compareInternal(a[i], b[i])) result = false; break;
+				}
+			}
+			return result;
+		}
+		
+		
+		/**
+		 * 转换数据为另一类型，数据类型的互转，支持int，uint，Number，String，XML，XMLList，Object，Date之间的互相转换，支持JSON/XML字符串转自定义类型。
 		 * 
 		 * @param $value:* 需要转换的值。
 		 * @param $type:Class 要转换成的类型。
+		 * 
 		 * $args 附加参数。
 		 * 
 		 */
-		
 		public static function convert($value:*, $type:Class = null, ...$args):*
 		{
 			$type = $type || String;
 			var fr:String = ClassUtil.getClassName($value, false);
 			var to:String = ClassUtil.getClassName($type , false);
+			var result:* = $value;
 			if (convertableMetadata(fr, to))
 			{
 				var convertFunc:Function = retrieveConvertFunction(fr, to);
 				if (convertFunc != null)
 				{
-					ArrayUtil.unshift($args, $value);
-					var result:* = convertFunc.apply(null, $args);
+					ArrayUtil.unshift($args, $value, $type);
+					result = convertFunc.apply(null, $args);
 				}
 				else
 				{
-					result = ($value is $type) ? clone($value) : $type($value);
+					result = ($value is $type) ? clone($value) : $type($value, $type);
 				}
 			}
 			return result;
-		}
-		
-		
-		/**
-		 * 
-		 * 从字典中获取除某些元素外的其他元素。
-		 * 
-		 * @param $dic:Object 要遍历的字典。
-		 * @param $args 要排除的元素。
-		 * 
-		 */
-		
-		public static function getItems($dic:Object, ...$args):Array
-		{
-			var result:Array, item:*;
-			for each (item in $dic) 
-			{
-				if (!($args && $args.indexOf(item) >= 0))
-				{
-					result = result || [];
-					ArrayUtil.push(result, item);
-				}
-			}
-			return result;
-		}
-		
-		
-		/**
-		 * 
-		 * 获取实例的信息。
-		 * 
-		 * @param $value:* 需要获取信息的实例。
-		 * 
-		 * @return Object 获取的信息。
-		 * 
-		 */
-		
-		public static function obtainInfomation($value:*):Object
-		{
-			if ($value)
-			{
-				var obj:Object = {};
-				var xml:XML = describeType($value);
-				var accessor:Object = obj.accessor = {};
-				for each (var item:XML in xml.accessor)
-				{
-					var name:String = item.@name;   //读取 XML中的类的属性
-					accessor[name] = {};
-					accessor[name].type   = item.@type  .toString();
-					accessor[name].access = item.@access.toString();
-				}
-			}
-			return obj;
-		}
-		
-		
-		/**
-		 * 
-		 * 获得Object数组的长度。<br>
-		 * 特别地，该方法不可以获取其它诸如Array等类型的长度。
-		 * @return 该Object数组的长度。
-		 * 
-		 */
-		
-		public static function getObjArrLength(o:Object):uint
-		{
-			var i:uint = 0;
-			
-			if (ClassUtil.getClassName(o, false) == "Object")
-			{
-				for (var s:String in o) i++;
-			}
-			
-			return i;
 		}
 		
 		/**
@@ -220,7 +195,10 @@ package cn.vision.utils
 		 */
 		private static function convertableMetadata($fr:String, $to:String):Boolean
 		{
-			return ($to == "Number" || $to == "Boolean") ? true : (CONVERTABLE[$fr] && CONVERTABLE[$to]);
+			var result:Boolean = $fr != $to;
+			if (result && $fr != "String" && $to!= "Number" && $to != "Boolean") 
+				result = (CONVERTABLE[$fr] && CONVERTABLE[$to]);
+			return result;
 		}
 		
 		/**
@@ -228,14 +206,16 @@ package cn.vision.utils
 		 */
 		private static function retrieveConvertFunction($fr:String, $to:String):Function
 		{
-			var result:Function;
+			var result:Function = ObjectUtil["convert" + $fr + "2" + $to];
 			
-			if ($to == "Boolean" || $to == "Number")
-				result = ObjectUtil["convertObject2" + $to];
+			if ($to == "Boolean" || $to == "Number" || $to == "uint" || $to == "int")
+				result = ObjectUtil["convertComman2" + $to];
 			else if ($fr == "XMLList" && $to == "Object")
 				result = convertXMLList2Array;
-			else
-				result = ObjectUtil["convert" + $fr + "2" + $to];
+			else if ($fr == "void" || $fr == "null" || $fr == "undefined" || $fr == null)
+				result = convertEmpty2Empty;
+			else if ($fr == "String" && result == null)
+				result = convertString2Comman;
 			
 			return result;
 		}
@@ -243,83 +223,132 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertvoid2String($value:*):String
+		private static function convertEmpty2Empty($value:*, $type:Class, $default:* = null):*
 		{
-			return "";
+			return $default;
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function convertObject2Boolean($value:*, $default:Boolean = false):Boolean
+		private static function convertComman2Boolean($value:*, $type:Class, $default:Boolean = false):Boolean
 		{
-			return $value == undefined ? $default
-				: !($value == "" || $value == "0" || 
-					$value == "false" || $value == "False" || 
-					$value == 0 || $value == false);
+			return  $value == undefined ? $default
+				: !($value == 0   || $value == "0"   || 
+					$value == ""  || $value == false || 
+					String($value).toLowerCase() == "false");
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function convertObject2Number($value:*, $default:Number = NaN):Number
+		private static function convertComman2int($value:*, $type:Class, $default:int = 0):int
 		{
-			var r:Number = Number($value);
-			return isNaN(r) ? $default : r;
+			var number:Number = Number($value);
+			return isNaN(number) ? $default : int(number);
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function convertObject2XML($value:Object, $name:String = "root"):XML
+		private static function convertComman2uint($value:*, $type:Class, $default:int = 0):int
 		{
-			var xml:XML = new XML("<" + $name + "/>");
+			$value = String($value);
+			if (StringUtil.empty($value))
+			{
+				var result:uint = $default;
+			}
+			else
+			{
+				if ($value && $value.charAt(0) == "#") 
+				{
+					$value = "0x" + $value.substr(1);
+					result = uint($value);
+				}
+				else
+				{
+					result = uint(convertComman2int($value, $type, $default))
+				}
+			}
+			return result;
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertComman2Number($value:*, $type:Class, $default:Number = NaN):Number
+		{
+			var number:Number = Number($value);
+			return isNaN(number) ? $default : number;
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertObject2XML($value:Object, $type:Class, $name:String = "root"):XML
+		{
+			var result:XML = new XML("<" + $name + "/>");
 			for (var key:String in $value) 
 			{
 				var type:String = ClassUtil.getClassName($value[key]);
 				switch (type)
 				{
 					case "Array":
-						for each (var i:* in $value[key])
-						xml.appendChild(convertObject2XML(i, key));
+						for each (var i:* in $value[key]) result.appendChild(convertObject2XML(i, $type, key));
 						break;
 					case "Object":
-						xml.appendChild(convertObject2XML($value[key], key));
+						result.appendChild(convertObject2XML($value[key], $type, key));
 						break;
 					default:
-						xml[key] = $value[key];
+						result[key] = $value[key];
 				}
 			}
-			return xml;
+			return result;
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function convertDate2String($date:Date, $formater:String = "YYYY-MM-DD HH:MI:SS:MS", $zeroize:Boolean = true):String
+		private function convertObject2XMLList($value:Object, $type:Class, $node:String = "item"):XMLList
+		{
+			if ($value)
+			{
+				var result:XMLList = new XMLList;
+				if ($value is Array)
+					for each (var item:* in $value) result.appendChild(convertObject2XML(item, $type, $node));
+				else
+					result.appendChild(convertObject2XML($value, $type, $node));
+			}
+			return result;
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertDate2String($date:Date, $type:Class, $formater:String = "YYYY-MM-DD HH:MI:SS:MS", $zeroize:Boolean = true):String
 		{
 			if ($date)
 			{
 				if ($formater)
 				{
 					$formater = $formater.toUpperCase();
-					const vectorYear:Array = $formater.match(regExpYear);
+					const vectorYear:Array = $formater.match(REGEX_YEAR);
 					if (vectorYear && vectorYear.length)
 					{
 						const formatYear:String = vectorYear[0];
 						var stringYear:String = String($date.fullYear);
 						if(formatYear == "YY") stringYear = stringYear.substr(2);
-						$formater = $formater.replace(regExpYear, stringYear);
+						$formater = $formater.replace(REGEX_YEAR, stringYear);
 					}
 					
-					const vectorHour:Array = $formater.match(regExpHour);
+					const vectorHour:Array = $formater.match(REGEX_HOUR);
 					if (vectorHour && vectorHour.length)
 					{
 						const formatHour:String = vectorHour[0];
 						const endfix:String = formatHour == "HH12" ?($date.hours < 12 ? "a.m." : "p.m."): "";
 						const numberHour:Number = formatHour == "HH12" ?($date.hours < 12 ? $date.hours : $date.hours - 12): $date.hours;
 						const stringHour:String = ($zeroize ? StringUtil.formatUint(numberHour, 2) : numberHour) + endfix;
-						$formater = $formater.replace(regExpHour, stringHour);
+						$formater = $formater.replace(REGEX_HOUR, stringHour);
 					}
 					
 					const stringMonth:String = $zeroize 
@@ -359,7 +388,7 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertString2Date($value:String, $formater:String = "YYYY-MM-DD HH:MI:SS:MS"):Date
+		private static function convertString2Date($value:String, $type:Class, $formater:String = "YYYY-MM-DD HH:MI:SS:MS"):Date
 		{
 			var result:Date;
 			
@@ -381,28 +410,26 @@ package cn.vision.utils
 				}
 				else
 				{
-					var params:Array = [null, null, null, null, null, null, null];
+					var params:Array = [];
 					for (var i:uint = 0; i < 7; i++)
 					{
-						var exp:String = DATE_REGEXPS[i]
+						var exp:String = REGEX_DATES[i];
 						var index:int = $formater.indexOf(exp);
 						if (index != -1)
 						{
-							var value:* = Number($value.substr(index, exp.length));
-							if (isNaN(value) || value == null) 
+							var value:Number = Number($value.substr(index, exp.length));
+							if (isNaN(value))
 							{
-								value = null;
+								params[i] = null;
 							}
 							else
 							{
-								value = uint(MathUtil.abs(value));
-								if (exp == "MM") value-= 1;
+								params[i] = uint(MathUtil.abs(value));
+								if (exp == "MM") params[i]-= 1;
 							}
-							params[i] = value;
 						}
 					}
-					result = new Date(params[0], params[1], params[2], 
-						params[3], params[4], params[5], params[6]);
+					result = ClassUtil.construct(Date, params);
 				}
 			}
 			else
@@ -415,46 +442,27 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertString2uint($value:String):uint
+		private static function convertString2Comman($value:String, $type:Class):*
 		{
-			if ($value && $value.charAt(0) == "#") $value = "0x" + $value.substr(1);
-			return uint($value);
-		}
-		
-		private static function convertString2Number($value:String, $default:Number = NaN):Number
-		{
-			var result:Number = Number($value);
-			if (isNaN(result) && !isNaN($default)) result = $default;
-			return result;
-		}
-		
-		/**
-		 * @private
-		 */
-		private static function convertuint2String($value:uint, $radix:uint = 16, $prefix:String = "0x"):String
-		{
-			$prefix = ($prefix=="#") ? "#" : "0x";
-			$prefix = $radix == 16 ? $prefix : "";
-			return $prefix + $value.toString($radix);
-		}
-		
-		/**
-		 * @private
-		 */
-		private static function convertString2Object($value:String):Object
-		{
+			var result:*, temp:Object;
 			$value = StringUtil.trim($value);
 			if (JSONUtil.validate($value))
 			{
 				try {
-					var result:Object = JSON.parse($value);
+					temp = JSON.parse($value);
 				} catch(e:Error) {}
 			}
 			else if (XMLUtil.validate($value))
 			{
 				try {
-					result = convertXML2Object(XML($value));
+					temp = convertXML2Object(XML($value), $type);
 				} catch(e:Error) {}
+			}
+			
+			if (temp)
+			{
+				result = ClassUtil.construct($type);
+				if (result) internalMapping(temp, result);
 			}
 			return result;
 		}
@@ -462,7 +470,7 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertString2XML($value:String):XML
+		private static function convertString2XML($value:String, $type:Class):XML
 		{
 			$value = StringUtil.trim($value);
 			if (XMLUtil.validate($value))
@@ -478,7 +486,15 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertXML2Object($value:XML):Object
+		private static function convertuint2String($value:uint, $type:Class, $radix:uint = 16, $prefix:String = "0x"):String
+		{
+			return ($radix == 16 ? (($prefix=="#") ? "#" : "0x") : "") + $value.toString($radix);
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function convertXML2Object($value:XML, $type:Class):Object
 		{
 			var ls:XMLList = $value.children();
 			var at:XMLList = $value.attributes();
@@ -486,13 +502,12 @@ package cn.vision.utils
 			
 			if (l1 < 1 && at.length() == 0)
 			{
-				var result:Object = String($value);
+				var result:Object = $value.toString();
 			}
 			else
 			{
 				result = {};
-				for each (var i:* in at) result[String(i.name())]= i;
-					
+				for each(var i:* in at) result[String(i.name())]= i.toString();
 				for each(i in ls) 
 				{
 					var n:String = i.name();
@@ -500,11 +515,11 @@ package cn.vision.utils
 					if (c1)
 					{
 						var c2:* = c1.children();
-						var o:* = c1 ? ((c2.length() == 0) ? i.toString() : convertXML2Object(i)) : i.toString();
+						var o:* = c1 ? (c2.length() == 0 ? i.toString() : convertXML2Object(i, $type)) : i.toString();
 					}
 					else
 					{
-						o = convertXML2Object(i);
+						o = convertXML2Object(i, $type);
 					}
 					
 					var t:* = result[n];
@@ -517,107 +532,195 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static function convertXMLList2Array($value:XMLList):Array
+		private static function convertXMLList2Array($value:XMLList, $type:Class):Array
 		{
 			var result:Array = [];
-			var l1:uint = $value.length();
-			for each(var i:XML in $value) 
-			result[result.length] = convertXML2Object(i);
+			for each(var i:XML in $value)
+			result[result.length] = convertXML2Object(i, $type);
 			return result;
 		}
 		
 		
 		/**
+		 * 从字典中获取除某些元素外的其他元素。
 		 * 
-		 * 判断传入的对象为哪种非基本类型。
+		 * @param $dic:Object 要遍历的字典。
+		 * @param $args 要排除的元素。
 		 * 
 		 */
-		
-		private static function judgeObject(a:Object, b:Object):Boolean
+		public static function except($dic:Object, ...$args):Array
 		{
-			//类不同直接返回 false。
-			var result:Boolean = ClassUtil.getClassName(a, false) == ClassUtil.getClassName(b, false);
-			
-			if (result)
+			var result:Array = [], item:*;
+			for each (item in $dic) 
 			{
-				if (a is Array)
-				{
-					result = compareArray(a as Array, b as Array);
-				}
-				else if (a is Object)
-				{
-					result = compareObject(a, b);
-				}
-				else
-				{
-					//对于非基本类型暂时只支持 Array和 Object的判定。
-					result = false;
-				}
+				if ($args && $args.indexOf(item) == -1) 
+					ArrayUtil.push(result, item);
 			}
-			
 			return result;
 		}
 		
 		
 		/**
+		 * 获得Object子项个数。<br>
 		 * 
-		 * Object类型比较。
+		 * @return uint。
 		 * 
 		 */
-		
-		private static function compareObject(a:Object, b:Object):Boolean
+		public static function length(o:Object):uint
 		{
-			var result:Boolean = getObjArrLength(a) == getObjArrLength(b);
-			
-			if (result)
+			var i:uint, k:String;
+			for (k in o) i++;
+			return i;
+		}
+		
+		
+		/**
+		 * 将源对象实例的数据映射至目标对象实例。
+		 * 
+		 * @param $source:Object 源对象实例。
+		 * @param $target:* 目标对象实例。
+		 * 
+		 */
+		public static function mapping($source:Object, $target:*):void
+		{
+			if ($source && $target) internalMapping($source, $target);
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function internalMapping($source:Object, $target:*):void
+		{
+			var info:Object = ClassUtil.obtainInfomation($target);
+			info.isDynamic == "true"
+				? dynamicMapping($source, $target)
+				: staticMapping ($source, $target, info);
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function dynamicMapping($source:Object, $target:Object):void
+		{
+			var sourceType:Class, targetType:Class, key:String;
+			if (ArrayUtil.validateVector($target))
 			{
-				for (var sa:String in a)
+				targetType = ArrayUtil.getVectorItemClass($target);
+				for (key in $source)
+					setVectorValue($source, $target, targetType, key);
+			}
+			else
+			{
+				for (key in $source)
 				{
-					if (a[sa] != b[sa])
+					sourceType = ClassUtil.getClass($source[key]);
+					if (sourceType != null)
 					{
-						result = b[sa] && compare(a[sa], b[sa]);
-						
-						if (!result) break;
+						targetType = ClassUtil.getPropertyClass($target, key) || sourceType;
+						setDynamicValue($source, $target, targetType, key);
 					}
 				}
 			}
-			
-			return result;
 		}
 		
-	
 		/**
-		 * 
-		 * 数组类型比较。
-		 * 
+		 * @private
 		 */
-		
-		private static function compareArray(a:Array, b:Array):Boolean
+		private static function setVectorValue($source:*, $target:*, $type:Class, $key:String):void
 		{
-			var result:Boolean = a.length == b.length;
-			var i:uint = 0;
-			
-			while (result && i < a.length)
+			if (ClassUtil.validateMetadata($type))
 			{
-				if (a[i] != b[i])
-				{
-					result = compare(a[i], b[i]);
-				}
-				
-				i++;
+				$target[$key] = convert($source[$key], $type);
 			}
-			return result;
+			else
+			{
+				var i:Number = Number($key);
+				if (MathUtil.integer(i))
+				{
+					if ($target.length <= i)
+					{
+						$target[$key] = ClassUtil.construct($type);
+						if  ($target[$key] != null) internalMapping($source[$key], $target[$key]);
+					}
+				}
+				else
+				{
+					$target[$key] = $target[$key] || ClassUtil.construct($type);
+					if  ($target[$key] != null) internalMapping($source[$key], $target[$key]);
+				}
+			}
 		}
 		
+		/**
+		 * @private
+		 */
+		private static function setDynamicValue($source:*, $target:*, $type:Class, $key:String):void
+		{
+			if (ClassUtil.validateMetadata($type))
+			{
+				$target[$key] = convert($source[$key], $type);
+			}
+			else
+			{
+				$target[$key] = $target[$key] || ClassUtil.construct($type);
+				if  ($target[$key] != null) internalMapping($source[$key], $target[$key]);
+			}
+		}
 		
-		private static const DIC:Object = {
-			"object"  : true,
-			"uint"    : true,
-			"int"     : true,
-			"number"  : true,
-			"boolean" : true,
-			"string"  : true
-		};
+		/**
+		 * @private
+		 */
+		private static function staticMapping($source:Object, $target:*, info:Object):void
+		{
+			var key:String, type:Class, data:*;
+			if (info.variable != null)
+			{
+				if (info.variable is Array)
+					for each (var item:* in info.variable) setStaticValue($source, $target, item);
+				else
+					setStaticValue($source, $target, info.variable);
+			}
+			if (info.accessor != null)
+			{
+				if (info.accessor is Array)
+				{
+					for each (item in info.accessor)
+					{
+						if (item.access != "readonly") 
+							setStaticValue($source, $target, item);
+					}
+				}
+				else
+				{
+					if (info.accessor.access != "readonly") 
+						setStaticValue($source, $target, info.accessor);
+				}
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function setStaticValue($source:*, $target:*, $item:* = null):void
+		{
+			var type:Class = ClassUtil.getClassByName($item.type);
+			var key:String = $item.name;
+			if ($source[key] != undefined)
+			{
+				if (ClassUtil.validateMetadata(type))
+				{
+					$target[key] = convert($source[key], type);
+				}
+				else
+				{
+					if ($source[key] != null)
+					{
+						$target[key] = $target[key] || ClassUtil.construct(type);
+						if ($target[key]) internalMapping($source[key], $target[key]);
+					}
+				}
+			}
+		}
 		
 		
 		/**
@@ -625,34 +728,35 @@ package cn.vision.utils
 		 */
 		private static const CONVERTABLE:Object = 
 		{
-			"null": true, 
-			"void": true, 
-			"Date": true,
-			"String": true, 
-			"Boolean": true, 
-			"uint": true, 
-			"int": true, 
-			"Number": true, 
-			"XML" : true, 
-			"XMLList": true, 
-			"Object": true,
-			"Array" : true
+			"int"       : true, 
+			"XML"       : true, 
+			"null"      : true, 
+			"void"      : true, 
+			"Date"      : true,
+			"uint"      : true, 
+			"Array"     : true, 
+			"Number"    : true, 
+			"String"    : true, 
+			"Object"    : true,
+			"XMLList"   : true, 
+			"Boolean"   : true, 
+			"undefined" : true
 		}
 		
 		/**
 		 * @private
 		 */
-		private static const regExpYear:RegExp = /YY{1,3}/;
+		private static const REGEX_YEAR:RegExp = /YY{1,3}/;
 		
 		/**
 		 * @private
 		 */
-		private static const regExpHour:RegExp = /HH(24|12)?/;
+		private static const REGEX_HOUR:RegExp = /HH(24|12)?/;
 		
 		/**
 		 * @private
 		 */
-		private static const DATE_REGEXPS:Array = ["YYYY", "MM", "DD", "HH", "MI", "SS", "MS"];
+		private static const REGEX_DATES:Array = ["YYYY", "MM", "DD", "HH", "MI", "SS", "MS"];
 		
 	}
 }

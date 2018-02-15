@@ -1,34 +1,27 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
+	
 	/**
-	 * 
 	 * <code>ArrayUtil</code>定义了一些数组常用函数，也适用于Vector。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	
-	import flash.utils.describeType;
-	
-	
 	public final class ArrayUtil extends NoInstance
 	{
 		
 		/**
-		 * 
 		 * 删除数组中未定义的元素，不会构建新数组。
 		 * 
 		 * @param $array:* Array或Vector。
 		 * 
 		 */
-		
 		public static function normalize($array:*):void
 		{
 			if (validate($array))
@@ -45,16 +38,14 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
-		 * 移动数组内某个元素设置新的索引位置。
+		 * 移动数组内某个元素设置新的索引位置，会影响这2个元素之间的元素顺序。
 		 * 
 		 * @param $array:* Array或Vector。
 		 * @param $current:uint 当前要移动的索引。
 		 * @param $target:uint 目标索引。
 		 * 
 		 */
-		
-		public static function order($array:*, $current:uint, $target:uint):void
+		public static function move($array:*, $current:uint, $target:uint):void
 		{
 			if (validate($array))
 			{
@@ -69,9 +60,8 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 将一个或多个元素添加到数组的结尾，并返回该数组的新长度。 <br>
-		 * 此方法比传统的Array.push更快。
+		 * 此方法比内置的API Array.push更快。
 		 * 
 		 * @param $array:* Array或Vector。
 		 * @param $args 要追加到数组中的一个或多个值。
@@ -79,7 +69,6 @@ package cn.vision.utils
 		 * @return uint 一个整数，表示该数组的新长度。
 		 * 
 		 */
-		
 		public static function push($array:*, ...$args):uint
 		{
 			if (validate($array))
@@ -100,33 +89,43 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
-		 * 删除数组的一个或多个元素。
+		 * 删除数组的一个或多个元素。<br>
 		 * 
 		 * @param $array:* Array或Vector。
+		 * @param $lazy:Boolean (default = true) 如果数组中包含多个相同的元素，lazy为true时，只会删除第一个，否则会全部删除。
 		 * @param $args 要删除的元素。
 		 * 
 		 * @return uint 一个整数，表示该数组的新长度。
 		 * 
 		 */
-		
-		public static function remove($array:*, ...$args):uint
+		public static function remove($array:*, $lazy:Boolean = true, ...$args):int
 		{
+			var result:int = -1;
 			if (validate($array))
 			{
 				for each (var item:* in $args)
 				{
 					var index:int = $array.indexOf(item);
-					if (index > -1) $array.splice(index, 1);
+					if ($lazy)
+					{
+						if (index > -1) $array.splice(index, 1);
+					}
+					else
+					{
+						while (index > -1)
+						{
+							$array.splice(index, 1);
+							index = $array.indexOf(item);
+						}
+					}
 				}
-				var result:uint = $array.length;
+				result = $array.length;
 			}
 			return result;
 		}
 		
 		
 		/**
-		 * 
 		 * 删除数组中第一个元素，并返回该元素。其余数组元素将从其原始位置 i 移至 i-1。 <br>
 		 * 此方法比传统的Array.shift更快。
 		 * 
@@ -135,7 +134,6 @@ package cn.vision.utils
 		 * @return * 数组中的第一个元素（可以是任意数据类型）。
 		 * 
 		 */
-		
 		public static function shift($array:*):*
 		{
 			if (validate($array))
@@ -154,7 +152,6 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 删除数组中相同的元素，确保唯一性，并返回新的数组。
 		 * 
 		 * @param $array:* Array或Vector。
@@ -162,7 +159,6 @@ package cn.vision.utils
 		 * @return Array 新的数组。
 		 * 
 		 */
-		
 		public static function unique($array:*):Array
 		{
 			if (validate($array))
@@ -186,7 +182,6 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 将一个或多个元素添加到数组的开头，并返回该数组的新长度。
 		 * 数组中的其他元素从其原始位置 i 移到 i+1。<br>
 		 * 此方法比传统的Array.unshfit更快。
@@ -197,7 +192,6 @@ package cn.vision.utils
 		 * @return uint 一个整数，表示该数组的新长度。
 		 * 
 		 */
-		
 		public static function unshift($array:*, ...$args):uint
 		{
 			if (validate($array))
@@ -220,7 +214,6 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 验证是否为数组类型Array或Vector。
 		 * 
 		 * @param $value:* 需要验证的实例。
@@ -228,20 +221,57 @@ package cn.vision.utils
 		 * @return Boolean 布尔类型。
 		 * 
 		 */
-		
 		public static function validate($value:*):Boolean 
 		{
 			if ($value)
 			{
 				var result:Boolean = $value is Array;
-				if(!result)
+				if(!result) result = validateVector($value);
+			}
+			return  result;
+		}
+		
+		
+		/**
+		 * 验证是否为数组类型Vector。
+		 * 
+		 * @param $value:* 需要验证的实例。
+		 * 
+		 * @return Boolean 布尔类型。
+		 * 
+		 */
+		public static function validateVector($value:*):Boolean
+		{
+			if ($value != null)
+			{
+				var type:String = ClassUtil.getClassName($value);
+				var result:Boolean = (type.length > 18 && type.slice(0, 19) == "__AS3__.vec::Vector");
+			}
+			return  result;
+		}
+		
+		
+		/**
+		 * 获取Vector数组变量的子元素类。
+		 * 
+		 * @param $value:* 需要获取子元素类的Vector数组。
+		 * 
+		 * @return Class 子元素类。
+		 * 
+		 */
+		public static function getVectorItemClass($value:*):Class
+		{
+			if ($value != null)
+			{
+				const name:String = ClassUtil.obtainInfomation($value).name;
+				if (!StringUtil.empty(name, true) && name.indexOf("__AS3__.vec::Vector") == 0)
 				{
-					var type:String = ClassUtil.getClassName($value);
-					result = (type.length > 18 && type.slice(0, 19) == "__AS3__.vec::Vector");
+					const i:int = name.indexOf("<") + 1;
+					var result:Class = ClassUtil.getClassByName(name.substr(i, name.indexOf(">") - i));
 				}
 			}
 			return result;
-		} 
+		}
 		
 		
 		/**

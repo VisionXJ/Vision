@@ -1,14 +1,12 @@
 package cn.vision.interfaces
 {
+	
 	public interface IAvailable
 	{
 		
 		/**
-		 * 
-		 * 请求是否可用。
-		 * 
+		 * 判断是否合法。
 		 */
-		
 		function get available():Boolean;
 		
 	}

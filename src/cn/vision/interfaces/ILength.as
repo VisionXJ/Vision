@@ -1,7 +1,18 @@
 package cn.vision.interfaces
 {
+	
 	public interface ILength
 	{
-		function get length():uint
+		
+		/**
+		 * 长度。
+		 */
+		function get length():uint;
+		
+		/**
+		 * @private
+		 */
+		function set length($value:uint):void;
+		
 	}
 }

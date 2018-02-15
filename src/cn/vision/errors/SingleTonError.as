@@ -1,38 +1,35 @@
 package cn.vision.errors
 {
 	
+	import cn.vision.consts.ErrorConsts;
+	import cn.vision.core.VSError;
+	import cn.vision.core.vs;
+	import cn.vision.utils.ClassUtil;
+	import cn.vision.utils.RegexpUtil;
+	
+	
 	/**
+	 * 单例异常，一个程序里只允许存在一个该类的实例，当构建第二个单例类的实例时，引发此异常。
 	 * 
-	 * 单例异常。当尝试构造新的单例类时抛出此异常。
-	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	import cn.vision.utils.ClassUtil;
-	import cn.vision.core.VSError;
-	
-	
 	public class SingleTonError extends VSError
 	{
 		
 		/**
-		 * 
-		 * <code>SingleTonError</code>构造函数。
+		 * 构造函数。
 		 * 
 		 * @param instance:* 抛出此异常的实例。
 		 * 
 		 */
-		
 		public function SingleTonError($instance:*)
 		{
-			super(ClassUtil.getClassName($instance) + " is single ton mode!");
+			super(RegexpUtil.replaceTag(ErrorConsts.vs::SINGLE_TON, ClassUtil.getClassName($instance, false)));
 		}
 		
 	}
-	
-	
 }

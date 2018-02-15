@@ -1,34 +1,59 @@
-package cn.vision.consts
+﻿package cn.vision.consts
 {
 	
+	import cn.vision.core.vs;
+	
+	
 	/**
-	 * 
 	 * 定义了一些数学常量。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.vs;
-	
-	
 	public final class MathConsts extends Consts
 	{
 		
 		/**
-		 * 
 		 * loge3，以自然数为底的3的对数。
 		 * 
 		 * @default 1.0986122886681096913952452369225
 		 * 
 		 */
-		
 		public static const LN3:Number = 1.0986122886681096913952452369225;
 		
+		/**
+		 * PI，180度的弧度表示方式。
+		 * 
+		 * @default 1.5707963267948966192313216916398
+		 * 
+		 */
+		public static const PI:Number = 3.1415926535897932384626433832795;
+		
+		/**
+		 * PI / 2，90度的弧度表示方式。
+		 * 
+		 * @default 1.5707963267948966192313216916398
+		 * 
+		 */
+		public static const PI_2:Number = 1.5707963267948966192313216916398;
+		
+		/**
+		 * PI / 4，45度的弧度表示方式。
+		 * 
+		 * @default 0.78539816339744830961566084581988
+		 * 
+		 */
+		public static const PI_4:Number = 0.78539816339744830961566084581988;
+		
+		
+		/**
+		 * @private
+		 * 定义1/loge2数值。
+		 */
+		vs static const LN2_1:Number = 1.4426950408889634073599246810019;
 		
 		/**
 		 * @private
@@ -47,6 +72,12 @@ package cn.vision.consts
 		 * 定义弧度转角度所乘数值。
 		 */
 		vs static const PI_MOD_ANGLE:Number = 0.01745329251994329576923690768489;
+		
+		/**
+		 * @private
+		 * 定义弧度转角度所乘数值。
+		 */
+		vs static const COLOR_MOD:Number = 0.00390625;
 		
 	}
 }

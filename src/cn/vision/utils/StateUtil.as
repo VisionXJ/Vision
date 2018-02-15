@@ -6,7 +6,7 @@ package cn.vision.utils
 	 * 定义了状态内部使用的一些常用方法。
 	 * 
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0

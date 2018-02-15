@@ -5,7 +5,7 @@ package cn.vision.utils
 	 * 
 	 * <code>BitmapUtil</code>定义了一些位图常用函数。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
@@ -18,7 +18,7 @@ package cn.vision.utils
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.IBitmapDrawable;
-	import flash.display.JPEGEncoderOptions;
+//	import flash.display.JPEGEncoderOptions;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
@@ -29,7 +29,6 @@ package cn.vision.utils
 	{
 		
 		/**
-		 * 
 		 * 截图。
 		 * 
 		 * @param $source:DisplayObject 需要截取的显示对象。
@@ -43,8 +42,9 @@ package cn.vision.utils
 		 * @param $clipRect:Rectange (default = null) 截取的区域。
 		 * @param $smooth:String 是否平滑。
 		 * 
+		 * @return BitmapData 返回位图数据。
+		 * 
 		 */
-		
 		public static function draw($source:IBitmapDrawable,
 									$width:Number = NaN,
 									$height:Number = NaN,
@@ -66,15 +66,16 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 编码jpg二进制字节流。
 		 * 
 		 * @param $bitmapData:BitmapData 需要转换的位图。
 		 * @param $quality:Number (default = 80) 图片质量，0-100之间的数值。
 		 * 
+		 * @return ByteArray
+		 * 
 		 */
-		
-		public static function encodeJPG($bitmapData:BitmapData, $quality:Number = 80):ByteArray
+		//低版本sdk没有JPEGEncoderOptions，暂时注释掉 - by kim.wu
+		/*public static function encodeJPG($bitmapData:BitmapData, $quality:Number = 80):ByteArray
 		{
 			if ($bitmapData)
 			{
@@ -85,7 +86,7 @@ package cn.vision.utils
 				bytes.position = 0;
 			}
 			return bytes;
-		}
+		}*/
 		
 	}
 }

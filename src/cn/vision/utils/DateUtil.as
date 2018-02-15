@@ -9,7 +9,7 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
-	import cn.vision.errors.DateArgumentError;
+	import cn.vision.errors.ArgumentDateError;
 	
 	
 	public final class DateUtil extends NoInstance
@@ -38,45 +38,11 @@ package cn.vision.utils
 			}
 			else
 			{
-				throw new DateArgumentError;
+				throw new ArgumentDateError;
 			}
 			return result;
 		}
 	
-		
-		
-		/**
-		 * 
-		 * 比较2个日期年月日的大小，只会比较年月日，不会比较时分秒。<br>
-		 * <br>
-		 * 特别地，该方法允许$date1是一个非时间格式。如此，则表示为无限期。即直接返回为1。(一般为EndDate)
-		 * 
-		 * @param $date1:Date 第一个日期。可以非时间格式，但会被解析为无限期。
-		 * @param $date2:Date 第二个日期。且必须为时间格式。
-		 * 
-		 * @return int 值为 -1，$date1 早于 $date2；值为 0，$date1 等于 $date2；值为1，$date1 晚于 $date2。
-		 * 
-		 */
-		
-		public static function compareDate_SP($date1:Date, $date2:Date):int
-		{
-			var v1:Boolean = validate($date1);
-			var v2:Boolean = validate($date2);
-			
-			if (!v1) return 1;    //如果v1非时间类型，则表示无限期。
-			else if (v2)
-			{
-				var result:int   = MathUtil.compare($date1.fullYear, $date2.fullYear);
-				result = result || MathUtil.compare($date1.month   , $date2.month);
-				result = result || MathUtil.compare($date1.date    , $date2.date);
-			}
-			else
-			{
-				throw new DateArgumentError;
-			}
-			return result;
-		}
-		
 		
 		/**
 		 * 
@@ -170,40 +136,6 @@ package cn.vision.utils
 				var aday:int = $date.date + 7 - days;
 				result = ($date.date <= days) 
 					? 1 : aday / 7 + (aday % 7 > 0 ? 1 : 0);
-			}
-			return result;
-		}
-		
-		
-		/**
-		 * 
-		 * 获取日期时间字符串。
-		 * 
-		 * @param $date:Date 日期数据。
-		 * @param $time:Boolean (default = true) 是否附带时间
-		 * @param $charLength:uint = 1 每个字符的位数，大于1时，如果字符长度不够，会在前面加0，如2000-01-04
-		 * @param $dateSep:String (default = "-") 日期连接分隔符，如2000-10-23
-		 * @param $join:String (default = " ") 日期与时间之间的连接符
-		 * @param $timeSep:String (default = ":") 时间连接符，如：12:12:23
-		 * 
-		 * @return String 日期时间字符串
-		 * 
-		 */
-		
-		public static function getDateFormat($date:Date, $time:Boolean = true, $charLength:uint = 1, $dateSep:String = "-", $join:String = " ", $timeSep:String = ":"):String
-		{
-			$charLength = MathUtil.clamp($charLength, 1, 2);
-			var result:String = "";
-			result += StringUtil.formatUint($date.fullYear, $charLength) + $dateSep;
-			result += StringUtil.formatUint($date.month   , $charLength) + $dateSep;
-			result += StringUtil.formatUint($date.date    , $charLength);
-			
-			if ($time)
-			{
-				result += $join;
-				result += StringUtil.formatUint($date.hours  , $charLength) + $timeSep;
-				result += StringUtil.formatUint($date.minutes, $charLength) + $timeSep;
-				result += StringUtil.formatUint($date.seconds, $charLength);
 			}
 			return result;
 		}

@@ -1,19 +1,9 @@
 package cn.vision.collections
 {
 	
-	/**
-	 * 
-	 * 扩展的Object类，与Object用法相同，增加了length属性。
-	 * 
-	 * @author vision
-	 * @langversion 3.0
-	 * @playerversion Flash 9, AIR 1.1
-	 * @productversion vision 1.0
-	 * 
-	 */
-	
-	
 	import cn.vision.core.vs;
+	import cn.vision.errors.DestroyNotEmptiedError;
+	import cn.vision.interfaces.IDestroy;
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.ILength;
 	import cn.vision.interfaces.IName;
@@ -26,68 +16,29 @@ package cn.vision.collections
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 	
-	
 	[Bindable]
-	public dynamic class Map extends Proxy implements ILength, IID, IName
+	
+	/**
+	 * 扩展的Object类，与Object用法相同，增加了length属性。
+	 * 
+	 * @author exyjen
+	 * @langversion 3.0
+	 * @playerversion Flash 9, AIR 1.1
+	 * @productversion vision 1.0
+	 * 
+	 */
+	public dynamic class Map extends Proxy implements ILength, IID, IName, IDestroy
 	{
 		
 		/**
-		 * 
-		 * <code>Map</code>构造函数。
-		 * 
+		 * 构造函数。
 		 */
-		
 		public function Map()
 		{
 			super();
 			
 			initialize();
 		}
-		
-		
-		/**
-		 * 
-		 * 清空字典。
-		 * 
-		 */
-		
-		public function clear():void
-		{
-			itemObject = {};
-			itemNameArray.length = 0;
-			nameIndexObject = {};
-			itemIndexDictionary = new Dictionary;
-			vs::length = 0;
-		}
-		
-		
-		/**
-		 * 
-		 * 对自身的一个拷贝。
-		 * 
-		 */
-		
-		public function clone():Map
-		{
-			var map:Map = new Map, key:String;
-			for (key in this) map[key] = this[key];
-			return map;
-		}
-		
-		
-		/**
-		 * 
-		 * 对自身的一个拷贝。
-		 * 
-		 */
-		
-		public function toArray():Array
-		{
-			var result:Array = [], item:*;
-			for each (item in this) ArrayUtil.push(result, item);
-			return result;
-		}
-		
 		
 		/**
 		 * @private
@@ -104,7 +55,58 @@ package cn.vision.collections
 		
 		
 		/**
-		 * 
+		 * 清空字典。
+		 */
+		public function clear():void
+		{
+			itemObject = {};
+			itemNameArray.length = 0;
+			nameIndexObject = {};
+			itemIndexDictionary = new Dictionary;
+			vs::length = 0;
+		}
+		
+		
+		/**
+		 * 对自身的一个拷贝。
+		 */
+		public function clone():Map
+		{
+			var map:Map = new Map, key:String;
+			for (key in this) map[key] = this[key];
+			return map;
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function destroy():void
+		{
+			if (length == 0)
+			{
+				itemObject = null;
+				itemNameArray = null;
+				nameIndexObject = null;
+				itemIndexDictionary = null;
+			}
+			else throw new DestroyNotEmptiedError(this);
+		}
+		
+		
+		/**
+		 * 导出一个包含所有存储元素的数组。
+		 */
+		public function toArray():Array
+		{
+			var result:Array = [], item:*;
+			for each (item in this) ArrayUtil.push(result, item);
+			return result;
+		}
+		
+		
+		
+		/**
 		 * 重写调用属性或方法的行为。
 		 * 
 		 * @param $name 方法或属性的名字
@@ -112,7 +114,6 @@ package cn.vision.collections
 		 * @return 方法或属性的返回。
 		 * 
 		 */
-		
 		override flash_proxy function callProperty($name:*, ...$args):*
 		{
 			var result:*;
@@ -125,14 +126,12 @@ package cn.vision.collections
 		
 		
 		/**
-		 * 
 		 * delete操作会调用该函数。
 		 * 
 		 * @param $name 标识名称。
 		 * @return 如果被删除，则返回true，否则为false。
 		 * 
 		 */
-		
 		override flash_proxy function deleteProperty($name:*):Boolean
 		{
 			//defines some variables
@@ -145,8 +144,10 @@ package cn.vision.collections
 				vs::length -= 1;
 				//get the index of itemObject[name] from nameIndexObject by name.
 				index = nameIndexObject[$name];
+				//get element
+				value = itemObject[name];
 				//store in itemIndexDictionary, may be array or uint.
-				indexObj = itemIndexDictionary[itemObject[$name]];
+				indexObj = itemIndexDictionary[value];
 				//may be in the map has two or more same element, 
 				//then the indexObj is an array stores sane element, 
 				//need to check the indexObj type.
@@ -158,26 +159,25 @@ package cn.vision.collections
 					//delete the index from indexObj
 					indexObj.splice(order, 1);
 					//if only one left, stores uint in itemIndexDictionary. 
-					if (indexObj.length== 1) 
-						itemIndexDictionary[itemObject[$name]] = indexObj[0];
-					
+					if (indexObj.length == 1) 
+						itemIndexDictionary[value] = indexObj[0];
 				} 
 				else 
 				{
 					//indexObj is an uint, means only one element the map stores, 
 					//delete the index for old element doesn't exist in map anymore.
-					delete itemIndexDictionary[itemObject[$name]];
+					delete itemIndexDictionary[value];
 				}
 				//delete name record from itemNameArray.
 				itemNameArray.splice(index, 1);
 				//delete index record from nameIndexObject.
 				delete nameIndexObject[$name];
 				//subtract 1 for all records from index
-				for (i = index; i < length; i++) 
+				for (i = index; i < vs::length; i++) 
 				{
 					//name of current element
 					name = itemNameArray[i];
-					//element
+					//get element
 					value = itemObject[name];
 					//get element indexObj
 					indexObj = itemIndexDictionary[value];
@@ -194,7 +194,7 @@ package cn.vision.collections
 					{
 						//indexObj is an uint, means only one element the map stores.
 						//subtract indexObj
-						indexObj = i;
+						itemIndexDictionary[value] = i;
 					}
 					//subtract the name index
 					nameIndexObject[name] = i;
@@ -212,8 +212,8 @@ package cn.vision.collections
 		 * @param $name The name of the property to descend into the object and search for. 
 		 * 
 		 * @return The results of the descendant operator. 
+		 * 
 		 */
-		
 		override flash_proxy function getDescendants($name:*):*
 		{
 			return itemObject[StringUtil.toString($name)];
@@ -228,8 +228,8 @@ package cn.vision.collections
 		 * @param $name The name of the property to retrieve. 
 		 * 
 		 * @return The specified property or undefined if the property is not found. 
+		 * 
 		 */
-		
 		override flash_proxy function getProperty($name:*):*
 		{
 			return itemObject ? itemObject[StringUtil.toString($name)] : null;
@@ -242,8 +242,8 @@ package cn.vision.collections
 		 * @param $name The name of the property to check for. 
 		 * 
 		 * @return If the property exists, true; otherwise false. 
+		 * 
 		 */
-		
 		override flash_proxy function hasProperty($name:*):Boolean
 		{
 			return(StringUtil.toString($name) in itemObject);
@@ -253,7 +253,6 @@ package cn.vision.collections
 		/**
 		 * @inheritDoc
 		 */
-		
 		override flash_proxy function isAttribute($name:*):Boolean
 		{
 			return super.flash_proxy::isAttribute(StringUtil.toString($name));;
@@ -269,11 +268,11 @@ package cn.vision.collections
 		 * @param $index The zero-based index value of the object's property. 
 		 * 
 		 * @return The property's name. 
+		 * 
 		 */
-		
 		override flash_proxy function nextName($index:int):String
 		{
-			return itemNameArray[$index-1];
+			return itemNameArray[$index - 1];
 		}
 		
 		
@@ -286,8 +285,8 @@ package cn.vision.collections
 		 * @param $index The zero-based index value where the enumeration begins. 
 		 * 
 		 * @return The property's index value. 
+		 * 
 		 */
-		
 		override flash_proxy function nextNameIndex($index:int):int
 		{
 			return ($index < itemNameArray.length) ? $index + 1 : 0;
@@ -303,8 +302,8 @@ package cn.vision.collections
 		 * @param $index The zero-based index value of the object's property. 
 		 * 
 		 * @return The property's value. 
+		 * 
 		 */
-		
 		override flash_proxy function nextValue($index:int):*
 		{
 			return itemObject[itemNameArray[$index-1]];
@@ -321,8 +320,8 @@ package cn.vision.collections
 		 * 
 		 * @param $name The name of the property to modify. 
 		 * @param $value The value to set the property to. 
+		 * 
 		 */
-		
 		override flash_proxy function setProperty($name:*, $value:*):void
 		{
 			//defines the variables.
@@ -370,7 +369,7 @@ package cn.vision.collections
 				indexObj = itemIndexDictionary[$value];
 				//check whether the indexObj exists, 
 				//to store the index into an array or uint
-				if (indexObj== undefined)
+				if (indexObj == undefined)
 				{
 					//indexObj not exist, store the new index directly.
 					itemIndexDictionary[$value] = index;
@@ -393,11 +392,13 @@ package cn.vision.collections
 			}
 			//store value in object
 			itemObject[$name] = $value;
+			
+			//if maxLength, limit length
+			if (maxLength > 0 && vs::length > maxLength) delete this[itemNameArray[0]];
 		}
 		
 		
 		/**
-		 * 
 		 * 检测是否包含某项。
 		 * 
 		 * @param $value:* 需要检测的项。
@@ -414,7 +415,6 @@ package cn.vision.collections
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get className():String
 		{
 			return vs::className = vs::className || ClassUtil.getClassName(this);
@@ -424,25 +424,15 @@ package cn.vision.collections
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get vid():uint
 		{
 			return vs::vid;
-		}
-		
-		/**
-		 * @private
-		 */
-		public function get length():uint
-		{
-			return vs::length;
 		}
 		
 		
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get instanceName():String { return vs::name; }
 		
 		/**
@@ -451,6 +441,53 @@ package cn.vision.collections
 		public function set instanceName($value:String):void
 		{
 			vs::name = $value;
+		}
+		
+		
+		/**
+		 * @copy cn.vision.interfaces.ILength#length
+		 */
+		public function get length():uint
+		{
+			return vs::length;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set length($value:uint):void
+		{
+			if ($value != vs::length)
+			{
+				var lastLength:uint = vs::length;
+				
+				if (lastLength > $value)
+				{
+					for (var i:int = lastLength - 1; i >= $value; i -= 1)
+						delete this[itemNameArray[i]];
+				}
+			}
+		}
+		
+		/**
+		 * 最大长度。
+		 */
+		public function get maxLength():uint
+		{
+			return vs::maxLength;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set maxLength($value:uint):void
+		{
+			if ($value != vs::maxLength)
+			{
+				vs::maxLength = $value;
+				
+				if (vs::length > vs::maxLength) length = vs::maxLength;
+			}
 		}
 		
 		
@@ -487,6 +524,11 @@ package cn.vision.collections
 		/**
 		 * @private
 		 */
+		vs var id:uint;
+		
+		/**
+		 * @private
+		 */
 		vs var length:uint;
 		
 		/**
@@ -497,7 +539,7 @@ package cn.vision.collections
 		/**
 		 * @private
 		 */
-		vs var id:uint;
+		vs var maxLength:uint;
 		
 	}
 }

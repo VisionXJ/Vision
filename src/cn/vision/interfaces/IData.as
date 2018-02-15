@@ -1,8 +1,17 @@
 package cn.vision.interfaces
 {
+	
 	public interface IData
 	{
-		function get data():Object
-		function set data($value:Object):void
+		
+		/**
+		 * 定义使用的数据参数。
+		 */
+		function get data():Object;
+		
+		/**
+		 * @private
+		 */
+		function set data($value:Object):void;
 	}
 }

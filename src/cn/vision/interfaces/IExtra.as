@@ -8,11 +8,9 @@ package cn.vision.interfaces
 	{
 		
 		/**
-		 * 
 		 * An extra object for each vision instance, can store some property or so.
-		 * 
 		 */
+		function get extra():VSObject;
 		
-		function get extra():VSObject
 	}
 }

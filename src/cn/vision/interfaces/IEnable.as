@@ -1,7 +1,9 @@
 package cn.vision.interfaces
 {
+	
 	public interface IEnable
 	{
+		
 		/**
 		 * set ui enabled or not.
 		 */

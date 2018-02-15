@@ -1,24 +1,22 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
+	
 	/**
-	 * 
 	 * 定义了一些URI验证相关函数。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	import cn.vision.core.NoInstance;
-	
 	public final class HTTPUtil extends NoInstance
 	{
 		
 		/**
-		 * 
 		 * 根据URL获取主域名信息。
 		 * 
 		 * @param $url:String 
@@ -26,7 +24,6 @@ package cn.vision.utils
 		 * @return String 返回主域名字符串。
 		 * 
 		 */
-		
 		public static function getDomainName($url:String):String
 		{
 			if ($url)
@@ -71,7 +68,6 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 规范化url。
 		 * 
 		 * @param $url:String 
@@ -79,16 +75,15 @@ package cn.vision.utils
 		 * @return String 返回规范化后的url字符串。
 		 * 
 		 */
-		
 		public static function normalize($url:String):String
 		{
+			$url = $url.split("\\").join("/");
 			return ($url && $url.indexOf("http") != 0) ? "http://" + $url : $url;
 		}
 		
 		
 		
 		/**
-		 * 
 		 * 验证2个HTTP协议URI是否同一地址。
 		 * <p>
 		 * 如：http://www.baidu.com和http://www.baidu.com/和http://www.baidu.com/#
@@ -100,7 +95,6 @@ package cn.vision.utils
 		 * @return Boolean true则是同一地址，false则不是同一地址。
 		 * 
 		 */
-		
 		public static function validateIdentical($uri1:String, $uri2:String):Boolean
 		{
 			$uri1 = normalize($uri1);
@@ -128,23 +122,24 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
-		private static const URLFIX:Object = {
-			"com" : true, 
-			"cn" : true, 
-			"edu" : true, 
-			"tw" : true, 
-			"tv" : true, 
-			"org" : true, 
-			"net" : true, 
-			"gov" : true, 
-			"biz" : true, 
-			"cc" : true, 
-			"info" : true, 
-			"us" : true, 
+		private static const URLFIX:Object = 
+		{
 			"asia" : true, 
+			"biz"  : true, 
+			"cc"   : true, 
+			"cn"   : true, 
+			"com"  : true, 
+			"edu"  : true, 
+			"gov"  : true, 
+			"info" : true, 
 			"name" : true, 
-			"tel" : true,
-			"xxx" : true
+			"net"  : true, 
+			"org"  : true, 
+			"tel"  : true,
+			"tv"   : true, 
+			"tw"   : true, 
+			"us"   : true, 
+			"xxx"  : true
 		};
 		
 	}

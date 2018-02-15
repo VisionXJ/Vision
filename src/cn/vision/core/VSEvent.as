@@ -1,18 +1,7 @@
 package cn.vision.core
 {
 	
-	/**
-	 * 
-	 * vision事件基类。
-	 * 
-	 * @author vision
-	 * @langversion 3.0
-	 * @playerversion Flash 9, AIR 1.1
-	 * @productversion vision 1.0
-	 * 
-	 */
-	
-	
+	import cn.vision.interfaces.IDestroy;
 	import cn.vision.interfaces.IID;
 	import cn.vision.interfaces.IName;
 	import cn.vision.utils.ClassUtil;
@@ -21,11 +10,20 @@ package cn.vision.core
 	import flash.events.Event;
 	
 	
-	public class VSEvent extends Event implements IID, IName
+	/**
+	 * vision事件基类。
+	 * 
+	 * @author exyjen
+	 * @langversion 3.0
+	 * @playerversion Flash 9, AIR 1.1
+	 * @productversion vision 1.0
+	 * 
+	 */
+	
+	public class VSEvent extends Event implements IID, IName, IDestroy
 	{
 		
 		/**
-		 * 
 		 * <code>VSEvent</code>构造函数。
 		 * 
 		 * @param $type:String 事件的类型，可以作为 CommandEvent.type 访问。
@@ -33,7 +31,6 @@ package cn.vision.core
 		 * @param $cancelable:Boolean (default = false) 确定是否可以取消 CommandEvent 对象。默认值为 false。
 		 * 
 		 */
-		
 		public function VSEvent($type:String, $bubbles:Boolean = false, $cancelable:Boolean = false)
 		{
 			super($type, $bubbles, $cancelable);
@@ -41,9 +38,16 @@ package cn.vision.core
 			initialize();
 		}
 		
+		/**
+		 * @private
+		 */
+		private function initialize():void
+		{
+			vs::vid = IDUtil.generateID();
+		}
+		
 		
 		/**
-		 * 
 		 * 复制 VSEvent 类的实例。返回一个新的 VSEvent 对象，它是 VSEvent 对象的原始实例的副本。
 		 * 通常您不需要调用 clone()；当您重新调度事件，即调用 dispatchEvent(event)（从正在处理 event 的处理函数）时，EventDispatcher 类会自动调用它。
 		 * 新的 Event 对象包括原始对象的所有属性。<br><br>
@@ -59,18 +63,14 @@ package cn.vision.core
 		
 		
 		/**
-		 * @private
+		 * @inheritDoc
 		 */
-		private function initialize():void
-		{
-			vs::vid = IDUtil.generateID();
-		}
+		public function destroy():void { }
 		
 		
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get className():String
 		{
 			return vs::className = vs::className || ClassUtil.getClassName(this);
@@ -80,17 +80,15 @@ package cn.vision.core
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get vid():uint
 		{
-			return vs::vid = vs::vid || IDUtil.generateID();
+			return vs::vid;
 		}
 		
 		
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get instanceName():String
 		{
 			return vs::name;

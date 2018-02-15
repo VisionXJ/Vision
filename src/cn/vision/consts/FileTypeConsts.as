@@ -2,32 +2,30 @@ package cn.vision.consts
 {
 	
 	/**
+	 * 定义了一些常用文件名后缀。
 	 * 
-	 * <code>ConstsFileType</code>定义了一常用文件名后缀。
-	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
 	public final class FileTypeConsts extends Consts
 	{
 		
 		/**
-		 * 
 		 * flv文件名后缀。
 		 * 
+		 * @default flv
+		 * 
 		 */
-		
 		public static const FLV:String = "flv";
 		
 		
 		/**
-		 * 
 		 * jpg文件名后缀。
+		 * 
+		 * @default jpg
 		 * 
 		 */
 		
@@ -35,8 +33,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * jpg文件名后缀。
+		 * 
+		 * @default jpeg
 		 * 
 		 */
 		
@@ -44,8 +43,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * mp3文件名后缀。
+		 * 
+		 * @default mp3
 		 * 
 		 */
 		
@@ -53,8 +53,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * mp4文件名后缀。
+		 * 
+		 * @default mp4
 		 * 
 		 */
 		
@@ -62,8 +63,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * png文件名后缀。
+		 * 
+		 * @default png
 		 * 
 		 */
 		
@@ -71,8 +73,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * tmp文件名后缀。
+		 * 
+		 * @default tmp
 		 * 
 		 */
 		
@@ -80,8 +83,9 @@ package cn.vision.consts
 		
 		
 		/**
-		 * 
 		 * xml文件名后缀。
+		 * 
+		 * @default xml
 		 * 
 		 */
 		

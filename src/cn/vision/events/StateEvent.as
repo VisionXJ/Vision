@@ -1,29 +1,25 @@
 package cn.vision.events
 {
 	
-	/**
-	 * 
-	 * 状态事件，当状态改变时发送。
-	 * 
-	 * @author vision
-	 * @langversion 3.0
-	 * @playerversion Flash 9, AIR 1.1
-	 * @productversion vision 1.0
-	 * 
-	 */
-	
-	
 	import cn.vision.core.VSEvent;
 	import cn.vision.core.vs;
 	import cn.vision.core.State;
 	
 	
+	/**
+	 * 状态事件，当状态改变时发送。
+	 * 
+	 * @author exyjen
+	 * @langversion 3.0
+	 * @playerversion Flash 9, AIR 1.1
+	 * @productversion vision 1.0
+	 * 
+	 */
 	public class StateEvent extends VSEvent
 	{
 		
 		/**
-		 * 
-		 * <code>StateEvent</code>构造函数。
+		 * 构造函数。
 		 * 
 		 * @param $type:String 事件的类型，可以作为 StateEvent.type 访问。
 		 * @param $stateOld:State 历史所处状态。
@@ -32,14 +28,12 @@ package cn.vision.events
 		 * @param $cancelable:Boolean (default = false) 确定是否可以取消 StateEvent 对象。默认值为 false。
 		 * 
 		 */
-		
 		public function StateEvent($type:String, $stateOld:String, $stateNew:String, $bubbles:Boolean = false, $cancelable:Boolean = false)
 		{
 			super($type, $bubbles, $cancelable);
 			
 			initialize($stateOld, $stateNew);
 		}
-		
 		
 		/**
 		 * @private
@@ -52,26 +46,21 @@ package cn.vision.events
 		
 		
 		/**
-		 * 
 		 * 状态改变后，历史所处状态。
-		 * 
 		 */
-		
 		public function get stateOld():String
 		{
 			return vs::stateOld;
 		}
 		
 		/**
-		 * 
 		 * 状态改变后，当下所处状态。
-		 * 
 		 */
-		
 		public function get stateNew():String
 		{
 			return vs::stateNew;
 		}
+		
 		
 		/**
 		 * @private
@@ -85,14 +74,12 @@ package cn.vision.events
 		
 		
 		/**
-		 * 
 		 * 状态改变是发送。<br>
 		 * STATE_CHANGE常量定义STATE_CHANGE事件的<code>type</code>属性值。
 		 * 
 		 * @default stateChange
 		 * 
 		 */
-		
 		public static const STATE_CHANGE:String = "stateChange";
 		
 	}

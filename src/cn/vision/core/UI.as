@@ -1,18 +1,6 @@
 package cn.vision.core
 {
 	
-	/**
-	 * 
-	 * 可视元素的基类。
-	 * 
-	 * @author vision
-	 * @langversion 3.0
-	 * @playerversion Flash 9, AIR 1.1
-	 * @productversion vision 1.0
-	 * 
-	 */
-	
-	
 	import cn.vision.collections.Holder;
 	import cn.vision.consts.UIStateConsts;
 	import cn.vision.events.StateEvent;
@@ -31,6 +19,15 @@ package cn.vision.core
 	import flash.events.Event;
 	
 	
+	/**
+	 * 可视元素的基类。
+	 * 
+	 * @author exyjen
+	 * @langversion 3.0
+	 * @playerversion Flash 9, AIR 1.1
+	 * @productversion vision 1.0
+	 * 
+	 */
 	public class UI extends Sprite implements IEnable, IExtra, IID, IName, IState
 	{
 		
@@ -127,7 +124,6 @@ package cn.vision.core
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get extra():VSObject
 		{
 			return vs::extra || (vs::extra = new VSObject);
@@ -137,7 +133,6 @@ package cn.vision.core
 		/**
 		 * @inheritDoc
 		 */
-		
 		public function get instanceName():String
 		{
 			return vs::instanceName;
@@ -160,9 +155,6 @@ package cn.vision.core
 		{
 			return vs::lastState;
 		}
-		
-		
-		
 		
 		
 		/**
@@ -189,6 +181,41 @@ package cn.vision.core
 				
 				dispatchEvent(new StateEvent(StateEvent.STATE_CHANGE, vs::lastState, vs::state));
 			}
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		
+		override public function get width():Number
+		{
+			return vs::width;
+		}
+		
+		/**
+		 * @oruvate
+		 */
+		override public function set width($value:Number):void
+		{
+			vs::width = $value;
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function get height():Number
+		{
+			return vs::height;
+		}
+		
+		/**
+		 * @oruvate
+		 */
+		override public function set height($value:Number):void
+		{
+			vs::height = $value;
 		}
 		
 		
@@ -242,6 +269,16 @@ package cn.vision.core
 		 * @private
 		 */
 		vs var vid:uint;
+		
+		/**
+		 * @private
+		 */
+		vs var width:Number;
+		
+		/**
+		 * @private
+		 */
+		vs var height:Number;
 		
 	}
 }

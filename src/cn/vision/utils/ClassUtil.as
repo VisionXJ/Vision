@@ -5,7 +5,7 @@ package cn.vision.utils
 	 * 
 	 * <code>ClassUtil</code> 定义了一些常用类操作函数。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
@@ -16,6 +16,7 @@ package cn.vision.utils
 	import cn.vision.core.NoInstance;
 	
 	import flash.utils.Dictionary;
+	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getQualifiedSuperclassName;
@@ -23,6 +24,48 @@ package cn.vision.utils
 	
 	public final class ClassUtil extends NoInstance
 	{
+		
+		/**
+		 * 
+		 * 获取类的实例，类构造函数最多支持9个参数。
+		 * 
+		 * @param $class:Class 要创建实例的类。
+		 * @param ...$args 相关参数。
+		 * 
+		 * @return * 返回相关实例。
+		 * 
+		 */
+		
+		public static function construct($class:Class, ...$args):*
+		{
+			var result:*, l:int;
+			try
+			{
+				l = $args.length;
+				if ($args && l > 0)
+				{
+					switch(l)
+					{
+						case 1: result = new $class($args[0]); break;
+						case 2: result = new $class($args[0], $args[1]); break;
+						case 3: result = new $class($args[0], $args[1], $args[2]); break;
+						case 4: result = new $class($args[0], $args[1], $args[2], $args[3]); break;
+						case 5: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4]); break;
+						case 6: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]); break;
+						case 7: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]); break;
+						case 8: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7]); break;
+						case 9: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7], $args[8]); break;
+					}
+				}
+				else
+				{
+					result = new $class;
+				}
+			} catch (e:Error) { }
+			
+			return result;
+		}
+		
 		
 		/**
 		 * 
@@ -52,7 +95,8 @@ package cn.vision.utils
 		
 		public static function getClassByName($qualifiedName:String):Class
 		{
-			return CLASS_DIC[$qualifiedName] = CLASS_DIC[$qualifiedName] || getDefinitionByName($qualifiedName);
+			if ($qualifiedName) CLASS_DIC[$qualifiedName] = CLASS_DIC[$qualifiedName] || getDefinitionByName($qualifiedName);
+			return CLASS_DIC[$qualifiedName];
 		}
 		
 		
@@ -69,53 +113,86 @@ package cn.vision.utils
 		
 		public static function getClassName($value:*, $qualified:Boolean = true):String
 		{
-			if (! ($value is Class) || ! NAME_DIC[$value])
+			if ($value != null)
 			{
-				var q:String = getQualifiedClassName($value);
-				var i:int = q.search("::");
-				var n:String = q.substr(i == -1 ? 0 : i + 2);
-				if ($value is Class)
+				if (! ($value is Class) || ! NAME_DIC[$value])
 				{
-					NAME_DIC[$value] = n;
-					QUALIFIED_NAME_DIC[$value] = q;
+					var q:String = getQualifiedClassName($value);
+					var i:int = q.search("::");
+					var n:String = q.substr(i == -1 ? 0 : i + 2);
+					if ($value is Class)
+					{
+						NAME_DIC[$value] = n;
+						QUALIFIED_NAME_DIC[$value] = q;
+					}
+				}
+				else
+				{
+					n = NAME_DIC[$value];
+					q = QUALIFIED_NAME_DIC[$value];
 				}
 			}
-			else
-			{
-				n = NAME_DIC[$value];
-				q = QUALIFIED_NAME_DIC[$value];
-			}
+			
 			return $qualified ? q : n;
 		}
 		
 		
+		
 		/**
+		 * 获取实例属性对应的类。
 		 * 
-		 * 返回函数名。
-		 * 
-		 * @param $value 需要名称的函数对象。
+		 * @param $value:* 需要获取
 		 * 
 		 * @return <code>String</code>
 		 * 
 		 */
 		
+		public static function getPropertyClass($value:*, $property:String):Class
+		{
+			var info:Object = obtainInfomation($value), item:Object;
+			if (info.variable)
+			{
+				for each (item in info.variable)
+				{
+					if (item.name == $property)
+						return ClassUtil.getClassByName(item.type);
+				}
+			}
+			if (info.accessor)
+			{
+				for each (item in info.accessor)
+				{
+					if (item.access != "readonly" && item.name == $property) 
+						return ClassUtil.getClassByName(item.type);
+				}
+			}
+			return null;
+		}
+		
+		
+		/**
+		 * 返回函数名。<br>
+		 * 注意该方法只在debugger模式下可用。
+		 * 
+		 * @param $value:Function 需要名称的函数对象。
+		 * 
+		 * @return <code>String</code>
+		 * 
+		 */
 		public static function getFunctionName($value:Function):String
 		{
-			if ($value is Function) 
+			try
 			{
-				try
-				{
-					NoInstance($value);
-				}
-				catch(error:Error)
-				{
-					var m:String = error.message;
-					// start of first line
-					var s:int = m.indexOf("/");
-					// end of function name
-					var e:int = m.indexOf("()");
-					var result:String = m.substring(s + 1, e);
-				}
+				NoInstance($value);
+			}
+			catch(error:Error)
+			{
+				var m:String = error.message;
+				// start of first line
+				var s:int = m.indexOf("/");
+				// end of function name
+				var e:int = m.indexOf("()");
+				var result:String = m.substring(s + 1, e);
 			}
 			return result;
 		}
@@ -159,9 +236,25 @@ package cn.vision.utils
 		
 		/**
 		 * 
+		 * 获取实例的信息。
+		 * 
+		 * @param $value:* 需要获取信息的实例。
+		 * 
+		 * @return Object 获取的信息。
+		 * 
+		 */
+		
+		public static function obtainInfomation($value:*):Object
+		{
+			return $value ? ObjectUtil.convert(describeType($value), Object) : null;
+		}
+		
+		
+		/**
+		 * 
 		 * 检测某个值是否为元数据类型，而不是对象引用。
 		 * 
-		 * @param $value 要检测的对象。
+		 * @param $value:* 要检测的对象。
 		 * 
 		 * @return <code>Boolean</code> true为元数据类型，false为非元数据。
 		 * 
@@ -169,11 +262,23 @@ package cn.vision.utils
 		
 		public static function validateMetadata($value:*):Boolean
 		{
-			return $value is String || 
-					$value is uint || 
-					$value is int || 
-					$value is Number || 
-					$value is Boolean;
+			return METADATA[getClassName($value)];
+		}
+		
+		
+		/**
+		 * 
+		 * 根据类名检测某个类型是否为元数据类型，而不是对象引用。
+		 * 
+		 * @param $className:String 要检测的对象。
+		 * 
+		 * @return <code>Boolean</code> true为元数据类型，false为非元数据。
+		 * 
+		 */
+		
+		public static function validateMetadataByClassName($className:String):Boolean
+		{
+			return METADATA[$className];
 		}
 		
 		
@@ -197,7 +302,7 @@ package cn.vision.utils
 			else
 			{
 				var n:String = getQualifiedSuperclassName($value);
-				var f:String = getQualifiedClassName($super);
+				var f:String = getClassName($super);
 				while ( n && n != "Object")
 				{
 					if( n == f)
@@ -213,6 +318,20 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
+		private static const METADATA:Object = 
+		{
+			"int"       : true,
+			"uint"      : true,
+			"null"      : true,
+			"Number"    : true,
+			"String"    : true,
+			"Boolean"   : true,
+			"undefined" : true
+		};
+		
+		/**
+		 * @private
+		 */
 		private static const NAME_DIC:Dictionary = new Dictionary;
 		
 		/**
@@ -224,6 +343,11 @@ package cn.vision.utils
 		 * @private
 		 */
 		private static const CLASS_DIC:Object = {};
+		
+		/**
+		 * @private
+		 */
+		private static const INFO_DIC:Object = {};
 		
 	}
 }

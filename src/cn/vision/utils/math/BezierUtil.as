@@ -1,28 +1,170 @@
-package cn.vision.utils.math
+﻿package cn.vision.utils.math
 {
 	
+	import cn.vision.core.NoInstance;
+	import cn.vision.utils.ArrayUtil;
+	import cn.vision.utils.MathUtil;
+	
+	import flash.geom.Point;
+	import flash.geom.Vector3D;
+	
 	/**
+	 * 定义了一些贝塞尔曲线常用数学函数。
 	 * 
-	 * <code>AdvancedMathUtil</code>定义了一些常用数学函数。
-	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	import cn.vision.utils.ArrayUtil;
-	import cn.vision.utils.Vector3DUtil;
-	
-	import flash.geom.Point;
-	import flash.geom.Vector3D;
-	
-	
 	public final class BezierUtil extends NoInstance
 	{
+		
+		/**
+		 * 返回二次贝塞尔曲线上到目标位置最近的点。
+		 * 
+		 * @param $target:Point 目标位置。
+		 * @param $start:Point 二次贝塞尔曲线线段起始点。
+		 * @param $end:Point 二次贝塞尔曲线线段终点。
+		 * @param $ctrl:Point 二次贝塞尔曲线线段控制点。
+		 * 
+		 */
+		public static function curveNearestToPoint($target:Point, $start:Point, $end:Point, $ctrl:Point):Point
+		{
+			var posMin:Point = new Point;
+			//start-target
+			var ts:Point = $start.subtract($target);
+			//ctrl-start
+			var A:Point = $ctrl.subtract($start);
+			//end-ctrl-A
+			var B:Point = $end.subtract($ctrl).subtract(A);
+			// search points P of bezier curve with PM.(dP / dt) = 0
+			// a calculus leads to a 3d degree equation :
+			var a:Number = B.x * B.x + B.y * B.y;
+			var b:Number = 3 * (A.x * B.x + A.y * B.y);
+			var c:Number = 2 * (A.x * A.x + A.y * A.y) + ts.x * B.x + ts.y * B.y;
+			var d:Number = ts.x * A.x + ts.y * A.y;
+			var sol:Array = thirdDegreeEquation(a, b, c, d);
+			
+			var t:Number, dist:Number, tMin:Number;
+			var distMin:Number = Number.MAX_VALUE;
+			var d0:Number = Point.distance($target, $start);
+			var d2:Number = Point.distance($target, $end);
+			
+			if (sol)
+			{
+				for (var i:int = 0, l:int = sol.length; i < l; i += 1)
+				{
+					t = sol[i];
+					if (t >= 0 && t <= 1)
+					{
+						ts = getCurvePoint($start, $end, $ctrl, t);
+						dist = Point.distance($target, ts);
+						if (dist < distMin)
+						{
+							tMin = t;
+							distMin = dist;
+							posMin.x = ts.x;
+							posMin.y = ts.y;
+						}
+					}
+				}
+				
+				//the closest point is on the curve
+				if (!isNaN(tMin) && distMin < d0 && distMin < d2) return posMin;
+			}
+			posMin.copyFrom(d0 < d2 ? $start : $end);
+			return posMin;
+		}
+		
+		private static function thirdDegreeEquation(a:Number, b:Number, c:Number, d:Number):Array
+		{
+			solution.length = 0;
+			if (Math.abs(a) > zeroMax)
+			{
+				var z:Number, p:Number, q:Number, p3:Number, D:Number, offset:Number, u:Number, v:Number, three_1:Number;
+				// let's adopt form: x3 + ax2 + bx + d = 0
+				z = a; // multi-purpose util variable
+				a = b / z;
+				b = c / z;
+				c = d / z;
+				// we solve using Cardan formula: http://fr.wikipedia.org/wiki/M%C3%A9thode_de_Cardan
+				three_1 = 1 / 3;
+				p = b - a * a * three_1;
+				q = a * (2 * a * a - 9 * b) / 27 + c;
+				p3 = p * p * p;
+				D = q * q + 4 * p3 / 27;
+				offset = -a * three_1;
+				if (D > zeroMax)
+				{
+					// D positive
+					z = Math.sqrt(D);
+					u = ( -q + z) * .5;
+					v = ( -q - z) * .5;
+					u = u >= 0 ? Math.pow(u, three_1) : -Math.pow( -u, three_1);
+					v = v >= 0 ? Math.pow(v, three_1) : -Math.pow( -v, three_1);
+					solution[0] = u + v + offset;
+				}
+				else if (D < -zeroMax)
+				{
+					// D negative
+					u = 2 * Math.sqrt(-p * three_1);
+					v = Math.acos(-Math.sqrt( -27 / p3) * q * .5) * three_1;
+					solution[0] = u * Math.cos(v) + offset;
+					solution[1] = u * Math.cos(v + 2 * Math.PI * three_1) + offset;
+					solution[2] = u * Math.cos(v + 4 * Math.PI * three_1) + offset;
+				}
+				else
+				{
+					// D zero
+					if (q < 0) u = Math.pow(-q * .5, three_1);
+					else u = -Math.pow( q * .5, three_1);
+					solution[0] = 2 * u + offset;
+					solution[1] = -u + offset;
+				}
+				return solution;
+			}
+			else
+			{
+				// a = 0, then actually a 2nd degree equation:
+				// form : ax2 + bx + c = 0;
+				a = b;
+				b = c;
+				c = d;
+				if (Math.abs(a) <= zeroMax)
+				{
+					if (Math.abs(b) <= zeroMax) return null;
+					else 
+					{
+						solution[0] = -c / b;
+						return solution;
+					}
+				}
+				else
+				{
+					D = b*b - 4 * a * c;
+					// D negative
+					if (D <= - zeroMax) return null;
+					else
+					{
+						if (D > zeroMax)
+						{
+							// D positive
+							D = Math.sqrt(D);
+							solution[0] = ( -b - D) / (2 * a);
+							solution[1] = ( -b + D) / (2 * a);
+						}
+						else 
+						{
+							// D zero
+							solution[0] = -b / (2 * a);
+						}
+						return solution;
+					}
+				}
+			}
+		}
+		
 		
 		/**
 		 * 
@@ -36,8 +178,7 @@ package cn.vision.utils.math
 		 * @return Number 曲线长度。
 		 * 
 		 */
-		
-		public static function getCurveLength($start:Point,$end:Point,$ctrl:Point):Number
+		public static function getCurveLength($start:Point, $end:Point, $ctrl:Point):Number
 		{ 
 			const PRECISION:Number = 1e-10;
 			const csX:Number = $end.x - $start.x;
@@ -91,7 +232,6 @@ package cn.vision.utils.math
 		 * @return Vector.<Point> 曲线上的点集。
 		 * 
 		 */
-		
 		public static function getCurvePoint($start:Point, $end:Point, $ctrl:Point, $per:Number):Point
 		{
 			return Point.interpolate(Point.interpolate($end, $ctrl, $per), Point.interpolate($ctrl, $start, $per), $per);
@@ -106,6 +246,7 @@ package cn.vision.utils.math
 		 * @param $end:Point 结束点。
 		 * @param $ctrl:Point 控制点。
 		 * @param $seg:Number 分段，为0到1之间的数，数值越小，获得的点集越多，越接近曲线。
+		 * @param $side:Boolean (default =false) 是否包含起始点与结束点。
 		 * 
 		 * @return Vector.<Point> 曲线上的点集。
 		 * 
@@ -135,29 +276,24 @@ package cn.vision.utils.math
 		
 		/**
 		 * 
-		 * 获取N次贝塞尔曲线点集。
+		 * 获取贝塞尔曲线点集。
 		 * 
 		 * @param $start:Point 起始点。
 		 * @param $end:Point 结束点。
 		 * @param $seg:Number 分段，为0到1之间的数，数值越小，获得的点集越多，越接近曲线。
+		 * @param $side:Boolean (default = false) 返回的点集是否包含两端的端点。
 		 * @param $args 控制点集合，每一个参数都必须是Point实例，否则会引发ArgumentError异常。
 		 * 
 		 * @return Vector.<Point> 曲线上的点集。
 		 * 
 		 */
-		
 		public static function getBezierPoints($start:Point, $end:Point, $seg:Number = .1, $side:Boolean = false, ...$args):Vector.<Point>
 		{
 			var points:Vector.<Point> = new Vector.<Point>;
-			ArrayUtil.push(points, $start);
-			for each (var item:* in $args) 
-			{
-				if (!(item is Point))
-					throw new ArgumentError("参数必须是Point类型实例！", 3002);
-				else
-					ArrayUtil.push(points, item);
-			}
-			ArrayUtil.push(points, $end);
+			ArrayUtil.unshift($args, points, $start);
+			ArrayUtil.push($args, $end);
+			ArrayUtil.push.apply(null, $args);
+			ArrayUtil.normalize(points);
 			var result:Vector.<Point> = new Vector.<Point>;
 			for (var t:Number = $seg; t <= 1; t += $seg)
 			{
@@ -171,32 +307,46 @@ package cn.vision.utils.math
 			return result;
 		}
 		
+		/**
+		 * @private
+		 */
+		private static function resolvePoints($points:Vector.<Point>, $per:Number):Point
+		{
+			var temp:Vector.<Point>, i:int = 0, l:int;
+			while ($points.length > 1)
+			{
+				temp = new Vector.<Point>;
+				i = 0, l = $points.length - 1;
+				while (i < l)
+				{
+					temp[i] = Point.interpolate($points[i + 1], $points[i], $per); 
+					i += 1;
+				}
+				$points = temp;
+			}
+			return $points[0];
+		}
+		
 		
 		/**
 		 * 
-		 * 获取三维N次贝塞尔曲线点集。
+		 * 获取三维贝塞尔曲线点集。
 		 * 
 		 * @param $start:Vector3D 起始点。
 		 * @param $end:Vector3D 结束点。
 		 * @param $seg:Number 分段，为0到1之间的数，数值越小，获得的点集越多，越接近曲线。
+		 * @param $side:Boolean (default = false) 返回的点集是否包含两端的端点。
 		 * @param $args 控制点集合，每一个参数都必须是Point实例，否则会引发ArgumentError异常。
 		 * 
 		 * @return Vector.<Vector3D> 曲线上的点集。
 		 * 
 		 */
-		
 		public static function getBezierVector3Ds($start:Vector3D, $end:Vector3D, $seg:Number = .1, $side:Boolean = false, ...$args):Vector.<Vector3D>
 		{
-			const points:Vector.<Vector3D> = new Vector.<Vector3D>;
-			ArrayUtil.push(points, $start);
-			for each (var item:* in $args) 
-			{
-				if (!(item is Vector3D))
-					throw new ArgumentError("参数必须是Point类型实例！", 3002);
-				else
-					ArrayUtil.push(points, item);
-			}
-			ArrayUtil.push(points, $end);
+			var points:Vector.<Vector3D> = new Vector.<Vector3D>;
+			ArrayUtil.unshift($args, points, $start);
+			ArrayUtil.push($args, $end);
+			ArrayUtil.push.apply(null, $args);
 			var result:Vector.<Vector3D> = new Vector.<Vector3D>;
 			for (var t:Number = $seg; t <= 1; t += $seg)
 			{
@@ -210,46 +360,29 @@ package cn.vision.utils.math
 			return result;
 		}
 		
-		
-		/**
-		 * @private
-		 */
-		private static function resolvePoints($points:Vector.<Point>, $per:Number):Point
-		{
-			while ($points.length > 1)
-			{
-				var temp:Vector.<Point> = new Vector.<Point>;
-				var i:uint = 0;
-				const l:int = $points.length - 1;
-				while (i < l)
-				{
-					temp[i] = Point.interpolate($points[i + 1], $points[i], $per);
-					i++;
-				}
-				$points = temp;
-			}
-			return $points[0];
-		}
-		
 		/**
 		 * @private
 		 */
 		private static function resolveVector3Ds($points:Vector.<Vector3D>, $per:Number):Vector3D
 		{
+			var temp:Vector.<Vector3D>, i:int = 0, l:int;
 			while ($points.length > 1)
 			{
-				var temp:Vector.<Vector3D> = new Vector.<Vector3D>;
-				var i:uint = 0;
-				const l:int = $points.length - 1;
+				temp = new Vector.<Vector3D>;
+				i = 0, l = $points.length - 1;
 				while (i < l)
 				{
-					temp[i] = Vector3DUtil.interpolate($points[i + 1], $points[i], $per);
-					i++;
+					temp[i] = Vector3DUtil.interpolate($points[i + 1], $points[i], $per); 
+					i += 1;
 				}
 				$points = temp;
 			}
 			return $points[0];
 		}
+		
+		private static var zeroMax:Number = 0.0000001;
+		
+		private static var solution:Array = [];
 		
 	}
 }

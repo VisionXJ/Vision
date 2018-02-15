@@ -1,0 +1,31 @@
+package cn.vision.errors
+{
+	
+	import cn.vision.consts.ErrorConsts;
+	import cn.vision.core.VSError;
+	import cn.vision.core.vs;
+	
+	
+	/**
+	 * 
+	 * 日期参数异常。
+	 * 
+	 * @author exyjen
+	 * @langversion 3.0
+	 * @playerversion Flash 9, AIR 1.1
+	 * @productversion vision 1.0
+	 * 
+	 */
+	public final class ArgumentDateError extends VSError
+	{
+		
+		/**
+		 * 构造函数。
+		 */
+		public function ArgumentDateError()
+		{
+			super(ErrorConsts.vs::ARGUMENT_DATE);
+		}
+		
+	}
+}

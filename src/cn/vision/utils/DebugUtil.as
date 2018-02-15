@@ -5,7 +5,7 @@ package cn.vision.utils
 	 * 
 	 * DebugUtil定义了一些测试常用函数。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0

@@ -1,26 +1,22 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
+	
 	/**
-	 * 
 	 * 正则表达式工具。
 	 * 
-	 * @author vision
+	 * @author exyjen
 	 * @langversion 3.0
 	 * @playerversion Flash 9, AIR 1.1
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	
-	
 	public final class RegexpUtil extends NoInstance
 	{
 		
 		/**
-		 * 
 		 * 替换字符串中使用大括号引用变量的部分为实际值。
 		 * 
 		 * @param $target:String 需要替换的字符串。
@@ -29,7 +25,6 @@ package cn.vision.utils
 		 * @return String 替换后的字符串。
 		 * 
 		 */
-		
 		public static function replaceTag($target:*, ...$args):String
 		{
 			if ($target && $args && $args.length)
@@ -45,9 +40,10 @@ package cn.vision.utils
 					for each (var i:String in a)
 					{
 						var p:String = removeBrace(i);    //删除两端括号
-						if (p == "$self")
+						if (p.indexOf("$self") > -1)
 						{
-							$target = $target.replace(i, $meta.toString());
+							if (p == "$self" || p == ("$self" + flag))
+								$target = $target.replace(i, $meta.toString());
 						}
 						else
 						{

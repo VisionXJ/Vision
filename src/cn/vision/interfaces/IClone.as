@@ -1,7 +1,12 @@
 package cn.vision.interfaces
 {
+	
 	public interface IClone
 	{
-		function copy():*
+		
+		/**
+		 * 复制。
+		 */
+		function clone():*
 	}
 }
