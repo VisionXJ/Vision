@@ -11,7 +11,7 @@ package cn.vision.errors
 	
 	
 	/**
-	 * 不合法异常。
+	 * 不可用异常。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0

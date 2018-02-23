@@ -2,6 +2,7 @@ package cn.vision.consts
 {
 	
 	import cn.vision.core.NoInstance;
+	import cn.vision.core.vs;
 	
 	
 	/**
@@ -22,7 +23,7 @@ package cn.vision.consts
 		 * @default initialized
 		 * 
 		 */
-		public static const INIT:String = "initialized";
+		vs static const INIT:String = "initialized";
 		
 		
 		/**
@@ -31,7 +32,7 @@ package cn.vision.consts
 		 * @default initialized
 		 * 
 		 */
-		public static const VS_ERROR:String = "vsError";
+		vs static const VS_ERROR:String = "vsError";
 		
 	}
 }

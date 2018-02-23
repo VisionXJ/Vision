@@ -4,6 +4,7 @@ package cn.vision.managers
 	import cn.vision.collections.Holder;
 	import cn.vision.consts.Consts;
 	import cn.vision.core.VSError;
+	import cn.vision.core.vs;
 	import cn.vision.errors.*;
 	import cn.vision.utils.ClassUtil;
 	import cn.vision.utils.IDUtil;
@@ -32,7 +33,7 @@ package cn.vision.managers
 		public static function registError($error:Class):Boolean
 		{
 			var result:Boolean = ClassUtil.validateSubclass($error, VSError);
-			if (result) ERRORS.registData(ClassUtil.getClassName($error), IDUtil.generateID(Consts.VS_ERROR));
+			if (result) ERRORS.registData(ClassUtil.getClassName($error), IDUtil.generateID(Consts.vs::VS_ERROR));
 			else throw new ArgumentNotSubClassError($error, VSError);
 			return result;
 		}
@@ -73,18 +74,19 @@ package cn.vision.managers
 		{
 			if(!ERRORS_INITED)
 			{
-				IDUtil.registID(Consts.VS_ERROR, 6000);
+				IDUtil.registID(Consts.vs::VS_ERROR, 6000);
 				
+				registError(AbstractError);
 				registError(SingleTonError);
 				registError(ClassPatternError);
 				registError(ArgumentNumError);
 				registError(ArgumentNotNullError);
+				registError(ArgumentInvalidError);
 				registError(ArgumentDateError);
 				registError(ArgumentNotSubClassError);
 				registError(UnavailableError);
 				registError(DestroyNotEmptiedError);
 				registError(DestroyQueueExecutingError);
-				registError(PresenterStartedError);
 			}
 			return true;
 		}

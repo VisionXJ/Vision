@@ -7,7 +7,6 @@ package cn.vision.errors
 	import cn.vision.utils.RegexpUtil;
 	
 	/**
-	 * 
 	 * 参数不能为空异常。
 	 * 
 	 * @author exyjen
@@ -22,12 +21,12 @@ package cn.vision.errors
 		/**
 		 * 构造函数。
 		 * 
-		 * @param ...$properties 一个或多个属性名。
+		 * @param ...$propertyNames 一个或多个属性名。
 		 * 
 		 */
-		public function ArgumentNotNullError(...$properties)
+		public function ArgumentNotNullError(...$propertyNames)
 		{
-			super(RegexpUtil.replaceTag(ErrorConsts.vs::ARGUMENT_NOT_NULL, $properties.toString()));
+			super(RegexpUtil.replaceTag(ErrorConsts.vs::ARGUMENT_NOT_NULL, $propertyNames.toString()));
 		}
 	}
 }

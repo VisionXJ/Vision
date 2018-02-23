@@ -3,7 +3,6 @@ package cn.vision.consts
 	
 	import cn.vision.core.vs;
 	
-	
 	/**
 	 * 定义了一些错误常量。
 	 * 
@@ -17,9 +16,19 @@ package cn.vision.consts
 	{
 		
 		/**
+		 * 抽象异常。
+		 */
+		vs static const ABSTRACT:String = "{$self} 是抽象方法，请重写该方法！";
+		
+		/**
 		 * 无实例日期参数。
 		 */
 		vs static const ARGUMENT_DATE:String = "日期参数无效！";
+		
+		/**
+		 * 参数不合法。
+		 */
+		vs static const ARGUMENT_INVALID:String = "参数有误，请检查传入参数！";
 		
 		/**
 		 * 参数个数错误。
@@ -55,11 +64,6 @@ package cn.vision.consts
 		 * 正在执行的队列不能被销毁。
 		 */
 		vs static const DESTROY_QUEUE_EXECUTING:String = "在销毁 {$self} 之前，必须确保队列不在执行！";
-		
-		/**
-		 * 主程序启动异常。
-		 */
-		vs static const PRESENTER_STARTED_ERROR:String = "{$self} 主程序处理器已启动，不能启动第二个主程序处理器！";
 		
 		/**
 		 * 单例异常。

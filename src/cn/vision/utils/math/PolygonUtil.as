@@ -64,8 +64,8 @@
 				for (ib, jb; ib < lb; jb = ib++)
 					if (LineUtil.collision($a[ia], $a[ja], $b[ib], $b[jb])) return 1;
 			}
-			if (contains($a, $b[0])) return 2;
-			else if (contains($b, $a[0])) return 3;
+			if (containsPoint($a, $b[0])) return 2;
+			else if (containsPoint($b, $a[0])) return 3;
 			return 0;
 		}
 		
@@ -79,7 +79,7 @@
 		 * @return Boolean true 为包含。
 		 * 
 		 */
-		public static function contains($polygon:Vector.<Point>, $point:Point):Boolean
+		public static function containsPoint($polygon:Vector.<Point>, $point:Point):Boolean
 		{
 			var i:int, j:int, crossing:int, l:int = $polygon.length;
 			for (i = 0, j = l - 1; i < l; j = i++)

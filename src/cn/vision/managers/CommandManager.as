@@ -2,12 +2,9 @@ package cn.vision.managers
 {
 	
 	import cn.vision.collections.Holder;
-	import cn.vision.collections.Map;
 	import cn.vision.core.Command;
 	import cn.vision.errors.ArgumentNotNullError;
 	import cn.vision.errors.ArgumentNotSubClassError;
-	import cn.vision.errors.ArgumentNumError;
-	import cn.vision.interfaces.IProcesser;
 	import cn.vision.utils.ClassUtil;
 	
 	
@@ -43,7 +40,6 @@ package cn.vision.managers
 				else throw new ArgumentNotSubClassError($command, Command);
 			}
 			else throw new ArgumentNotNullError("$name", "$command");
-			
 			return result;
 		}
 		

@@ -38,13 +38,13 @@
 		
 		
 		/**
-		 * 判断num是否介于min和max之间。(即 num∈[min,max]是否成立。)
+		 * 判断$value是否介于$num1和$num2之间。(即 $value∈[min, max]是否成立。)
 		 * 
-		 * @param $value:Number 需要被判定的数
+		 * @param $value:Number 需要被判定的数。
 		 * @param $num1:Number 第一个数。
 		 * @param $num2:Number 第二个数。
 		 * 
-		 * @return Boolean
+		 * @return Boolean true为在两者之间。
 		 * 
 		 */
 		public static function between($value:Number, $num1:Number, $num2:Number):Boolean
@@ -58,15 +58,15 @@
 		 * 返回与$value更近的数，如果$min和$max与$value同样近，则优先返回$min。
 		 * 
 		 * @param $value:Number 要比较的值。
-		 * @param $min:Number 最小值。
-		 * @param $max:Number 最大值。
+		 * @param $num1:Number 最小值。
+		 * @param $num2:Number 最大值。
 		 * 
 		 * @return 与$value更近的值。
 		 * 
 		 */
-		public static function near($value:Number, $min:Number, $max:Number):Number
+		public static function near($value:Number, $num1:Number, $num2:Number):Number
 		{
-			return abs($min - $value) > abs($max - $value) ? $max : $min;
+			return abs($num1 - $value) > abs($num2 - $value) ? $num2 : $num1;
 		}
 		
 		

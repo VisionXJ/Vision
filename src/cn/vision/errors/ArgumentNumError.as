@@ -22,12 +22,12 @@ package cn.vision.errors
 		/**
 		 * 构造函数。
 		 * 
-		 * @param $num:uint (default = 0) 可接受的参数个数。
+		 * @param ...$args 可接受的参数个数数组。
 		 * 
 		 */
-		public function ArgumentNumError($num:uint)
+		public function ArgumentNumError(...$args)
 		{
-			super(RegexpUtil.replaceTag(ErrorConsts.vs::ARGUMENT_NUM, $num));
+			super(RegexpUtil.replaceTag(ErrorConsts.vs::ARGUMENT_NUM, $args));
 		}
 		
 	}

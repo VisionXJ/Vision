@@ -9,7 +9,6 @@ package cn.vision.core
 	import cn.vision.utils.ArrayUtil;
 	import cn.vision.utils.ClassUtil;
 	
-	
 	/**
 	 * Application流程控制处理类。<br>
 	 * 一个application只建立一个处理类，请编写Presenter的子类并使用单例模式。
@@ -114,7 +113,7 @@ package cn.vision.core
 		 */
 		internal static function get presenter():Presenter
 		{
-			return vs::presenter;
+			return Presenter.vs::presenter;
 		}
 		
 		

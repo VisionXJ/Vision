@@ -14,6 +14,8 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
+	import cn.vision.errors.ArgumentDateError;
+	import cn.vision.errors.ArgumentNotNullError;
 	
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
@@ -380,7 +382,7 @@ package cn.vision.utils
 			}
 			else
 			{
-				throw new ArgumentError("参数 $date 不能为空", 6001);
+				throw new ArgumentNotNullError("$date");
 			}
 			return $formater;
 		}
@@ -403,10 +405,8 @@ package cn.vision.utils
 				if ($formater == "MS")
 				{
 					var temp:Number = Number($value);
-					if (isNaN(temp))
-						throw new ArgumentError("参数 $value 不合法，必须是正整数", 6002);
-					else
-						result = new Date(Number($value));
+					if (isNaN(temp)) throw new ArgumentDateError;
+					else result = new Date(Number($value));
 				}
 				else
 				{
@@ -434,7 +434,7 @@ package cn.vision.utils
 			}
 			else
 			{
-				throw new ArgumentError("参数 $value 不能为空", 6001);
+				throw new ArgumentNotNullError("$value");
 			}
 			return result;
 		}
@@ -728,19 +728,9 @@ package cn.vision.utils
 		 */
 		private static const CONVERTABLE:Object = 
 		{
-			"int"       : true, 
-			"XML"       : true, 
-			"null"      : true, 
-			"void"      : true, 
-			"Date"      : true,
-			"uint"      : true, 
-			"Array"     : true, 
-			"Number"    : true, 
-			"String"    : true, 
-			"Object"    : true,
-			"XMLList"   : true, 
-			"Boolean"   : true, 
-			"undefined" : true
+			"int"       : true, "XML"       : true, "null"      : true, "void"      : true, "Date"      : true, 
+			"uint"      : true, "Array"     : true, "Number"    : true, "String"    : true, "Object"    : true, 
+			"XMLList"   : true, "Boolean"   : true, "undefined" : true
 		}
 		
 		/**
