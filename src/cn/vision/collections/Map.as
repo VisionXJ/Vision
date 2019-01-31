@@ -79,6 +79,20 @@ package cn.vision.collections
 		
 		
 		/**
+		 * 检测是否包含某项。
+		 * 
+		 * @param $value:* 需要检测的项。
+		 * 
+		 * @return Boolean
+		 * 
+		 */
+		public function contains($value:*):Boolean
+		{
+			return (itemIndexDictionary[$value] != undefined);
+		}
+		
+		
+		/**
 		 * @inheritDoc
 		 */
 		public function destroy():void
@@ -95,6 +109,21 @@ package cn.vision.collections
 		
 		
 		/**
+		 * 查找序号为$index的元素。
+		 * 
+		 * @param $index:uint 序号。
+		 * 
+		 * @return * 返回序号为$index的元素。
+		 * 
+		 */
+		public function getItemAt($index:uint):*
+		{
+			var name:String = itemNameArray[$index];
+			return name ? itemObject[name] : null;
+		}
+		
+		
+		/**
 		 * 导出一个包含所有存储元素的数组。
 		 */
 		public function toArray():Array
@@ -103,7 +132,6 @@ package cn.vision.collections
 			for each (item in this) ArrayUtil.push(result, item);
 			return result;
 		}
-		
 		
 		
 		/**
@@ -395,20 +423,6 @@ package cn.vision.collections
 			
 			//if maxLength, limit length
 			if (maxLength > 0 && vs::length > maxLength) delete this[itemNameArray[0]];
-		}
-		
-		
-		/**
-		 * 检测是否包含某项。
-		 * 
-		 * @param $value:* 需要检测的项。
-		 * 
-		 * @return Boolean
-		 * 
-		 */
-		public function contains($value:*):Boolean
-		{
-			return (itemIndexDictionary[$value] != undefined);
 		}
 		
 		

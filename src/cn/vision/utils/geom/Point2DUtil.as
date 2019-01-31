@@ -1,6 +1,7 @@
 package cn.vision.utils.geom
 {
 	import cn.vision.core.NoInstance;
+	import cn.vision.core.vs;
 	import cn.vision.utils.MathUtil;
 	
 	import flash.geom.Point;
@@ -18,20 +19,85 @@ package cn.vision.utils.geom
 	{
 		
 		/**
+		 * 获取a到b所构成的线段与X轴的夹角，弧度为单位。
+		 * 
+		 * @param $a:Point 点1。
+		 * @param $b:Point 点2。
+		 * 
+		 */
+		public static function angle($a:Point, $b:Point):Number
+		{
+			return Math.atan2($b.y - $a.y, $b.x - $a.x);
+		}
+		
+		
+		/**
 		 * 检查点p的坐标范围是否在ab两点之间。
 		 * 
 		 * @param $p:Point 点P。
 		 * @param $a:Point 点a。
 		 * @param $b:Point 点b。
+		 * @param $accuracy:uint (default = 0) 为0表示不限制精度。
 		 * 
 		 * @return Boolean true为在ab之间。
 		 * 
 		 */
-		public static function between($p:Point, $a:Point, $b:Point):Boolean
+		public static function between($p:Point, $a:Point, $b:Point, $accurency:uint = 0):Boolean
 		{
-			return MathUtil.between($p.x, $a.x, $b.x) && MathUtil.between($p.y, $a.y, $b.y);
+			return  MathUtil.between(
+						MathUtil.float($p.x, $accurency), 
+						MathUtil.float($a.x, $accurency), 
+						MathUtil.float($b.x, $accurency)) && 
+					MathUtil.between(
+						MathUtil.float($p.y, $accurency), 
+						MathUtil.float($a.y, $accurency), 
+						MathUtil.float($b.y, $accurency));
 		}
 		
+		
+		/**
+		 * 对点p进行范围约束，并返回一个新的点，该点在a,b所构成的矩形范围内。
+		 * 
+		 * @param $p:Point 点p。
+		 * @param $a:Point ab范围约束点a。
+		 * @param $b:Point ab范围约束点b。
+		 * 
+		 */
+		public static function clamp($p:Point, $a:Point, $b:Point):Point
+		{
+			return new Point(MathUtil.clamp($p.x, $a.x, $b.x), MathUtil.clamp($p.y, $a.y, $b.y));
+		}
+		
+		
+		/**
+		 * 检测两个点是否近似相等。
+		 * 
+		 * @param $a:Point 点a。
+		 * @param $b:Point 点b。
+		 * @param $accuracy:uint (default = -1) 需要判断的精度，0表示四舍五入整数比较。
+		 * 
+		 */
+		public static function equal($a:Point, $b:Point, $accuracy:int = -1):Boolean
+		{
+			return MathUtil.equal($a.x, $b.x, $accuracy) && MathUtil.equal($a.y, $b.y, $accuracy);
+		}
+		
+		
+		/**
+		 * $p点在某角度平移一段距离得到的新点。
+		 * 
+		 * @param $p:Point 点p。
+		 * @param $radian:Number 与X轴的夹角，弧度为单位。
+		 * @param $length:Number 平移的距离。
+		 * 
+		 * @return Point 得到的新点。
+		 * 
+		 */
+		public static function offset($p:Point, $radian:Number, $length:Number):Point
+		{
+			return $p.add(Point.polar($length, $radian));
+		}
+			
 		
 		/**
 		 * $p绕$o旋转$radian之后的新点。
@@ -39,19 +105,14 @@ package cn.vision.utils.geom
 		 * @param $p:Point 点p。
 		 * @param $radian:Number 旋转的弧度。
 		 * @param $o:Point 围绕点o。
-		 * @param $clone:Boolean (default = false) 是否复制一个新点，还是直接更改p的坐标值。
 		 * 
-		 * @return Point 如果$clone为true，得到的新点。
+		 * @return Point 得到的新点。
 		 * 
 		 */
-		public static function rotate(
-			$p:Point, 
-			$radian:Number, 
-			$o:Point = null, 
-			$clone:Boolean = false):Point
+		public static function rotate($p:Point, $radian:Number, $o:Point = null):Point
 		{
 			$o = $o || new Point;
-			var result:Point = $clone ? new Point : $p;
+			var result:Point = new Point;
 			const cos:Number = Math.cos($radian);
 			const sin:Number = Math.sin($radian);
 			const sbx:Number = $p.x - $o.x;
@@ -64,34 +125,26 @@ package cn.vision.utils.geom
 		
 		
 		/**
-		 * 2线段的交点。
+		 * 给定2点求斜率。
 		 * 
-		 * @param $a1:Point 线段a点1。
-		 * @param $a2:Point 线段a点2。
-		 * @param $b1:Point 线段b点1。
-		 * @param $b2:Point 线段b点2。
-		 * @param $limit:Boolean (default = false) 是否开启线段限制。
+		 * @param $a:Point 点1。
+		 * @param $b:Point 点2。
+		 * 
+		 * @return Number 斜率。
 		 * 
 		 */
-		public static function intersect($a1:Point, $a2:Point, $b1:Point, $b2:Point, $limit:Boolean = true):Point
+		public static function slope($a:Point, $b:Point):Number
 		{
-			var x12:Number = $a1.x - $a2.x;
-			var x34:Number = $b1.x - $b2.x;
-			var y12:Number = $a1.y - $a2.y;
-			var y34:Number = $b1.y - $b2.y;
-			var s:Number = x12 * y34 - y12 * x34;
-			if(s != 0)
-			{
-				var n1:Number = $a1.x * $a2.y - $a1.y * $a2.x;
-				var n2:Number = $b1.x * $b2.y - $b1.y * $b2.x;
-				var result:Point = new Point(
-					(n1 * x34 - x12 * n2) / s, 
-					(n1 * y34 - y12 * n2) / s);
-				if($limit && 
-					!between(result, $a1, $a2) || 
-					!between(result, $b1, $b2)) result = null;
-			}
-			return result;
+			return ($b.y - $a.y) / ($b.x - $a.x);
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		vs static function normal($v:Number, $o:Boolean = false):int
+		{
+			return $v < 0 ? -1 : ($o ? ($v == 0 ? 0 : 1) : 1);
 		}
 		
 	}

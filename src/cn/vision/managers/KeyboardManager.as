@@ -39,7 +39,7 @@ package cn.vision.managers
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, key_downHandler);
 				stage.addEventListener(KeyboardEvent.KEY_UP, key_upHandler);
 				
-				callableTimer = new Timer(500, 1);
+				callableTimer = new Timer(500, 1);//原先500
 				callableTimer.addEventListener(TimerEvent.TIMER_COMPLETE, call_delayHandler);
 				
 				timerShift = new Timer(250, 1);
@@ -88,6 +88,7 @@ package cn.vision.managers
 		private static function call_delayHandler($e:TimerEvent):void
 		{
 			callable = true;
+			executingKey = null;
 		}
 		
 		private static function shift_delayHandler($e:TimerEvent):void
@@ -114,7 +115,6 @@ package cn.vision.managers
 		{
 			if ($up) 
 			{
-				executingKey = null;
 				//为了获得更好的体验，有时人为按下功能键会有误差，这是对按下功能键操作作一定的延时处理。
 				if (shift && !$shift) resetStartTimer(timerShift);
 				if (ctrl  && !$ctrl ) resetStartTimer(timerCtrl );
@@ -122,23 +122,35 @@ package cn.vision.managers
 			}
 			else
 			{
-				if ($shift && !shift) shift = $shift;
-				if ($ctrl  && !ctrl ) ctrl  = $ctrl ;
-				if ($alt   && !alt  ) alt   = $alt  ;
-			}
-			var key:String = $keyCode + "-" + shift + "-" + ctrl + "-" + alt;
-			if (callable)
-			{
-				var callback:Callback = callbacks[key];
-				if (callback!= null)
+				if ($shift && !shift)
 				{
-					if (executingKey != key) 
-					{
-						callable = false;
-						resetStartTimer(callableTimer);
-					}
-					callback.call();
+					shift = $shift;
+					timerShift.start();
+				}
+				if ($ctrl && !ctrl)
+				{
+					ctrl = $ctrl;
+					timerCtrl.start();
+				}
+				if ($alt && !alt)
+				{
+					alt = $alt;
+					timerAlt.start();
+				}
+			}
+			ctrl  = ctrl  || $ctrl;
+			shift = shift || shift;
+			alt   = alt   || $alt;
+			var key:String = $keyCode + "-" + shift + "-" + ctrl + "-" + alt;
+			var callback:Callback = callbacks[key];
+			if (callback!= null)
+			{
+				if (callable || executingKey != key) 
+				{
 					executingKey = key;
+					callable = false;
+					resetStartTimer(callableTimer);
+					callback.call();
 				}
 			}
 		}
@@ -160,7 +172,6 @@ package cn.vision.managers
 		 * 对函数注册一个快捷键，重复的快捷键注册会覆盖以前注册的功能。
 		 * 
 		 * @param $keyCode:uint 按键对应的keyCode
-		 * @param $up:Boolean (default = false) 指示函数是在按下时触发还是弹起时触发。
 		 * @param $funcKey:uint (default = 0) 指示ctrl，shift，alt等功能键。
 		 * @param $handler:Function (default = null) 要触发的函数。
 		 * @param $...$args 函数相关参数。
@@ -275,7 +286,7 @@ package cn.vision.managers
 		 * 存储按快捷键索引注册的功能函数。
 		 * @private
 		 */
-		private static var callbacks:Object;
+		private static var callbacks:Object = {};
 		
 	}
 }

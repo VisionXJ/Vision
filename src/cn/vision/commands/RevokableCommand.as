@@ -25,7 +25,7 @@ package cn.vision.commands
 		 * @param $revocable:Boolean (default = true) 是否允许撤销重做。
 		 * 
 		 */
-		public function RevokableCommand($sync:Boolean, $revokable:Boolean = true)
+		public function RevokableCommand($sync:Boolean = true, $revokable:Boolean = true)
 		{
 			super($sync);
 			

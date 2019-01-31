@@ -1,9 +1,17 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	import cn.vision.core.vs;
+	import cn.vision.datas.VO;
+	import cn.vision.errors.ArgumentDateError;
+	import cn.vision.errors.ArgumentNotNullError;
+	
+	import flash.net.registerClassAlias;
+	import flash.utils.ByteArray;
+	
 	/**
-	 * 
-	 * <code>ObjectUtil</code>定义了一些关于<code>Object</code>的操作。
+	 * 定义了一些关于<code>Object</code>的操作。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0
@@ -11,16 +19,6 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	import cn.vision.errors.ArgumentDateError;
-	import cn.vision.errors.ArgumentNotNullError;
-	
-	import flash.net.registerClassAlias;
-	import flash.utils.ByteArray;
-	
-	
 	public final class ObjectUtil extends NoInstance
 	{
 		
@@ -32,7 +30,7 @@ package cn.vision.utils
 		 */
 		public static function clear($value:Object):void
 		{
-			for (var key:String in $value) delete $value[key];
+			while (!empty($value)) for (var key:String in $value) delete $value[key];
 		}
 		
 		
@@ -40,7 +38,6 @@ package cn.vision.utils
 		 * 复制一个对象。<br>
 		 * 注意：该方法只能复制$value的类型，和Boolean, Number, uint, int, String元数据类型，
 		 * 如果$value的属性中包含其他不属于Object类型的属性，会把属性转换为Object类型；
-		 * 如果$value是显示对象，只会复制当前显示对象，不会复制该显示对象的绘图与子元素。
 		 * 
 		 * @param $value:* 要复制的对象。
 		 * 
@@ -64,8 +61,25 @@ package cn.vision.utils
 				copier.writeObject($value);
 				copier.position = 0;
 				var result:* = copier.readObject();
+				copier.clear();
+				copier = null;
 			}
 			return result;
+		}
+		
+		
+		/**
+		 * 判断Object中是否存储任何数据或引用。
+		 * 
+		 * @param $value:Object 要检测的Object。
+		 * 
+		 * @return Boolean
+		 * 
+		 */
+		public static function empty($value:Object):Boolean
+		{
+			for (var key:String in $value) return false;
+			return true;
 		}
 		
 		
@@ -108,20 +122,11 @@ package cn.vision.utils
 					case "String":
 					case "Boolean":
 					case "undefined":
-					{
-						result = a == b;
-						break;
-					}
+						result = a == b; break;
 					case "Array":
-					{
-						result = compareArray(a, b);
-						break;
-					};
+						result = compareArray(a, b); break;
 					default:
-					{
-						result = compareObject(a, b);
-						break;
-					};
+						result = compareObject(a, b); break;
 				}
 			}
 			return result;
@@ -138,7 +143,9 @@ package cn.vision.utils
 				for (var key:String in a)
 				{
 					if(!compareInternal(a[key], b[key])) 
+					{
 						result = false; break;
+					}
 				}
 			}
 			return result;
@@ -186,7 +193,29 @@ package cn.vision.utils
 				}
 				else
 				{
-					result = ($value is $type) ? clone($value) : $type($value, $type);
+					if ($value is $type)
+					{
+						result = clone($value);
+					}
+					else
+					{
+						if (ClassUtil.validateSubclass($type, VO))
+						{
+							result = ClassUtil.construct($type, $value);
+						}
+						else
+						{
+							if(!ClassUtil.validateMetadataByClassName(to))
+							{
+								result = new $type;
+								internalMapping($value, result);
+							}
+							else
+							{
+								result = $type($value);
+							}
+						}
+					}
 				}
 			}
 			return result;
@@ -198,7 +227,7 @@ package cn.vision.utils
 		private static function convertableMetadata($fr:String, $to:String):Boolean
 		{
 			var result:Boolean = $fr != $to;
-			if (result && $fr != "String" && $to!= "Number" && $to != "Boolean") 
+			if (result && $fr != "String" && $to!= "Number" && $to != "Boolean" && $fr != "Object") 
 				result = (CONVERTABLE[$fr] && CONVERTABLE[$to]);
 			return result;
 		}
@@ -206,19 +235,29 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
+		private static const CONVERTABLE:Object = 
+			{
+				"int"       : true, "XML"       : true, "null"      : true, "void"      : true, "Date"      : true, 
+				"uint"      : true, "Array"     : true, "Number"    : true, "String"    : true, "Object"    : true, 
+				"XMLList"   : true, "Boolean"   : true, "undefined" : true
+			}
+			
+		/**
+		 * @private
+		 */
 		private static function retrieveConvertFunction($fr:String, $to:String):Function
 		{
 			var result:Function = ObjectUtil["convert" + $fr + "2" + $to];
 			
-			if ($to == "Boolean" || $to == "Number" || $to == "uint" || $to == "int")
-				result = ObjectUtil["convertComman2" + $to];
-			else if ($fr == "XMLList" && $to == "Object")
-				result = convertXMLList2Array;
+			if ($to == "Boolean" || $to == "Number" || $to == "uint" || $to == "int" || $to == "String")
+				result = result || ObjectUtil["convertComman2" + $to];
 			else if ($fr == "void" || $fr == "null" || $fr == "undefined" || $fr == null)
 				result = convertEmpty2Empty;
-			else if ($fr == "String" && result == null)
-				result = convertString2Comman;
-			
+			else if ($fr == "XMLList" && $to == "Object")
+				result = convertXMLList2Array;
+			else if ($fr == "String")
+				result = result || convertString2Comman;
+				
 			return result;
 		}
 		
@@ -287,6 +326,16 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
+		private static function convertComman2String($value:*, $type:Class, $default:String = null, $undefined:Boolean = true):String
+		{
+			var string:String = $value ? $value.toString() : null;
+			if (StringUtil.empty(string, $undefined)) string = $default;
+			return string;
+		}
+		
+		/**
+		 * @private
+		 */
 		private static function convertObject2XML($value:Object, $type:Class, $name:String = "root"):XML
 		{
 			var result:XML = new XML("<" + $name + "/>");
@@ -317,9 +366,14 @@ package cn.vision.utils
 			{
 				var result:XMLList = new XMLList;
 				if ($value is Array)
-					for each (var item:* in $value) result.appendChild(convertObject2XML(item, $type, $node));
+				{
+					for each (var item:* in $value) 
+						result.appendChild(convertObject2XML(item, $type, $node));
+				}
 				else
+				{
 					result.appendChild(convertObject2XML($value, $type, $node));
+				}
 			}
 			return result;
 		}
@@ -375,10 +429,7 @@ package cn.vision.utils
 						.replace(/SS/, stringSeconds)
 						.replace(/MS/, stringMilliseconds);
 				}
-				else
-				{
-					$formater = $date.toString();
-				}
+				else $formater = $date.toString();
 			}
 			else
 			{
@@ -390,12 +441,60 @@ package cn.vision.utils
 		/**
 		 * @private
 		 */
+		private static const REGEX_YEAR:RegExp = /YY{1,3}/;
+		
+		/**
+		 * @private
+		 */
+		private static const REGEX_HOUR:RegExp = /HH(24|12)?/;
+		
+		/**
+		 * @private
+		 */
+		private static const REGEX_DATES:Array = ["YYYY", "MM", "DD", "HH", "MI", "SS", "MS"];
+		
+		/**
+		 * @private
+		 */
+		private static function convertString2Comman($value:String, $type:Class):*
+		{
+			var result:*, temp:Object;
+			$value = StringUtil.trim($value);
+			if (JSONUtil.validate($value))
+			{
+				try {
+					temp = JSON.parse($value);
+				} catch(e:Error) {}
+			}
+			else if (XMLUtil.validate($value))
+			{
+				try {
+					temp = convertXML2Object(XML($value), $type);
+				} catch(e:Error) {}
+			}
+			
+			if (temp)
+			{
+				if (ClassUtil.validateSubclass($type, VO))
+				{
+					result = ClassUtil.construct($type, temp);
+				}
+				else
+				{
+					result = ClassUtil.construct($type);
+					if (result) internalMapping(temp, result);
+				}
+			}
+			return result;
+		}
+		
+		/**
+		 * @private
+		 */
 		private static function convertString2Date($value:String, $type:Class, $formater:String = "YYYY-MM-DD HH:MI:SS:MS"):Date
 		{
 			var result:Date;
-			
 			if ($value == "null") return null;
-			
 			if ($value)
 			{
 				$value = StringUtil.trim($value);
@@ -431,38 +530,6 @@ package cn.vision.utils
 					}
 					result = ClassUtil.construct(Date, params);
 				}
-			}
-			else
-			{
-				throw new ArgumentNotNullError("$value");
-			}
-			return result;
-		}
-		
-		/**
-		 * @private
-		 */
-		private static function convertString2Comman($value:String, $type:Class):*
-		{
-			var result:*, temp:Object;
-			$value = StringUtil.trim($value);
-			if (JSONUtil.validate($value))
-			{
-				try {
-					temp = JSON.parse($value);
-				} catch(e:Error) {}
-			}
-			else if (XMLUtil.validate($value))
-			{
-				try {
-					temp = convertXML2Object(XML($value), $type);
-				} catch(e:Error) {}
-			}
-			
-			if (temp)
-			{
-				result = ClassUtil.construct($type);
-				if (result) internalMapping(temp, result);
 			}
 			return result;
 		}
@@ -522,8 +589,7 @@ package cn.vision.utils
 						o = convertXML2Object(i, $type);
 					}
 					
-					var t:* = result[n];
-					t ? (t is Array ? t[t.length] = o : result[n] = [t,o]) : result[n] = o;
+					push(result, n, o, false);
 				}
 			}
 			return result;
@@ -536,7 +602,7 @@ package cn.vision.utils
 		{
 			var result:Array = [];
 			for each(var i:XML in $value)
-			result[result.length] = convertXML2Object(i, $type);
+				result[result.length] = convertXML2Object(i, $type);
 			return result;
 		}
 		
@@ -592,15 +658,28 @@ package cn.vision.utils
 		private static function internalMapping($source:Object, $target:*):void
 		{
 			var info:Object = ClassUtil.obtainInfomation($target);
+			$source = convertXMLSource($source);
 			info.isDynamic == "true"
-				? dynamicMapping($source, $target)
+				? dynamicMapping($source, $target, info)
 				: staticMapping ($source, $target, info);
 		}
 		
 		/**
 		 * @private
 		 */
-		private static function dynamicMapping($source:Object, $target:Object):void
+		private static function convertXMLSource($source:*):*
+		{
+			if ($source is XML)
+				$source = convertXML2Object($source, Object);
+			else if ($source is XMLList)
+				$source = convertXMLList2Array($source, Array);
+			return $source;
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function dynamicMapping($source:Object, $target:Object, info:Object):void
 		{
 			var sourceType:Class, targetType:Class, key:String;
 			if (ArrayUtil.validateVector($target))
@@ -616,7 +695,7 @@ package cn.vision.utils
 					sourceType = ClassUtil.getClass($source[key]);
 					if (sourceType != null)
 					{
-						targetType = ClassUtil.getPropertyClass($target, key) || sourceType;
+						targetType = ClassUtil.vs::getPropertyClassByInfo(info, key) || sourceType;
 						setDynamicValue($source, $target, targetType, key);
 					}
 				}
@@ -675,14 +754,14 @@ package cn.vision.utils
 			var key:String, type:Class, data:*;
 			if (info.variable != null)
 			{
-				if (info.variable is Array)
+				if (ArrayUtil.validate(info.variable))
 					for each (var item:* in info.variable) setStaticValue($source, $target, item);
 				else
 					setStaticValue($source, $target, info.variable);
 			}
 			if (info.accessor != null)
 			{
-				if (info.accessor is Array)
+				if (ArrayUtil.validate(info.accessor))
 				{
 					for each (item in info.accessor)
 					{
@@ -724,29 +803,68 @@ package cn.vision.utils
 		
 		
 		/**
-		 * @private
+		 * 将数据按照索引使用$object存储，如果$object中$key已被占用，会将$object[key]修改为一个数组存储。
+		 * 
+		 * @param $object:Object 存储值的object对象。
+		 * @param $key:* 索引。
+		 * @param $value:* 要存储的值。
+		 * @param $unique:Boolean (default = true) 是否保证数据的唯一性，默认false。
+		 * @param $null:Boolean (default = false) 是否允许空值，默认为false。
+		 * 
 		 */
-		private static const CONVERTABLE:Object = 
+		public static function push($object:Object, $key:*, $value:*, $unique:Boolean = true, $null:Boolean = false):void
 		{
-			"int"       : true, "XML"       : true, "null"      : true, "void"      : true, "Date"      : true, 
-			"uint"      : true, "Array"     : true, "Number"    : true, "String"    : true, "Object"    : true, 
-			"XMLList"   : true, "Boolean"   : true, "undefined" : true
+			if ($null || (!$null && $value != null))
+			{
+				var item:* = $object[$key];
+				if (item)
+				{
+					if (item is Array)
+					{
+						if (!$unique || ($unique && item.indexOf($value) == -1))
+							item[item.length] = $value;
+					}
+					else
+					{
+						if (!$unique || ($unique && item!= $value))
+							$object[$key] = [item, $value];
+					}
+				}
+				else $object[$key] = $value;
+			}
 		}
 		
-		/**
-		 * @private
-		 */
-		private static const REGEX_YEAR:RegExp = /YY{1,3}/;
 		
 		/**
-		 * @private
+		 * 从动态Object中删除索引为$key的元素，并将该元素返回。
+		 * 
+		 * @param $o:Object 要操作的Object。
+		 * @param $key:String 键值索引。
+		 * 
+		 * @return 删除的元素。
+		 * 
 		 */
-		private static const REGEX_HOUR:RegExp = /HH(24|12)?/;
+		public static function remove($o:Object, $key:String):*
+		{
+			var result:Object = $o[$key];
+			delete $o[$key];
+			return result;
+		}
+		
 		
 		/**
-		 * @private
+		 * 赋值操作。
+		 * 
+		 * @param $o:Object 要存储数据的Object。
+		 * @param $key:String 索引。
+		 * @param $value:* 值。
+		 * @param $default:* (default = null) 默认值，如果$value为undefined，则会设为该值。
+		 * 
 		 */
-		private static const REGEX_DATES:Array = ["YYYY", "MM", "DD", "HH", "MI", "SS", "MS"];
+		public static function value($o:Object, $key:String, $value:*, $default:* = null):void
+		{
+			$value != undefined ? $o[$key] = $value : ($default != null ? $o[$key] = $default : void);
+		}
 		
 	}
 }

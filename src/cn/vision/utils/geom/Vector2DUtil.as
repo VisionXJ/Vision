@@ -1,8 +1,8 @@
 package cn.vision.utils.geom
 {
 	import cn.vision.core.NoInstance;
-	import cn.vision.geom.geom2d.Line2D;
-	import cn.vision.geom.geom2d.Vector2D;
+	import cn.vision.core.vs;
+	import cn.vision.geom.Vector2D;
 	import cn.vision.utils.ArrayUtil;
 	
 	import flash.geom.Point;
@@ -52,7 +52,6 @@ package cn.vision.utils.geom
 		 * 
 		 * @param $vector:Vector2D 向量。
 		 * @param $point:Point 点。
-		 * @param $seg:Boolean (default = false) 是否开启向量线段控制。
 		 * @param $signed:Boolean (default = false) 是否带符号，符号与点在向量所在直线的哪一侧有关。
 		 * 
 		 * @return Number
@@ -63,15 +62,15 @@ package cn.vision.utils.geom
 		public static function distance(
 			$vector:Vector2D, 
 			$point:Point, 
-			$seg:Boolean = true, 
 			$signed:Boolean = false):Number
 		{
-			return 0;
+			var sign:int = $signed ? Line2DUtil.nexusPoint($vector, $point) : 1;
+			return Point.distance(nearest($vector, $point), $point) * sign;
 		}
 		
 		
 		/**
-		 * 两向量点积。
+		 * 两向量点积，如果两向量垂直，则点积为0。
 		 * 
 		 * @param $v1:Vector2D 向量1。
 		 * @param $v2:Vector2D 向量2。
@@ -127,9 +126,42 @@ package cn.vision.utils.geom
 		
 		
 		/**
+		 * 两向量的交点，如不相交或重合返回null。
+		 * 
+		 * @param $v1:Vector2D 向量1。
+		 * @param $v2:Vector2D 向量2。
+		 * 
+		 * @return Point 向量的交点。
+		 * 
+		 */
+		public static function intersect($v1:Vector2D, $v2:Vector2D):Point
+		{
+			var p:Point = Line2DUtil.intersect($v1, $v2);
+			if (p && 
+				Point2DUtil.between(p, $v1.start, $v1.end) && 
+				Point2DUtil.between(p, $v2.start, $v2.end)) return p;
+			return null;
+		}
+		
+		
+		/**
+		 * 向量上到指定点距离最近的点。
+		 * 
+		 * @param $vector:Vector2D 向量。
+		 * @param $point:Point 指定的点。
+		 * 
+		 * @return Point
+		 * 
+		 */
+		public static function nearest($vector:Vector2D, $point:Point):Point
+		{
+			return Point2DUtil.clamp(Line2DUtil.nearest($vector, $point), $vector.start, $vector.end);
+		}
+		
+		
+		/**
 		 * 两向量的位置关系。
 		 * -1：不相交，0：重合，1：相交。
-		 * 
 		 * 
 		 * @param $v1:Vector2D 向量1。
 		 * @param $v2:Vector2D 向量2。
@@ -145,38 +177,47 @@ package cn.vision.utils.geom
 		
 		
 		/**
-		 * 两向量的交点，如不相交返回null。
-		 * 
-		 * @param $v1:Vector2D 向量1。
-		 * @param $v2:Vector2D 向量2。
-		 * 
-		 * @return Point 向量的交点。
-		 * 
-		 */
-		public static function intersect($v1:Vector2D, $v2:Vector2D):Point
-		{
-			var p:Point = Line2DUtil.intersectLine($v1, $v2);
-			if (p && 
-				Point2DUtil.between(p, $v1.start, $v1.end) && 
-				Point2DUtil.between(p, $v2.start, $v2.end)) return p;
-			return null;
-		}
-		
-		
-		/**
 		 * 原向量在目标向量的投影。
 		 * 
 		 * @param $origin:Vector2D 原向量。
-		 * @param $target:Vector2D 目标向量2。
+		 * @param $target:Vector2D 目标向量。
 		 * 
 		 * @return Vector2D 投影向量。
 		 * 
 		 */
 		public static function project($origin:Vector2D, $target:Vector2D):Vector2D
 		{
-			var project:Vector2D = $target.clone();
-			project.length = dotProduct($origin, $target) / $target.length;
-			return project;
+			const a2b2:Number = Line2DUtil.vs::caculateA2_B2($target);
+			const pls1:Number = vs::calculateBX_AY($target, $origin.start);
+			const pls2:Number = vs::calculateBX_AY($target, $origin.end);
+			const mtac:Number = $target.A * $target.C;
+			const mtbc:Number = $target.B * $target.C;
+			return new Vector2D(
+				($target.B * pls1 - mtac) / a2b2, (-$target.A * pls1 - mtbc) / a2b2, 
+				($target.B * pls2 - mtac) / a2b2, (-$target.A * pls2 - mtbc) / a2b2);
+		}
+		
+		
+		/**
+		 * 将向量转换为单位向量。
+		 * 
+		 * @param $vector:Vector2D 要转换的向量。
+		 * 
+		 */
+		public static function unit($vector:Vector2D):void
+		{
+			var translate:Point = $vector.start;
+			Geom2DUtil.move($vector, -translate.x, -translate.y);
+			$vector.length = 1;
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		vs static function calculateBX_AY($v:Vector2D, $p:Point):Number
+		{
+			return $v.B * $p.x - $v.A * $p.y;
 		}
 		
 	}

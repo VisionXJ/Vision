@@ -68,7 +68,10 @@ package cn.vision.core
 		/**
 		 * @inheritDoc
 		 */
-		public function get instanceName():String { return vs::name; }
+		public function get instanceName():String
+		{ 
+			return vs::name; 
+		}
 		
 		/**
 		 * @private

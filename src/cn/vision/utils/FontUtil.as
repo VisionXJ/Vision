@@ -1,8 +1,11 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
+	import flash.text.Font;
+	
 	/**
-	 * 
 	 * FontUtil定义了一些字体常用函数。
 	 * 
 	 * @author exyjen
@@ -11,34 +14,30 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	
-	import flash.text.Font;
-	
-	
 	public final class FontUtil extends NoInstance
 	{
 		
 		/**
-		 * 
 		 * 检测是否包含字体。
+		 * 
+		 * @param $font:String
+		 * 
+		 * @return Boolean
 		 * 
 		 */
 		
-		public static function containsFont($value:String):Boolean
+		public static function containsFont($font:String):Boolean
 		{
-			if ($value)
+			if ($font)
 			{
-				var result:Boolean = FONTS[$value];
+				var result:Boolean = FONTS[$font];
 				if(!result)
 				{
 					var fonts:Array = Font.enumerateFonts(false);
 					for each (var font:Font in fonts)
 					{
 						FONTS[font.fontName] = true;
-						result = (font.fontName == $value);
+						result = (font.fontName == $font);
 						if (result) break;
 					}
 				}

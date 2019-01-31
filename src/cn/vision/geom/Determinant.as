@@ -40,10 +40,10 @@ package cn.vision.geom
 		 * 
 		 * @param ...$args 传入参数。
 		 */
-		protected function parse(...$args):void
+		public function parse(...$args):void
 		{
-			dirty = true;
 			var item:Array;
+			dirty = true;
 			if ($args[0] is Number) source = $args;
 			else if (source is Array)
 				for each(item in $args) source = source.concat(item);
@@ -123,7 +123,7 @@ package cn.vision.geom
 			{
 				dirty = false;
 				if (vs::dimension == 2)
-					vs::algebraSum = getNum(0, 0) * getNum(1, 1) - getNum(1, 0) * getNum(0, 1);
+					vs::algebraSum = source[0] *source[3] - source[2] * source[1];
 				else
 				{
 					vs::algebraSum = 0;
@@ -147,23 +147,12 @@ package cn.vision.geom
 		
 		
 		/**
-		 * 行列式的维度。
+		 * 行列式的度，行数或列数，行列式的行数和列数是相同的。
 		 */
 		public function get dimension():uint
 		{
 			return vs::dimension;
 		}
-		
-		
-		/**
-		 * @private
-		 */
-		vs var algebraSum:Number;
-		
-		/**
-		 * @private
-		 */
-		vs var dimension:uint;
 		
 		
 		/**
@@ -175,6 +164,17 @@ package cn.vision.geom
 		 * @private
 		 */
 		private var dirty:Boolean;
+		
+		
+		/**
+		 * @private
+		 */
+		vs var algebraSum:Number;
+		
+		/**
+		 * @private
+		 */
+		vs var dimension:uint;
 		
 	}
 }

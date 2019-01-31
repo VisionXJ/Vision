@@ -1,4 +1,4 @@
-﻿package cn.vision.geom.geom2d
+﻿package cn.vision.geom
 {
 	
 	import cn.vision.core.vs;
@@ -23,9 +23,8 @@
 		
 		/**
 		 * 构造函数，传入参数并解析成直线方程，
-		 * 如果不传入任何参数，则表示为X轴的直线y = 0。<br>
 		 * 
-		 * @copy cn.vision.geom.plane.Line#parse()
+		 * @copy cn.vision.geom.Line2D#parse()
 		 * 
 		 */
 		public function Line2D(...$args)
@@ -41,35 +40,24 @@
 		 * 1：传入A，B，C三个系数，构造Ax+By+C=0形式的直线方程；<br>
 		 * 2：传入k，b系数，构造y=kx+b形式的直线方程；<br>
 		 * 3：传入p1，p2两点构造直线方程；<br>
-		 * 4：传入x1，y1，x2，y2构造直线方程。
+		 * 4：传入x1，y1，x2，y2构造直线方程。<br>
+		 * 
+		 * 如果不传入任何参数，则是与X轴重合的直线 y=0。
 		 * 
 		 * @param ...$args 传入参数。
 		 * 
 		 */
 		override protected function parse(...$args):void
 		{
-			resolveLine($args);
-			resolveAngle();
-		}
-		
-		/**
-		 * 解析直线参数。
-		 * 
-		 * @param $args:Array 传入参数。
-		 * 
-		 */
-		protected function resolveLine($args:Array):void
-		{
 			switch ($args.length)
 			{
 				case 2 : resolveTwo($args[0], $args[1]); break;
-				case 3 : resolveABC($args[0], $args[1], $args[2]); break;
+				case 3 : resolveLine($args[0], $args[1], $args[2]); break;
 				case 4 : resolvePoints($args[0], $args[1], $args[2], $args[3]); break;
-				case 0 : break;
+				case 0 : resolveLine(0, 1, 0); break;
 				default: throw new ArgumentNumError(0, 2, 3, 4);
 			}
 		}
-		
 		
 		/**
 		 * @private
@@ -88,7 +76,7 @@
 		 */
 		private function resolvePoints($x1:Number, $y1:Number, $x2:Number, $y2:Number):void
 		{
-			resolveABC($y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1);
+			resolveLine($y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1);
 		}
 		
 		/**
@@ -98,8 +86,8 @@
 		{
 			($k == Number.POSITIVE_INFINITY || 
 			 $k == Number.NEGATIVE_INFINITY)
-				? resolveABC( 1, 0, -$p.x)
-				: resolveABC($k, 1, -$p.y + $k * $p.x);
+				? resolveLine( 1, 0, -$p.x)
+				: resolveLine($k, 1, -$p.y + $k * $p.x);
 		}
 		
 		/**
@@ -109,14 +97,14 @@
 		{
 			($k == Number.POSITIVE_INFINITY || 
 			 $k == Number.NEGATIVE_INFINITY)
-				? resolveABC(-1, 0, $b)
-				: resolveABC($k,-1, $b);
+				? resolveLine(-1, 0, $b)
+				: resolveLine($k,-1, $b);
 		}
 		
 		/**
 		 * @private
 		 */
-		private function resolveABC($A:Number, $B:Number, $C:Number):void
+		protected function resolveLine($A:Number, $B:Number, $C:Number):void
 		{
 			if ($A == 0 && $B == 0 && $C!= 0) throw new ArgumentInvalidError;
 			else
@@ -128,6 +116,8 @@
 				vs::C = $C;
 				vs::k = -vs::A / vs::B;
 				vs::b = -vs::C / vs::B;
+				
+				resolveAngle();
 			}
 		}
 		
@@ -168,7 +158,16 @@
 		{
 			const a:Number = $matrix.d * vs::A + $matrix.c * vs::B;
 			const b:Number = $matrix.b * vs::A + $matrix.a * vs::B;
-			resolveABC(a, b, vs::C -$matrix.tx * a - $matrix.ty * b);
+			resolveLine(a, b, vs::C -$matrix.tx * a - $matrix.ty * b);
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		public function toString():String
+		{
+			return "[" + A + "," + B + "," + C + "]";
 		}
 		
 		
@@ -188,7 +187,7 @@
 			if ($value!= vs::above0B)
 			{
 				vs::above0B = $value;
-				resolveABC(vs::A, vs::B, vs::C);
+				resolveLine(vs::A, vs::B, vs::C);
 			}
 		}
 		
@@ -249,7 +248,7 @@
 		 */
 		public function set A($value:Number):void
 		{
-			if ($value != vs::A) resolveABC($value, vs::B, vs::C);
+			if ($value != vs::A) resolveLine($value, vs::B, vs::C);
 		}
 		
 		
@@ -266,7 +265,7 @@
 		 */
 		public function set B($value:Number):void
 		{
-			if ($value != vs::B) resolveABC(vs::A, $value, vs::C);
+			if ($value != vs::B) resolveLine(vs::A, $value, vs::C);
 		}
 		
 		
@@ -283,7 +282,7 @@
 		 */
 		public function set C($value:Number):void
 		{
-			if ($value != vs::C) resolveABC(vs::A, vs::B, $value);
+			if ($value != vs::C) resolveLine(vs::A, vs::B, $value);
 		}
 		
 		

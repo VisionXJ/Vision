@@ -3,9 +3,10 @@ package cn.vision.utils
 	
 	import cn.vision.core.NoInstance;
 	
+	import flash.utils.Dictionary;
 	
 	/**
-	 * <code>ArrayUtil</code>定义了一些数组常用函数，也适用于Vector。
+	 * 定义了一些数组常用函数，也适用于Vector。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0
@@ -20,19 +21,18 @@ package cn.vision.utils
 		 * 删除数组中未定义的元素，不会构建新数组。
 		 * 
 		 * @param $array:* Array或Vector。
+		 * @param $empty:Boolean （default = false) 是否删除字符为空的元素。
 		 * 
 		 */
-		public static function normalize($array:*):void
+		public static function normalize($array:*, $empty:Boolean = false):void
 		{
-			if (validate($array))
+			var flag:uint = 0;
+			while (flag < $array.length)
 			{
-				var flag:uint = 0;
-				while (flag < $array.length)
-				{
-					if ($array[flag] == undefined)
-						$array.splice(flag, 1);
-					else flag++;
-				}
+				if ($array[flag] == undefined || 
+					($empty && StringUtil.empty($array[flag], true)))
+					$array.splice(flag, 1);
+				else flag++;
 			}
 		}
 		
@@ -47,15 +47,34 @@ package cn.vision.utils
 		 */
 		public static function move($array:*, $current:uint, $target:uint):void
 		{
-			if (validate($array))
-			{
-				var len:uint = $array.length - 1;
-				$current = Math.min($current, len);
-				$target  = Math.min($target , len);
-				var dir:String = $current < $target ? "negative" 
-					: ($target < $current ? "positive" : "");
-				ArrayUtil[dir] && ArrayUtil[dir]($array, $current, $target);
-			}
+			var len:uint = $array.length - 1;
+			$current = Math.min($current, len);
+			$target  = Math.min($target , len);
+			var dir:String = $current < $target ? "negative" 
+				: ($target < $current ? "positive" : "");
+			if (dir != "") ArrayUtil[dir]($array, $current, $target);
+		}
+		
+		/**
+		 * @private
+		 * Up2Down
+		 */
+		private static function negative($array:*, $current:uint, $target:uint):void
+		{
+			var t:* = $array[$current];
+			for (var i:int = $current; i < $target; i++) $array[i] = $array[i + 1];
+			$array[$target] = t;
+		}
+		
+		/**
+		 * @private
+		 * Down2Up
+		 */
+		private static function positive($array:*, $current:uint, $target:uint):void
+		{		
+			var t:* = $array[$current];
+			for (var i:int = $current; i > $target; i--) $array[i] = $array[i - 1];
+			$array[$target] = t;
 		}
 		
 		
@@ -71,20 +90,24 @@ package cn.vision.utils
 		 */
 		public static function push($array:*, ...$args):uint
 		{
-			if (validate($array))
-			{
-				if ($args)
-				{
-					var l:uint = $args.length;
-					if (l)
-					{
-						for (var i:int = 0; i < l; i++)
-							$array[$array.length] = $args[i];
-					}
-				}
-				var result:uint = $array.length;
-			}
-			return result;
+			for each(var item:* in $args) $array[$array.length] = item;
+			return $array.length;
+		}
+		
+		
+		/**
+		 * 将给定数组添加到原数组的结尾，并返回该数组的新长度。 <br>
+		 * 
+		 * @param $array:* Array或Vector。
+		 * @param $args 要追加到原数组中的一个数组。
+		 * 
+		 * @return uint 一个整数，表示该数组的新长度。
+		 * 
+		 */
+		public static function concat($array:*, $args:*):uint
+		{
+			for each (var item:* in $args) $array[$array.length] = item;
+			return $array.length;
 		}
 		
 		
@@ -101,26 +124,17 @@ package cn.vision.utils
 		public static function remove($array:*, $lazy:Boolean = true, ...$args):int
 		{
 			var result:int = -1;
-			if (validate($array))
+			for each (var item:* in $args)
 			{
-				for each (var item:* in $args)
+				var index:int = $array.indexOf(item);
+				while (index > -1)
 				{
-					var index:int = $array.indexOf(item);
-					if ($lazy)
-					{
-						if (index > -1) $array.splice(index, 1);
-					}
-					else
-					{
-						while (index > -1)
-						{
-							$array.splice(index, 1);
-							index = $array.indexOf(item);
-						}
-					}
+					$array.removeAt(index);
+					if ($lazy) break;
+					index = $array.indexOf(item);
 				}
-				result = $array.length;
 			}
+			result = $array.length;
 			return result;
 		}
 		
@@ -136,16 +150,13 @@ package cn.vision.utils
 		 */
 		public static function shift($array:*):*
 		{
-			if (validate($array))
+			var i:int = $array.length - 1;
+			if (i >= 0)
 			{
-				var i:int = $array.length - 1;
-				if (i >= 0)
-				{
-					$array.reverse();
-					var result:* = $array[i];
-					$array.length = i;
-					$array.reverse();
-				}
+				$array.reverse();
+				var result:* = $array[i];
+				$array.length = i;
+				$array.reverse();
 			}
 			return result;
 		}
@@ -161,19 +172,16 @@ package cn.vision.utils
 		 */
 		public static function unique($array:*):Array
 		{
-			if (validate($array))
+			var result:Array = [];
+			if ($array.length)
 			{
-				if ($array.length)
+				var a:Dictionary = new Dictionary, item:*;
+				for each (item in $array) 
 				{
-					var result:Array = [];
-					var a:Object = {};
-					for each (var item:uint in $array) 
+					if(!a[item])
 					{
-						if(!a[item]) 
-						{
-							a[item] = true;
-							result[result.length] = item;
-						}
+						a[item] = true;
+						result[result.length] = item;
 					}
 				}
 			}
@@ -194,22 +202,15 @@ package cn.vision.utils
 		 */
 		public static function unshift($array:*, ...$args):uint
 		{
-			if (validate($array))
+			var l:uint = $args.length, i:int;
+			if (l)
 			{
-				if ($args)
-				{
-					var l:uint = $args.length;
-					if (l)
-					{
-						$array.reverse();
-						for (var i:int = l - 1; i >= 0; i--)
-							$array[$array.length] = $args[i];
-						$array.reverse();
-					}
-				}
-				var result:uint = $array.length;
+				$array.reverse();
+				for (i = l - 1; i >= 0; i--)
+					$array[$array.length] = $args[i];
+				$array.reverse();
 			}
-			return result;
+			return $array.length;
 		}
 		
 		
@@ -223,11 +224,8 @@ package cn.vision.utils
 		 */
 		public static function validate($value:*):Boolean 
 		{
-			if ($value)
-			{
-				var result:Boolean = $value is Array;
-				if(!result) result = validateVector($value);
-			}
+			var result:Boolean = $value is Array;
+			if(!result) result = validateVector($value);
 			return  result;
 		}
 		
@@ -242,11 +240,8 @@ package cn.vision.utils
 		 */
 		public static function validateVector($value:*):Boolean
 		{
-			if ($value != null)
-			{
-				var type:String = ClassUtil.getClassName($value);
-				var result:Boolean = (type.length > 18 && type.slice(0, 19) == "__AS3__.vec::Vector");
-			}
+			var type:String = ClassUtil.getClassName($value);
+			var result:Boolean = (type.length > 18 && type.slice(0, 19) == "__AS3__.vec::Vector");
 			return  result;
 		}
 		
@@ -261,41 +256,23 @@ package cn.vision.utils
 		 */
 		public static function getVectorItemClass($value:*):Class
 		{
-			if ($value != null)
-			{
-				const name:String = ClassUtil.obtainInfomation($value).name;
-				if (!StringUtil.empty(name, true) && name.indexOf("__AS3__.vec::Vector") == 0)
-				{
-					const i:int = name.indexOf("<") + 1;
-					var result:Class = ClassUtil.getClassByName(name.substr(i, name.indexOf(">") - i));
-				}
-			}
-			return result;
+			const name:String = ClassUtil.obtainInfomation($value).name;
+			return ClassUtil.getClassByName(name.slice(name.indexOf("<") + 1, name.indexOf(">")));
 		}
 		
-		
 		/**
-		 * @private
-		 * Up2Down
+		 * 将Vector转为Array。
+		 * 
+		 * @param $value:Vector 要转换的Vector。
+		 * 
+		 * @return Array 转换后的Array。
+		 * 
 		 */
-		private static function negative($array:*, $current:uint, $target:uint):void
+		public static function vector2Array($value:*):Array
 		{
-			var t:* = $array[$current];
-			for (var i:int = $current; i < $target; i++)
-				$array[i] = $array[i + 1];
-			$array[$target] = t;
-		}
-		
-		/**
-		 * @private
-		 * Down2Up
-		 */
-		private static function positive($array:*, $current:uint, $target:uint):void
-		{		
-			var t:* = $array[$current];
-			for (var i:int = $current; i > $target; i--)
-				$array[i] = $array[i - 1];
-			$array[$target] = t;
+			var result:Array = [];
+			for (var i:int = 0, l:int = $value.length; i < l; i++) result[i] = $value[i];
+			return result;
 		}
 		
 	}

@@ -1,9 +1,13 @@
 package cn.vision.utils
 {
 	
+	
+	import cn.vision.core.NoInstance;
+	import cn.vision.utils.ClassUtil;
+	
+	
 	/**
-	 * 
-	 * <code>StringUtil</code>定义了一些常用字符串操作函数。
+	 * 定义了一些常用字符串操作函数。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0
@@ -11,12 +15,6 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	import cn.vision.utils.ClassUtil;
-	
-	
 	public final class StringUtil extends NoInstance
 	{
 		

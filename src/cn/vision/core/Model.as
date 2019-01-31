@@ -51,8 +51,8 @@ package cn.vision.core
 		 */
 		public function execute($command:Command, $useQueue:Boolean = true):void
 		{
-			if (Presenter.presenter)
-				Presenter.presenter.execute($command, $useQueue);
+			if (presenter)
+				presenter.execute($command, $useQueue);
 		}
 		
 		
@@ -104,6 +104,15 @@ package cn.vision.core
 		public function retrieveModel($name:String):Model
 		{
 			return ModelManager.retrieveModel($name);
+		}
+		
+		
+		/**
+		 * 获取处理器引用。
+		 */
+		protected function get presenter():Presenter
+		{
+			return Presenter.presenter;
 		}
 		
 		

@@ -1,9 +1,14 @@
 ﻿package cn.vision.utils
 {
 	
+	import cn.vision.consts.MathConsts;
+	import cn.vision.core.NoInstance;
+	import cn.vision.core.vs;
+	
+	import flash.geom.Point;
+	
 	/**
-	 * 
-	 * <code>MathUtil</code>定义了一些常用数学函数。
+	 * 定义了一些常用数学函数。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0
@@ -11,15 +16,6 @@
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.consts.MathConsts;
-	import cn.vision.core.NoInstance;
-	import cn.vision.core.vs;
-	
-	import flash.geom.Point;
-	
-	
 	public final class MathUtil extends NoInstance
 	{
 		
@@ -38,7 +34,7 @@
 		
 		
 		/**
-		 * 判断$value是否介于$num1和$num2之间。(即 $value∈[min, max]是否成立。)
+		 * 判断$value是否介于$num1和$num2之间。
 		 * 
 		 * @param $value:Number 需要被判定的数。
 		 * @param $num1:Number 第一个数。
@@ -89,19 +85,18 @@
 		 * 范围取值。
 		 * 
 		 * @param $value:Number 需要限制的数值。
-		 * @param $min:Number 最小值。
-		 * @param $max:Number 最大值。
-		 * 
+		 * @param $num1:Number 限制区间第一个数，不区分前后顺序。
+		 * @param $num2:Number 限制区间第一个数，不区分前后顺序。
 		 * 
 		 * @return Number 返回的数值。
 		 * 
 		 */
 		
-		public static function clamp($value:Number, $min:Number, $max:Number):Number
+		public static function clamp($value:Number, $num1:Number, $num2:Number):Number
 		{
-			if ($value < $min) $value = $min;
-			if ($value > $max) $value = $max;
-			return $value;
+			var min:Number = $num1 < $num2 ? $num1 : $num2;
+			var max:Number = $num1 < $num2 ? $num2 : $num1;
+			return $value < min ? min : ($value > max ? max : $value);
 		}
 		
 		
@@ -128,17 +123,18 @@
 		 * 
 		 * @param $a:Number 第一个数值。
 		 * @param $b:Number 第二个数值。
-		 * @param $accuracy:uint (default = 0) 需要判断的精度，0表示则不规范精度。
+		 * @param $accuracy:int (default = -1) 需要判断的精度，0表示四舍五入整数比较，-1表示绝对相等。
 		 * 
 		 * @return Boolean
 		 * 
 		 */
 		
-		public static function equal($a:Number, $b:Number, $accuracy:uint = 0):Boolean
+		public static function equal($a:Number, $b:Number, $accuracy:int = -1):Boolean
 		{
 			var f:Number = Math.pow(10, $accuracy);
-			return (f == 1) ? ($a == $b) : (int(abs($a - $b) * f) == 0);
+			return ($accuracy==-1)?($a==$b):(f == 1) ? (Math.round($a) == Math.round($b)) : (int(abs($a - $b) * f) == 0);
 		}
+		
 		
 		
 		/**
@@ -252,10 +248,25 @@
 		 * 
 		 */
 		
-		public static function moduloAngle($angle:Number):Number
+		public static function moduloAngle($angle:Number, $radian:Boolean = false):Number
 		{
-			$angle = $angle % 360;
-			return  ($angle < 0) ? 360 + $angle : $angle;
+			var m:Number = $radian ? Math.PI * 2 : 360;
+			$angle = $angle % m;
+			$angle =($angle < 0) ? m + $angle : $angle;
+			return $angle;
+		}
+		
+		
+		/**
+		 * 将数值单位化成1，0，-1的单位整数。
+		 * 
+		 * @param $value:Number 要单位化的数值。
+		 * @param $zero:Boolean (default = false) 是否包含0。
+		 * 
+		 */
+		public static function normal($value:Number, $zero:Boolean = false):int
+		{
+			return $value < 0 ? -1 : ($zero ? ($value == 0 ? 0 : 1) : 1);
 		}
 		
 		
@@ -272,6 +283,35 @@
 		public static function radianToAngle($radian:Number):Number
 		{
 			return MathConsts.vs::ANGLE_MOD_PI * $radian;
+		}
+		
+		
+		/**
+		 *  $value∈[min, max]是否成立。
+		 * 
+		 * @param $value:Number 要检测的数值。
+		 * @param $min:Number 区间最小值。
+		 * @param $max:Number 区间最大值。
+		 * @param $left:Boolean (default = false) 区间左侧开闭情况，true为闭，false为开。
+		 * @param $right:Boolean (default = false) 区间右侧开闭情况，true为闭，false为开。
+		 * 
+		 */
+		public static function range($value:Number, $min:Number, $max:Number, $left:Boolean = true, $right:Boolean = false):Boolean
+		{
+			return  ($value > $min || ($left  && $value == $min)) && 
+					($value < $max || ($right && $value == $max));
+		}
+		
+		/**
+		 * $value是否等于0
+		 * 
+		 * @param $value:Number 要检测的数值。
+		 * @param $precision:Number 精度。
+		 * 
+		 */		
+		public static function isZero($value:Number, $precision:Number = 0.001):Boolean
+		{
+			return abs($value) < $precision;
 		}
 		
 	}

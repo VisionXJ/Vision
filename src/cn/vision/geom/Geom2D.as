@@ -1,4 +1,4 @@
-﻿package cn.vision.geom.geom2d
+﻿package cn.vision.geom
 {
 	import cn.vision.core.VSObject;
 	import cn.vision.errors.AbstractError;
@@ -27,10 +27,23 @@
 		public function Geom2D(...$args)
 		{
 			super();
-			
-			while ($args.length == 1 && $args[0] is Array) $args = $args[0];
-			
+			$args = resolveArgs($args);
 			parse.apply(null, $args);
+		}
+		
+		
+		/**
+		 * 对参数数组的嵌套进行反解析。
+		 * 
+		 * @param $args:Array
+		 * 
+		 * @return Array
+		 * 
+		 */
+		protected function resolveArgs($args:Array):Array
+		{
+			while ($args.length == 1 && $args[0] is Array) $args = $args[0];
+			return $args;
 		}
 		
 		

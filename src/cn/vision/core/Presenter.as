@@ -1,6 +1,7 @@
 package cn.vision.core
 {
 	
+	import cn.vision.errors.PresenterStartedError;
 	import cn.vision.errors.UnavailableError;
 	import cn.vision.events.QueueEvent;
 	import cn.vision.events.RevocableQueueEvent;
@@ -8,6 +9,8 @@ package cn.vision.core
 	import cn.vision.queue.RevokableCommandQueue;
 	import cn.vision.utils.ArrayUtil;
 	import cn.vision.utils.ClassUtil;
+	
+	[Bindable]
 	
 	/**
 	 * Application流程控制处理类。<br>
@@ -21,6 +24,15 @@ package cn.vision.core
 	 */
 	public class Presenter extends VSObject
 	{
+		
+		/**
+		 * 获取presenter实例。
+		 */
+		public static function get presenter():Presenter
+		{
+			return Presenter.vs::presenter;
+		}
+		
 		
 		/**
 		 * 构造函数。
@@ -90,7 +102,17 @@ package cn.vision.core
 		
 		
 		/**
+		 * 清空命令队列。
+		 */
+		public function clear():void
+		{
+			queue.clear();
+		}
+		
+		
+		/**
 		 * 启动application调用此函数。
+		 * 一个APP只能调用一次该方法，如果要定义第二个Presenter，请重写此方法，并调用setup函数。
 		 * 
 		 * @param $app:* 主程序实例。
 		 * @param ...$args 其他需要传入的参数。
@@ -105,15 +127,7 @@ package cn.vision.core
 				app = $app;
 				setup.apply(null, $args);
 			}
-		}
-		
-		
-		/**
-		 * 获取presenter实例。
-		 */
-		internal static function get presenter():Presenter
-		{
-			return Presenter.vs::presenter;
+			else throw new PresenterStartedError(this);
 		}
 		
 		

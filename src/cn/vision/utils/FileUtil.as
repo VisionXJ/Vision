@@ -28,5 +28,20 @@ package cn.vision.utils
 			return index > -1 ? $url.substr(index + 1).toLowerCase() : null;
 		}
 		
+		/**
+		 * 根据文件路径获取文件名。
+		 * 
+		 * @param $url:String 文件路径。
+		 * 
+		 * @return String 文件名。
+		 * 
+		 */
+		public static function getName($url:String):String
+		{
+			$url = $url.split("\\").join("/");
+			var index:int = $url.lastIndexOf("/");
+			return $url.substr(index + 1);
+		}
+		
 	}
 }

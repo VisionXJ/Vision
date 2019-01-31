@@ -14,6 +14,7 @@ package cn.vision.utils
 	
 	
 	import cn.vision.core.NoInstance;
+	import cn.vision.core.vs;
 	
 	import flash.utils.Dictionary;
 	import flash.utils.describeType;
@@ -26,8 +27,7 @@ package cn.vision.utils
 	{
 		
 		/**
-		 * 
-		 * 获取类的实例，类构造函数最多支持9个参数。
+		 * 获取类的实例，类构造函数最多支持20个参数。
 		 * 
 		 * @param $class:Class 要创建实例的类。
 		 * @param ...$args 相关参数。
@@ -35,7 +35,6 @@ package cn.vision.utils
 		 * @return * 返回相关实例。
 		 * 
 		 */
-		
 		public static function construct($class:Class, ...$args):*
 		{
 			var result:*, l:int;
@@ -46,21 +45,61 @@ package cn.vision.utils
 				{
 					switch(l)
 					{
-						case 1: result = new $class($args[0]); break;
-						case 2: result = new $class($args[0], $args[1]); break;
-						case 3: result = new $class($args[0], $args[1], $args[2]); break;
-						case 4: result = new $class($args[0], $args[1], $args[2], $args[3]); break;
-						case 5: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4]); break;
-						case 6: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]); break;
-						case 7: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]); break;
-						case 8: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7]); break;
-						case 9: result = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7], $args[8]); break;
+						case 1 : result = new $class($args[0]); break;
+						case 2 : result = new $class($args[0], $args[1]); break;
+						case 3 : result = new $class($args[0], $args[1], $args[2]); break;
+						case 4 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3]); break;
+						case 5 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4]); break;
+						case 6 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5]); break;
+						case 7 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6]); break;
+						case 8 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7]); break;
+						case 9 : result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7], $args[8]); break;
+						case 10: result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7], 
+							$args[8], $args[9]); break;
+						case 11: result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7], 
+							$args[8], $args[9], $args[10]); break;
+						case 12: result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7], 
+							$args[8], $args[9], $args[10], $args[11]); break;
+						case 13: result = new $class($args[0], $args[1], 
+							$args[2], $args[3], $args[4], $args[5], $args[6], $args[7], 
+							$args[8], $args[9], $args[10], $args[11], $args[12]); break;
+						case 14: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13]); break;
+						case 15: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], $args[14]); break;
+						case 16: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], 
+							$args[14], $args[15]); break;
+						case 17: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], 
+							$args[14], $args[15], $args[16]); break;
+						case 18: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], 
+							$args[14], $args[15], $args[16], $args[17]); break;
+						case 19: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], 
+							$args[14], $args[15], $args[16], $args[17], $args[18]); break;
+						case 20: result = new $class($args[0], $args[1], 
+							$args[2 ], $args[3 ], $args[4 ], $args[5 ], $args[6 ], $args[7 ], 
+							$args[8 ], $args[9 ], $args[10], $args[11], $args[12], $args[13], 
+							$args[14], $args[15], $args[16], $args[17], $args[18], $args[19]); break;
 					}
-				}
-				else
-				{
-					result = new $class;
-				}
+				} else result = new $class;
 			} catch (e:Error) { }
 			
 			return result;
@@ -68,15 +107,13 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 获取对象的类。
 		 * 
 		 * @param $value 需要返回类的对象。
 		 * 
-		 * @return <code>Class</code>
+		 * @return Class
 		 * 
 		 */
-		
 		public static function getClass($value:*):Class
 		{
 			return getClassByName(getClassName($value));
@@ -84,33 +121,33 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 根据完全限定名获取对象的类。
 		 * 
 		 * @param $qualifiedName:String 完全限定名。
 		 * 
-		 * @return <code>Class</code>
+		 * @return Class
 		 * 
 		 */
-		
 		public static function getClassByName($qualifiedName:String):Class
 		{
-			if ($qualifiedName) CLASS_DIC[$qualifiedName] = CLASS_DIC[$qualifiedName] || getDefinitionByName($qualifiedName);
+			if ($qualifiedName) 
+			{
+				CLASS_DIC[$qualifiedName] = 
+					CLASS_DIC[$qualifiedName] || getDefinitionByName($qualifiedName);
+			}
 			return CLASS_DIC[$qualifiedName];
 		}
 		
 		
 		/**
-		 * 
 		 * 获取对象的类名称。
 		 * 
 		 * @param $value 需要类名称的对象。
 		 * @param $qualified(default = true) 是否返回完全限定类名，默认为true。
 		 * 
-		 * @return <code>String</code>
+		 * @return String
 		 * 
 		 */
-		
 		public static function getClassName($value:*, $qualified:Boolean = true):String
 		{
 			if ($value != null)
@@ -137,46 +174,27 @@ package cn.vision.utils
 		}
 		
 		
-		
 		/**
 		 * 获取实例属性对应的类。
 		 * 
 		 * @param $value:* 需要获取
 		 * 
-		 * @return <code>String</code>
+		 * @return String
 		 * 
 		 */
-		
 		public static function getPropertyClass($value:*, $property:String):Class
 		{
-			var info:Object = obtainInfomation($value), item:Object;
-			if (info.variable)
-			{
-				for each (item in info.variable)
-				{
-					if (item.name == $property)
-						return ClassUtil.getClassByName(item.type);
-				}
-			}
-			if (info.accessor)
-			{
-				for each (item in info.accessor)
-				{
-					if (item.access != "readonly" && item.name == $property) 
-						return ClassUtil.getClassByName(item.type);
-				}
-			}
-			return null;
+			return vs::getPropertyClassByInfo(obtainInfomation($value), $property);
 		}
 		
 		
 		/**
 		 * 返回函数名。<br>
-		 * 注意该方法只在debugger模式下可用。
+		 * 注：该方法只在debugger模式下可用。
 		 * 
 		 * @param $value:Function 需要名称的函数对象。
 		 * 
-		 * @return <code>String</code>
+		 * @return String
 		 * 
 		 */
 		public static function getFunctionName($value:Function):String
@@ -203,9 +221,9 @@ package cn.vision.utils
 		 * 返回对象的父类名。
 		 * 改方法会根据层级返回父类名，并将所有父类名以数组的方式返回。
 		 * 
-		 * @param $value 需要返回父类名的对象。
-		 * @param $qualified (default = false) 是否要返回完全限定类名，默认为false。
-		 * @param $level (default = 1) 父级类名层级，默认为1级。如果level = 0，不会限制父级层级，
+		 * @param $value:* 需要返回父类名的对象。
+		 * @param $qualified:Boolean (default = false) 是否要返回完全限定类名，默认为false。
+		 * @param $level:uint (default = 1) 父级类名层级，默认为1级。如果level = 0，不会限制父级层级，
 		 * 将遍历至基类Object；如果大于0，会遍历至限定的层级；如果限定层级大于该对象最大父级层级，
 		 * 只会遍历至Object，默认为1。
 		 * 
@@ -221,9 +239,7 @@ package cn.vision.utils
 			while ($level >= 0 && n) 
 			{
 				if(!$qualified) i = n.indexOf("::");
-				v.push((i == -1)
-					? n
-					: n.substr(i + 2));
+				v[v.length] = (i == -1 ? n : n.substr(i + 2));
 				if ($level != 1) 
 				{
 					n = getQualifiedSuperclassName(getDefinitionByName(n));
@@ -251,15 +267,13 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 检测某个值是否为元数据类型，而不是对象引用。
 		 * 
 		 * @param $value:* 要检测的对象。
 		 * 
-		 * @return <code>Boolean</code> true为元数据类型，false为非元数据。
+		 * @return Boolean true为元数据类型，false为非元数据。
 		 * 
 		 */
-		
 		public static function validateMetadata($value:*):Boolean
 		{
 			return METADATA[getClassName($value)];
@@ -267,15 +281,13 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 根据类名检测某个类型是否为元数据类型，而不是对象引用。
 		 * 
 		 * @param $className:String 要检测的对象。
 		 * 
-		 * @return <code>Boolean</code> true为元数据类型，false为非元数据。
+		 * @return Boolean true为元数据类型，false为非元数据。
 		 * 
 		 */
-		
 		public static function validateMetadataByClassName($className:String):Boolean
 		{
 			return METADATA[$className];
@@ -283,16 +295,14 @@ package cn.vision.utils
 		
 		
 		/**
-		 * 
 		 * 检测某个类是否为另一类的子类。
 		 * 
 		 * @param $value 要检测的对象。
 		 * @param $superClass 要检测是否为子类对象的父类。
 		 * 
-		 * @return <code>Boolean</code> true是子类，false不是子类。
+		 * @return Boolean true是子类，false不是子类。
 		 * 
 		 */
-		
 		public static function validateSubclass($value:Class, $super:Class):Boolean
 		{
 			if ($super == Object)
@@ -312,6 +322,47 @@ package cn.vision.utils
 				}
 				return false;
 			}
+		}
+		
+		
+		vs static function getPropertyClassByInfo($info:Object, $property:String):Class
+		{
+			var item:Object;
+			if ($info.variable)
+			{
+				if (ArrayUtil.validate($info.variable))
+				{
+					for each (item in $info.variable)
+					{
+						if (item.name == $property)
+							return ClassUtil.getClassByName(item.type);
+					}
+				}
+				else
+				{
+					item = $info.variable;
+					if (item.name == $property)
+						return ClassUtil.getClassByName(item.type);
+				}
+			}
+			if ($info.accessor)
+			{
+				if (ArrayUtil.validate($info.accessor))
+				{
+					for each (item in $info.accessor)
+					{
+						if (item.access != "readonly" && item.name == $property) 
+							return ClassUtil.getClassByName(item.type);
+					}
+				}
+				else
+				{
+					item = $info.accessor;
+					if (item.access != "readonly" && item.name == $property) 
+						return ClassUtil.getClassByName(item.type);
+				}
+			}
+			return null;
 		}
 		
 		

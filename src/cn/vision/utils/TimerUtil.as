@@ -15,7 +15,6 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
 	public final class TimerUtil extends NoInstance
 	{
 		
@@ -41,12 +40,10 @@ package cn.vision.utils
 			if($delay && ($tick!= null || $complete!= null))
 			{
 				var timer:Timer = new Timer($delay * 1000, $repeat);
-				
 				if ($tick!= null)
 					timer.addEventListener(TimerEvent.TIMER, $tick);
 				if ($repeat && $complete!= null)
 					timer.addEventListener(TimerEvent.TIMER_COMPLETE, $complete);
-				
 				if ($start) timer.start();
 			}
 			return timer;

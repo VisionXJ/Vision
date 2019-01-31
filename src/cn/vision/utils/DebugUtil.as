@@ -1,6 +1,8 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
 	/**
 	 * 
 	 * DebugUtil定义了一些测试常用函数。
@@ -11,10 +13,6 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	
 	public final class DebugUtil extends NoInstance
 	{
 		

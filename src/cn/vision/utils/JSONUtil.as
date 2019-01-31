@@ -1,9 +1,10 @@
 package cn.vision.utils
 {
 	
+	import cn.vision.core.NoInstance;
+	
 	/**
-	 * 
-	 * <code>JSONUtil</code>定义了一些JSON操作函数。
+	 * JSONUtil定义了一些JSON操作函数。
 	 * 
 	 * @author exyjen
 	 * @langversion 3.0
@@ -11,16 +12,10 @@ package cn.vision.utils
 	 * @productversion vision 1.0
 	 * 
 	 */
-	
-	
-	import cn.vision.core.NoInstance;
-	
-	
 	public final class JSONUtil extends NoInstance
 	{
 		
 		/**
-		 * 
 		 * 验证是否为JSON格式字符串。
 		 * 
 		 * @param $value:* 验证的字符串。
@@ -28,7 +23,6 @@ package cn.vision.utils
 		 * @return Boolean 是否为JSON格式字符串。
 		 * 
 		 */
-		
 		public static function validate($value:String):Boolean
 		{
 			var c:String = $value.charAt(0);

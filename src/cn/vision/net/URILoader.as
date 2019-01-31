@@ -55,6 +55,7 @@ package cn.vision.net
 		{
 			request = $request;
 			super($request);
+			initialize();
 		}
 		
 		/**
@@ -70,7 +71,6 @@ package cn.vision.net
 		/**
 		 * @inheritDoc
 		 */
-		
 		override public function load($request:URLRequest):void
 		{
 			vs::loading = true;

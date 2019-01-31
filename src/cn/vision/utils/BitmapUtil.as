@@ -18,9 +18,9 @@ package cn.vision.utils
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.IBitmapDrawable;
-//	import flash.display.JPEGEncoderOptions;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
 	
@@ -62,6 +62,29 @@ package cn.vision.utils
 			var bmd:BitmapData = new BitmapData($width, $height, $transparent, $fillColor);
 			bmd.draw($source, $matrix, $colorTransform, $blendMode, $clipRect, $smoothing);
 			return bmd;
+		}
+		
+		
+		/**
+		 * 生成透明通道贴图，透明度为0会转换为黑色，透明度为1会转换为白色。
+		 * 
+		 * @param $bmd:BitmapData 要转换的位图。
+		 * 
+		 * @return BitmapData 透明通道BitmapData。
+		 * 
+		 */
+		public static function generateTransparentChannel($bmd:BitmapData):BitmapData
+		{
+			var result:BitmapData = new BitmapData($bmd.width, $bmd.height, false, 0);
+			var rect:Rectangle = new Rectangle(0, 0, $bmd.width, $bmd.height);
+			var pixels:Vector.<uint> = $bmd.getVector(rect);
+			for (var i:int = 0, l:int = pixels.length; i < l; i++)
+			{
+				var alpha:uint = ColorUtil.getAlpha(pixels[i]);
+				pixels[i] = ColorUtil.join(alpha, alpha, alpha);
+			}
+			result.setVector(rect, pixels);
+			return result;
 		}
 		
 		

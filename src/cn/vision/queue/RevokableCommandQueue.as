@@ -11,38 +11,29 @@ package cn.vision.queue
 	
 	
 	/**
-	 * 
 	 * 撤销开始时派发此事件。
-	 * 
 	 */
-	
 	[Event(name="undoStart", type="cn.vision.events.RevocableQueueEvent")]
 	
 	
 	/**
-	 * 
 	 * 撤销结束时派发此事件。
-	 * 
 	 */
-	
 	[Event(name="undoEnd", type="cn.vision.events.RevocableQueueEvent")]
 	
 	
 	/**
-	 * 
 	 * 重做开始时派发此事件。
-	 * 
 	 */
-	
 	[Event(name="redoStart", type="cn.vision.events.RevocableQueueEvent")]
 	
 	
 	/**
-	 * 
 	 * 重做结束时派发此事件。
 	 * 
+	 * @default redoEnd
+	 * 
 	 */
-	
 	[Event(name="redoEnd", type="cn.vision.events.RevocableQueueEvent")]
 	
 	
@@ -66,6 +57,18 @@ package cn.vision.queue
 			super();
 			
 			initialize();
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function clear():void
+		{
+			super.clear();
+			
+			commandsUndo.length = 0;
+			commandsRedo.length = 0;
 		}
 		
 		
@@ -108,6 +111,7 @@ package cn.vision.queue
 				command.addEventListener(CommandEvent.COMMAND_END, command_redoEndHandler);
 				command.redo();
 			}
+			
 		}
 		
 		
@@ -269,11 +273,8 @@ package cn.vision.queue
 		
 		
 		/**
-		 * 
 		 * 重做历史队列长度。
-		 * 
 		 */
-		
 		public function get redoHistoryLength():uint
 		{
 			return commandsRedo.length;
@@ -281,11 +282,8 @@ package cn.vision.queue
 		
 		
 		/**
-		 * 
 		 * 队列能否继续执行撤销。
-		 * 
 		 */
-		
 		public function get undoable():Boolean
 		{
 			return commandsUndo.length > 0;
@@ -293,11 +291,8 @@ package cn.vision.queue
 		
 		
 		/**
-		 * 
 		 * 队列能否继续执行重做。
-		 * 
 		 */
-		
 		public function get redoable():Boolean
 		{
 			return commandsRedo.length > 0;

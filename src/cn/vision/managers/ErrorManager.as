@@ -84,9 +84,16 @@ package cn.vision.managers
 				registError(ArgumentInvalidError);
 				registError(ArgumentDateError);
 				registError(ArgumentNotSubClassError);
+				registError(ArgumentStringLengthError);
+				registError(ArgumentArcError);
+				registError(ArgumentArcRadiusUnequalError);
+				registError(ArgumentCircleRLargerZeroError);
+				registError(ArgumentEllispeUnverticalError);
+				registError(IndexOutOfRangeError);
 				registError(UnavailableError);
 				registError(DestroyNotEmptiedError);
 				registError(DestroyQueueExecutingError);
+				registError(PolygonVertexError);
 			}
 			return true;
 		}
